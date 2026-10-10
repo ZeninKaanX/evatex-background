@@ -1,4 +1,12 @@
-# Astral 1.8.1 validation
+# Astral 1.8.2 validation
+
+## Menu shortcut update
+
+The 1.8.2 change moves the native and Atlas title shortcuts to the top centre. Native labels use Minecraft font height. Atlas explicitly overrides local button alignment, padding and rounding, restoring every style variable and colour after drawing. Placement uses window dimensions and GUI scale and does not inspect launcher paths.
+
+The previous release’s playback validation is recorded below. The full 24-version game matrix applies to 1.8.1; 1.8.2 uses targeted menu checks plus compilation and package verification across all 24 adapters. Full compatibility with every launcher or unrelated custom-menu mod has not been established.
+
+## Playback validation retained from 1.8.1
 
 The local test host is Linux x64 with Java 21/25 and Fabric Loader 0.19.5. Clients run in isolated directories on the right, secondary display. Test helpers and personal media are excluded from distribution jars.
 

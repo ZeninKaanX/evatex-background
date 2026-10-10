@@ -1,3 +1,10 @@
+# 1.8.2 — Clean menu shortcut
+
+- Move Video Menu to the top centre in Minecraft and Atlas Client 3.0.3.
+- Centre the native label using Minecraft font height.
+- Give the Atlas shortcut explicit local padding, alignment and rounding; restore every style override after drawing.
+- Scale shortcut placement with the game window and GUI scale, independently of launcher installation paths.
+
 # 1.8.1 — Playback and desktop compatibility
 
 - Own Astral volume slider with live 0–100% software gain, portable across audio devices; global system/game volume remains independent.

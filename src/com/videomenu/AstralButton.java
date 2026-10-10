@@ -28,6 +28,6 @@ public final class AstralButton extends class_4185 {
         if (selected) context.method_25294(x+1, y+1, x+3, y+h-1, palette.accent());
         var font = class_310.method_1551().field_1772;
         String label = font.method_27523(method_25369().getString(), Math.max(0, w-14));
-        context.method_25300(font, label, x+w/2, y+(h-8)/2, !field_22763 ? 0xFF777777 : palette.text());
+        context.method_25300(font, label, x+w/2, y+(h-font.field_2000)/2, !field_22763 ? 0xFF777777 : palette.text());
     }
 }

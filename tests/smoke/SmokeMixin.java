@@ -55,6 +55,14 @@ public abstract class SmokeMixin {
         evatexqa$ticks=0;
         System.out.println("EVATEX_QA stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+VideoBackground.INSTANCE.status());
         if (evatexqa$stage<8 && !VideoBackground.INSTANCE.status().equals("playing")) throw new AssertionError("Video did not continue in menu");
+        if (client.field_1755 instanceof class_442) {
+            for (var child : client.field_1755.method_25396()) {
+                if (child instanceof com.videomenu.AstralButton button && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("evatex.title").getString())) {
+                    if (Math.abs(button.method_46426()+button.method_25368()/2-client.field_1755.field_22789/2)>1 || button.method_46427()!=6)
+                        throw new AssertionError("Video Menu shortcut is not top-centred");
+                }
+            }
+        }
         if (evatexqa$stage==8 && !VideoBackground.INSTANCE.status().equals("idle")) throw new AssertionError("Disabled video kept playing");
         if (evatexqa$stage==1 && System.getProperty("evatex.qa.language","tr_tr").equals("tr_tr") && !net.minecraft.class_2561.method_43471("evatex.title").getString().equals("Video Menüsü")) throw new AssertionError("Turkish translations not loaded");
         evatexqa$capture(client, "stage-"+evatexqa$stage);

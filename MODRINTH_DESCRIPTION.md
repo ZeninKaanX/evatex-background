@@ -25,7 +25,7 @@ Common formats include MP4, WebM, MKV, MOV and AVI. Sound is muted by default; e
 
 ## Compatibility
 
-EVATEX 1.8.1 provides separate Fabric builds for all 24 stable Minecraft Java Edition releases from **1.20 through 26.3**. Install one matching jar at a time.
+EVATEX 1.8.2 provides separate Fabric builds for all 24 stable Minecraft Java Edition releases from **1.20 through 26.3**. Install one matching jar at a time.
 
 | Minecraft | Java |
 | --- | --- |

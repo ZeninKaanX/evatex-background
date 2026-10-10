@@ -27,6 +27,16 @@ public final class AtlasCompatibility {
         static final Method END = method(GUI, "end");
         static final Method PUSH = method(GUI, "pushStyleColor", int.class, int.class);
         static final Method POP = method(GUI, "popStyleColor", int.class);
+        static final Method PUSH_VECTOR = method(GUI, "pushStyleVar", int.class, float.class, float.class);
+        static final Method PUSH_FLOAT = method(GUI, "pushStyleVar", int.class, float.class);
+        static final Method POP_VARS = method(GUI, "popStyleVar", int.class);
+        static final Method FONT_SIZE = method(GUI, "getFontSize");
+        static final int WINDOW_PADDING = style("WindowPadding"), FRAME_PADDING = style("FramePadding"),
+            BUTTON_ALIGN = style("ButtonTextAlign"), FRAME_ROUNDING = style("FrameRounding");
+        private static int style(String name) {
+            try { return find("imgui.flag.ImGuiStyleVar").getField(name).getInt(null); }
+            catch (ReflectiveOperationException e) { throw new IllegalStateException(e); }
+        }
         static final int TEXT = color("Text"), BUTTON_COLOR = color("Button"), HOVER = color("ButtonHovered"), ACTIVE = color("ButtonActive");
         private static int color(String name) {
             try { return find("imgui.flag.ImGuiCol").getField(name).getInt(null); }
@@ -78,21 +88,32 @@ public final class AtlasCompatibility {
         if (!isCustomUi() || !(mc.field_1755 instanceof class_442)) return;
         try {
             float width = mc.method_22683().method_4480();
-            Api.POS.invoke(null, Math.max(8, width-190), 80f);
-            Api.SIZE.invoke(null, 176f, 40f);
+            // Atlas uses window pixels; Minecraft widgets use GUI-scaled coordinates.
+            // Keep the same top-centre anchor without overlapping the account card.
+            float scale = Math.max(1f, width / Math.max(1, mc.method_22683().method_4486()));
+            float buttonWidth = Math.min(Math.max(160f, 130f * scale), Math.max(32f, width * .4f));
+            float fontSize = ((Number)Api.FONT_SIZE.invoke(null)).floatValue();
+            float buttonHeight = Math.max(fontSize + 16f, Math.min(48f, 20f * scale));
+            Api.POS.invoke(null, (width-buttonWidth)/2f, Math.max(8f, 6f * scale));
+            Api.SIZE.invoke(null, buttonWidth, buttonHeight);
             // No title bar, resize, move, scrollbar, saved layout or window background.
-            int pushed = 0;
+            int pushed = 0, variables = 0;
             try {
                 int[] roles = {Api.TEXT, Api.BUTTON_COLOR, Api.HOVER, Api.ACTIVE};
                 int[] colors = {0xFFF2F2F2, 0xFF252525, 0xFF484848, 0xFF626262};
                 for (int i=0; i<roles.length; i++) { Api.PUSH.invoke(null, roles[i], colors[i]); pushed++; }
+                // Explicit local overrides: Atlas style must not shift our label.
+                Api.PUSH_VECTOR.invoke(null, Api.WINDOW_PADDING, 0f, 0f); variables++;
+                Api.PUSH_VECTOR.invoke(null, Api.FRAME_PADDING, 8f, 4f); variables++;
+                Api.PUSH_VECTOR.invoke(null, Api.BUTTON_ALIGN, .5f, .5f); variables++;
+                Api.PUSH_FLOAT.invoke(null, Api.FRAME_ROUNDING, 6f); variables++;
             boolean visible = (boolean)Api.BEGIN.invoke(null, "##EVATEX-video-menu", 1|2|4|8|16|32|128|256);
             try {
-                if (visible && (boolean)Api.BUTTON.invoke(null, class_2561.method_43471("evatex.title").getString(), 160f, 24f)) {
+                if (visible && (boolean)Api.BUTTON.invoke(null, class_2561.method_43471("evatex.title").getString(), buttonWidth, buttonHeight)) {
                     Api.AFTER.invoke(null, (Runnable)() -> mc.method_1507(new VideoSelectScreen(mc.field_1755, 0)));
                 }
             } finally { Api.END.invoke(null); }
-            } finally { if (pushed > 0) Api.POP.invoke(null, pushed); }
+            } finally { try { if (variables > 0) Api.POP_VARS.invoke(null, variables); } finally { if (pushed > 0) Api.POP.invoke(null, pushed); } }
         } catch (ReflectiveOperationException | LinkageError e) { fail(e); }
     }
     private static void fail(Throwable e) {
