@@ -16,6 +16,12 @@ if (folder/'ffmpeg.gz').exists():
 os.environ['PATH']=str(folder)+os.pathsep+os.environ['PATH']
 subprocess.run([sys.executable,str(ROOT/'scripts/build.py'),'--minecraft','1.21.11','--system-ffmpeg'],check=True)
 subprocess.run(['ffmpeg','-version'],check=True)
+if system=='Windows':
+    filters=subprocess.check_output(['ffmpeg','-hide_banner','-filters'],text=True,stderr=subprocess.STDOUT)
+    accelerators=subprocess.check_output(['ffmpeg','-hide_banner','-hwaccels'],text=True,stderr=subprocess.STDOUT)
+    assert 'scale_d3d11' in filters and 'd3d11va' in accelerators,'Pinned Windows engine must expose the GPU path'
+    print('PASS pinned Windows D3D11 decoder/scaler capabilities (physical GPU still required)',flush=True)
+
 result=subprocess.run([sys.executable,str(ROOT/'scripts/test.py'),'--minecraft','1.21.11'],capture_output=True,text=True)
 print(result.stdout+result.stderr,flush=True)
 if result.returncode:

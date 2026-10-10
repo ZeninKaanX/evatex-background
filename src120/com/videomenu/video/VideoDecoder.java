@@ -25,16 +25,18 @@ public final class VideoDecoder {
     private final VideoMenuConfig config;
     private final FrameListener listener;
     private final Runnable onFailure;
+    private final java.util.List<Backend> backendCandidates;
     private volatile boolean closed;
     private volatile Process process;
     private volatile long publishedFrames;
-    private boolean everPublishedFrame;
     private Thread thread;
     private volatile Thread frameReader;
     private volatile VideoAudio audio;
     private volatile boolean audioEnabled;
     private volatile double audioVolume;
     private boolean hasAudio;
+    private String downloadFormat = "nv12";
+    private volatile String decoderBackend = "starting";
     private volatile String lastError = "";
 
     public VideoDecoder(VideoMenuConfig config, FrameListener listener) { this(config, listener, () -> {}); }
@@ -45,6 +47,7 @@ public final class VideoDecoder {
         this.audioEnabled = config.audioEnabled;
         this.audioVolume = config.audioVolume;
         this.listener = listener;
+        this.backendCandidates = backends(System.getProperty("os.name", ""), config.hardwareAcceleration);
     }
 
     public boolean start() {
@@ -89,52 +92,97 @@ public final class VideoDecoder {
     public long audioWrittenBytes() { VideoAudio sink = audio; return sink == null ? 0 : sink.writtenBytes(); }
     public long audioUnderruns() { VideoAudio sink=audio;return sink==null ? 0 : sink.underruns(); }
     public String lastError() { return lastError; }
+    public String decoderBackend() { return decoderBackend; }
     public long publishedFrames() {
         return this.publishedFrames;
     }
 
+    // Hardware frames are explicitly required: a successful first frame verifies
+    // this backend instead of silently reporting software decoding as GPU playback.
+    enum Backend { D3D11_SCALE, D3D11, SOFTWARE }
+
+    static java.util.List<Backend> backends(String os, boolean hardware) {
+        return hardware && os.toLowerCase(Locale.ROOT).startsWith("windows")
+            ? java.util.List.of(Backend.D3D11_SCALE, Backend.D3D11, Backend.SOFTWARE)
+            : java.util.List.of(Backend.SOFTWARE);
+    }
+
     private void run(Path file, int srcW, int srcH) {
         int[] target = this.computeTarget(srcW, srcH);
+        var candidates = backendCandidates;
+        int attempt = 0;
         boolean streamLoop = true;
-        while (!this.closed) {
+        int emptyAttempts = 0;
+        while (!closed) {
+            Backend backend = candidates.get(attempt);
+            long framesBefore = publishedFrames;
             try {
                 Process p;
-                this.process = p = this.spawnFfmpeg(file, target[0], target[1], streamLoop);
+                process = p = spawnFfmpeg(file, target[0], target[1], streamLoop, backend);
+                // A broken driver must not leave the menu waiting forever for frame 1.
+                Thread startup = new Thread(() -> {
+                    try {
+                        Thread.sleep(12000);
+                        if (!closed && process == p && publishedFrames == framesBefore) {
+                            lastError = "Decoder did not produce its first frame within 12 seconds";
+                            p.destroyForcibly();
+                        }
+                    } catch (InterruptedException ignored) {}
+                }, "EVATEX-Decoder-Startup");
+                startup.setDaemon(true); startup.start();
                 try {
-                    this.readFrames(p.getInputStream(), target[0], target[1]);
-                    this.waitForExit(p);
+                    readFrames(p.getInputStream(), target[0], target[1]);
+                    waitForExit(p);
                 } finally {
+                    startup.interrupt();
                     p.destroyForcibly();
-                    this.process = null;
+                    process = null;
                     VideoAudio sink = audio; audio = null; if (sink != null) sink.close();
                 }
-                if (streamLoop && !this.everPublishedFrame) {
-                    streamLoop = false;
+                if (closed) return;
+                if (backend != Backend.SOFTWARE) {
+                    // -stream_loop should never end. Retry without a failed GPU path,
+                    // including failures after playback has already started.
+                    VideoMenuClient.LOGGER.warn("EVATEX {} stopped; trying next decoder: {}", backend, lastError);
+                    ++attempt;
                     continue;
                 }
-                if (!streamLoop && !this.everPublishedFrame) {
-                    VideoMenuClient.LOGGER.error("Cannot decode video {}: {}", this.config.videoPath, lastError);
-                    return;
+                if (publishedFrames == framesBefore) {
+                    if (streamLoop) { streamLoop = false; continue; }
+                    if (++emptyAttempts >= 2) {
+                        VideoMenuClient.LOGGER.error("Cannot decode video {}: {}", config.videoPath, lastError);
+                        return;
+                    }
+                } else emptyAttempts = 0;
+            } catch (Exception e) {
+                if (closed) return;
+                VideoAudio sink = audio; audio = null; if (sink != null) sink.close();
+                if (backend != Backend.SOFTWARE) {
+                    VideoMenuClient.LOGGER.warn("EVATEX {} unavailable; trying next decoder", backend, e);
+                    ++attempt; continue;
                 }
-            } catch (Throwable t) {
-                if (this.closed) {
-                    break;
+                if (publishedFrames == framesBefore && ++emptyAttempts >= 2) {
+                    VideoMenuClient.LOGGER.error("Cannot decode video {}", config.videoPath, e); return;
                 }
-                if (!this.everPublishedFrame) {
-                    VideoMenuClient.LOGGER.error("[VideoMenu] Video çözümlenemedi: '{}'. Video kullanılmayacak.", this.config.videoPath, t);
-                    return;
-                }
-                VideoMenuClient.LOGGER.warn("[VideoMenu] Video ortasında hata oluştu, baştan deneniyor.", t);
-                VideoDecoder.park(2000000000L);
+                VideoMenuClient.LOGGER.warn("Video decoder interrupted; retrying", e);
+                park(2_000_000_000L);
             }
-            if (this.closed) {
-                break;
-            }
-            VideoDecoder.park(200000000L);
+            if (!closed) park(200_000_000L);
         }
     }
 
-    private Process spawnFfmpeg(Path file, int dstW, int dstH, boolean streamLoop) throws IOException {
+    static String videoFilter(Backend backend, int fps, int width, int height, String format) {
+        String prefix = "fps=" + fps + ",";
+        if (backend == Backend.D3D11_SCALE) {
+            // Drop surplus frames and shrink on the GPU before transferring pixels.
+            return prefix + "scale_d3d11=w=" + width + ":h=" + height + ":format=nv12,"
+                + "hwdownload,format=nv12,setsar=1,format=rgba";
+        }
+        if (backend == Backend.D3D11) prefix += "hwdownload,format=" + format + ",";
+        return prefix + "scale=" + width + ":" + height + ":flags=lanczos,setsar=1,format=rgba";
+    }
+
+    private Process spawnFfmpeg(Path file, int dstW, int dstH, boolean streamLoop, Backend backend) throws IOException {
         ArrayList<String> cmd = new ArrayList<>();
         cmd.add(VideoDecoder.ffmpegPath());
         cmd.add("-hide_banner");
@@ -146,6 +194,9 @@ public final class VideoDecoder {
             cmd.add("-stream_loop");
             cmd.add("-1");
         }
+        if (backend != Backend.SOFTWARE) {
+            cmd.addAll(java.util.List.of("-hwaccel", "d3d11va", "-hwaccel_output_format", "d3d11"));
+        }
         cmd.add("-threads"); cmd.add("2");
         cmd.add("-i");
         cmd.add(file.toString());
@@ -155,7 +206,7 @@ public final class VideoDecoder {
         cmd.add("-sn");
         cmd.add("-dn");
         cmd.add("-vf");
-        cmd.add("fps=" + config.fps + ",scale=" + dstW + ":" + dstH + ":flags=lanczos,setsar=1,format=rgba");
+        cmd.add(videoFilter(backend, config.fps, dstW, dstH, downloadFormat));
         cmd.add("-f");
         cmd.add("rawvideo");
         cmd.add("-pix_fmt");
@@ -174,10 +225,15 @@ public final class VideoDecoder {
         Process p;
         try { p = startFfmpeg(pb); }
         catch (IOException e) { VideoAudio sink = audio; audio = null; if (sink != null) sink.close(); throw e; }
+        decoderBackend = "starting " + backend;
+        lastError = "";
         Thread errors = new Thread(() -> {
             try (var stream = p.getErrorStream()) {
                 byte[] buffer = new byte[2048]; int n;
-                while ((n = stream.read(buffer)) > 0) lastError = new String(buffer, 0, n, StandardCharsets.UTF_8);
+                while ((n = stream.read(buffer)) > 0) {
+                    String combined = lastError + new String(buffer, 0, n, StandardCharsets.UTF_8);
+                    lastError = combined.substring(Math.max(0, combined.length()-8192));
+                }
             } catch (IOException ignored) {}
         }, "EVATEX-FFmpeg-Errors"); errors.setDaemon(true); errors.start();
         if (closed) { p.destroyForcibly(); VideoAudio sink = audio; if (sink != null) sink.close(); }
@@ -224,7 +280,11 @@ public final class VideoDecoder {
                     continue;
                 }
                 if(closed)return;
-                listener.onFrame(frame,w,h);everPublishedFrame=true;++publishedFrames;
+                if (decoderBackend.startsWith("starting ")) {
+                    decoderBackend = decoderBackend.substring(9);
+                    VideoMenuClient.LOGGER.info("EVATEX video decoder active: {} ({}x{} at {} FPS)", decoderBackend, w, h, config.fps);
+                }
+                listener.onFrame(frame,w,h);++publishedFrames;
                 long now=System.nanoTime();
                 // Preserve the timeline across ordinary OS timer oversleep rather than
                 // adding that delay to every subsequent frame. Reset only after a
@@ -238,18 +298,10 @@ public final class VideoDecoder {
     }
 
     private static void pack(byte[] rgba, int w, int h, int[] out) {
-        int n = w * h;
-        int i = 0;
-        int p = 0;
-        while (i < n) {
-            int r = rgba[p] & 0xFF;
-            int g = rgba[p + 1] & 0xFF;
-            int b = rgba[p + 2] & 0xFF;
-            int a = rgba[p + 3] & 0xFF;
-            out[i] = a << 24 | b << 16 | g << 8 | r;
-            ++i;
-            p += 4;
-        }
+        // NativeImage expects little-endian ABGR ints. Bulk conversion avoids
+        // four channel operations per pixel in Java for every decoded frame.
+        java.nio.ByteBuffer.wrap(rgba).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+            .asIntBuffer().get(out, 0, w*h);
     }
 
     private static boolean readFully(InputStream in, byte[] buf) throws IOException {
@@ -293,6 +345,7 @@ public final class VideoDecoder {
             hasAudio = out.contains("Audio:");
             for (String line : out.split("\\R")) {
                 if (!line.contains("Video:")) continue;
+                downloadFormat = line.matches(".*(?:yuv420p10|p010|yuv420p12).*" ) ? "p010le" : "nv12";
                 Matcher m = DIM_PATTERN.matcher(line);
                 if (m.find()) {
                     int w = Integer.parseInt(m.group(1)), h = Integer.parseInt(m.group(2));

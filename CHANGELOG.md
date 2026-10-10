@@ -1,3 +1,14 @@
+# 1.8.3 — Windows hardware decoding
+
+- Request D3D11VA hardware decoding on Windows instead of always using CPU decoding.
+- Try D3D11 GPU downscaling before transferring the bounded output to Java; fall back to hardware decoding with software scaling, then CPU decoding when unavailable.
+- Drop surplus frames before GPU readback, preserve configured output size/FPS and live audio controls.
+- Require hardware frames so successful playback cannot silently masquerade as GPU decoding; log the active backend after its first frame.
+- Add a 12-second first-frame deadline and bounded fallback for broken drivers, unsupported codecs and older system FFmpeg builds.
+- Replace per-channel Java pixel conversion with bulk little-endian pixel reads; keep published frames immutable.
+- Preserve the existing Linux/macOS software filters and defaults. `hardwareAcceleration: false` disables Windows GPU attempts in the saved configuration.
+- Physical Windows GPU performance still requires verification; no CPU-use reduction percentage is claimed.
+
 # 1.8.2 — Clean menu shortcut
 
 - Move Video Menu to the lower centre in Minecraft and lower right in Atlas Client 3.0.3.

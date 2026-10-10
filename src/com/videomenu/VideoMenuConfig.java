@@ -18,6 +18,7 @@ public final class VideoMenuConfig {
     public double scale = 1.0;
     public boolean enabled = true;
     public boolean audioEnabled = false;
+    public boolean hardwareAcceleration = true;
     public double audioVolume = 1.0;
     public int maxDecodeHeight = 1080;
     public boolean fillScreen = true;
@@ -36,6 +37,7 @@ public final class VideoMenuConfig {
             JsonObject obj = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
             config.themeTransitions = getBoolean(obj, "themeTransitions", true);
             config.audioEnabled = getBoolean(obj, "audioEnabled", false);
+            config.hardwareAcceleration = getBoolean(obj, "hardwareAcceleration", true);
             config.audioVolume = getDouble(obj,"audioVolume",1.0);
             config.maxDecodeHeight = getInt(obj, "maxDecodeHeight", 1080);
             config.enabled = getBoolean(obj, "enabled", true);
@@ -58,6 +60,7 @@ public final class VideoMenuConfig {
         copy.darkening = darkening; copy.showVignette = showVignette;
         copy.themeTransitions = themeTransitions;
         copy.audioEnabled = audioEnabled; copy.audioVolume=audioVolume; copy.maxDecodeHeight = maxDecodeHeight;
+        copy.hardwareAcceleration = hardwareAcceleration;
         copy.enabled = enabled; copy.fillScreen = fillScreen;
         copy.validate();
         return copy;
@@ -97,6 +100,7 @@ public final class VideoMenuConfig {
         obj.addProperty("themeTransitions", themeTransitions);
         obj.addProperty("enabled", enabled);
         obj.addProperty("audioEnabled", audioEnabled);
+        obj.addProperty("hardwareAcceleration", hardwareAcceleration);
             obj.addProperty("audioVolume", audioVolume);
         obj.addProperty("maxDecodeHeight", maxDecodeHeight);
         obj.addProperty("fillScreen", fillScreen);

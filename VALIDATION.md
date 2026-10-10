@@ -1,3 +1,11 @@
+# Windows GPU optimization 1.8.3
+
+This patch addresses the missing hardware decoder request found in 1.8.2. Windows tries D3D11 decoding and scaling, then D3D11 decoding with CPU scaling, then software decoding. The hardware filter requires D3D11 frames and reports active only after a complete frame is read. A watchdog limits first-frame waits to 12 seconds per attempt. Configured FPS, size cap, source video and audio settings are unchanged.
+
+Local real-FFmpeg regression covers fallback from unavailable D3D11 filters/devices to working software decoding, 15/60 FPS timelines, immutable pixel ownership, colour channel order, config preference copying and startup thread cleanup. Existing Linux/macOS decoder selection is preserved. The user’s 1080p clip is used for the targeted Linux game check; no 4K/8K playback or full per-version GUI matrix is run.
+
+Physical Windows GPU throughput, CPU reduction and smoothness are not verified by Linux tests or GPU-less CI runners. These require a Windows machine with a supported driver and the same video/settings. The earlier releases' validation remains documented below.
+
 # Astral 1.8.2 validation
 
 ## Menu shortcut update

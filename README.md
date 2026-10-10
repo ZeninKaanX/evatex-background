@@ -1,8 +1,16 @@
-# EVATEX Background Video — Astral 1.8.2
+# EVATEX Background Video — Astral 1.8.3
 
 Replace Minecraft's title screen and multiplayer server selection backgrounds with a looping video. Made by EverVerity.
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
+
+## Windows playback optimization
+
+EVATEX 1.8.3 requests D3D11 hardware video decoding and GPU downscaling on Windows. Unsupported drivers/codecs fall back to hardware decoding without GPU scaling, then software decoding. Linux and macOS retain their existing decoder selection. Video size, frame-rate and audio settings are preserved.
+
+The log records `EVATEX video decoder active: D3D11_SCALE`, `D3D11` or `SOFTWARE` after actual frames arrive. GPU work appears in Windows Task Manager's **Video Decode** graph; the **3D** graph alone does not measure video decoding. If a driver causes trouble, set `hardwareAcceleration` to `false` in `config/evatexbackgroundvideo.json` while the game is closed.
+
+Physical Windows GPU smoothness and CPU use have not yet been measured. GPU decoding still involves CPU colour conversion, frame copies, audio and Minecraft rendering; this release does not promise zero CPU use.
 
 ## Installation
 

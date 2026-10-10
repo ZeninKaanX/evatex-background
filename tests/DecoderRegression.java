@@ -33,6 +33,15 @@ public class DecoderRegression {
         check(java.nio.ByteBuffer.wrap(pcm).order(java.nio.ByteOrder.LITTLE_ENDIAN).getShort()==16384,"positive PCM gain");
         check(java.nio.ByteBuffer.wrap(pcm).order(java.nio.ByteOrder.LITTLE_ENDIAN).getShort(2)==-16384,"negative PCM gain");
         gain.invoke(null,pcm,4,0.0);check(java.util.Arrays.equals(pcm,new byte[4]),"zero gain silences PCM");
+        Method backends = VideoDecoder.class.getDeclaredMethod("backends", String.class, boolean.class);
+        backends.setAccessible(true);
+        var windowsBackends = (java.util.List<?>) backends.invoke(null,"Windows 11",true);
+        check(windowsBackends.toString().equals("[D3D11_SCALE, D3D11, SOFTWARE]"),"Windows GPU preference and bounded fallback");
+        check(backends.invoke(null,"Darwin",true).toString().equals("[SOFTWARE]"),"Darwin is not mistaken for Windows");
+        check(backends.invoke(null,"Linux",true).toString().equals("[SOFTWARE]"),"existing Linux decoding path preserved");
+        check(backends.invoke(null,"Windows 11",false).toString().equals("[SOFTWARE]"),"hardware acceleration opt-out");
+        invalid.hardwareAcceleration=false;
+        check(!invalid.copy().hardwareAcceleration,"hardware preference survives config copy");
         check(VideoFiles.resolve("invalid\0path") == null, "invalid path rejected");
         Method pack = VideoDecoder.class.getDeclaredMethod("pack", byte[].class, int.class, int.class, int[].class);
         pack.setAccessible(true);
@@ -84,6 +93,19 @@ public class DecoderRegression {
             check(closedCount==decoder.publishedFrames(),"close stops publishing");
             System.out.printf("PASS %d FPS: %.3fs, loop, immutable frames, shutdown%n",fps,elapsed);
         }
+        // Exercise failed native GPU initialization followed by real software
+        // decoding on GPU-less CI hosts; all process/audio resources must be closed.
+        config.videoPath=Path.of(args[0]).toAbsolutePath().toString(); config.fps=30;
+        CountDownLatch fallbackFrames=new CountDownLatch(12);
+        VideoDecoder fallback=new VideoDecoder(config,(frame,w,h)->fallbackFrames.countDown());
+        var candidates=VideoDecoder.class.getDeclaredField("backendCandidates");candidates.setAccessible(true);
+        candidates.set(fallback,windowsBackends);
+        check(fallback.start(),"hardware fallback decoder starts");
+        check(fallbackFrames.await(35,TimeUnit.SECONDS),"unsupported GPU paths reach playable software fallback");
+        check(!fallback.decoderBackend().startsWith("starting "),"backend is marked active only after decoded frame");
+        fallback.close();Thread.sleep(300);
+        check(!Thread.getAllStackTraces().keySet().stream().anyMatch(t->t.isAlive()&&t.getName().equals("EVATEX-Decoder-Startup")),"first-frame watchdog closes after playback/shutdown");
+        System.out.println("PASS hardware candidate policy, native-device fallback and startup cleanup");
         System.out.println("PASS config bounds, invalid paths, color ordering, safe dimension policy (no 4K/8K playback), responsive layout");
     }
 }

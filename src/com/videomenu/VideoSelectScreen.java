@@ -139,7 +139,7 @@ public final class VideoSelectScreen extends class_437 {
         int center=layout.singleColumn() ? left+width/2 : right+width/2;
         ctx.method_25300(field_22793,field_22793.method_27523(text(key).getString(),width),center,layout.statusY(),palette.muted());
         super.method_25394(ctx,mx,my,delta);
-        ctx.method_25300(field_22793,"EverVerity • EVATEX 1.8.2",field_22789/2,field_22790-9,palette.muted());
+        ctx.method_25300(field_22793,"EverVerity • EVATEX 1.8.3",field_22789/2,field_22790-9,palette.muted());
         if(config.themeTransitions) {
             double fade=Math.max(0,1-(System.nanoTime()-openedAt)/280_000_000.0);
             if(fade>0)ctx.method_25294(0,0,field_22789,field_22790,(int)(fade*fade*180)<<24);

@@ -1,10 +1,12 @@
-# EVATEX Background Video 1.8.2 — Clean menu shortcut
+# EVATEX Background Video 1.8.3 — Windows playback optimization
 
 ## Release notes
 
-Video Menu now sits at the lower centre in Minecraft and the lower right in Atlas Client 3.0.3, with a smaller black-and-white Astral button. Minecraft’s footer uses a compact right-aligned copyright label, preserving the original localized notice on hover and the credits action on click. Atlas has explicit local padding and centred text, restoring its style after rendering. Native button labels use the actual font height for vertical alignment.
+Windows playback now requests D3D11VA hardware decoding. Supported GPUs also downscale the video before transferring frames to Minecraft, reducing CPU work and large-frame readback. If GPU scaling is unavailable, EVATEX tries hardware decoding with software scaling; unsupported devices, drivers and codecs automatically fall back to CPU decoding. A first-frame deadline prevents indefinite waits on a broken driver.
 
-Placement depends on the game window and GUI scale rather than the launcher or installation path. All 24 exact-version Fabric builds remain available. Custom menus provided by other mods may need their own compatibility bridge; no claim is made that every launcher or menu replacement has been tested.
+Bulk pixel conversion reduces per-frame Java work. Configured frame rate, resolution and live audio controls are preserved. Linux and macOS keep their existing decoder selection. The compact Astral shortcut remains at the lower centre in Minecraft and the lower right in Atlas Client 3.0.3.
+
+The active decoder is recorded in the game log after frames arrive. GPU activity should be checked under **Video Decode** in Windows Task Manager. Colour conversion, frame transfer, sound and Minecraft still use CPU resources. Physical Windows GPU smoothness and CPU reduction depend on hardware, driver and codec; no fixed performance improvement is guaranteed.
 
 ## Upload metadata
 
@@ -12,30 +14,30 @@ Publish 24 separate Fabric versions. Each version must select only its matching 
 
 | Version number | Game version | File |
 | --- | --- | --- |
-| 1.8.2+mc1.20 | 1.20 | evatex-background-video-1.8.2-mc1.20.jar |
-| 1.8.2+mc1.20.1 | 1.20.1 | evatex-background-video-1.8.2-mc1.20.1.jar |
-| 1.8.2+mc1.20.2 | 1.20.2 | evatex-background-video-1.8.2-mc1.20.2.jar |
-| 1.8.2+mc1.20.3 | 1.20.3 | evatex-background-video-1.8.2-mc1.20.3.jar |
-| 1.8.2+mc1.20.4 | 1.20.4 | evatex-background-video-1.8.2-mc1.20.4.jar |
-| 1.8.2+mc1.20.5 | 1.20.5 | evatex-background-video-1.8.2-mc1.20.5.jar |
-| 1.8.2+mc1.20.6 | 1.20.6 | evatex-background-video-1.8.2-mc1.20.6.jar |
-| 1.8.2+mc1.21 | 1.21 | evatex-background-video-1.8.2-mc1.21.jar |
-| 1.8.2+mc1.21.1 | 1.21.1 | evatex-background-video-1.8.2-mc1.21.1.jar |
-| 1.8.2+mc1.21.2 | 1.21.2 | evatex-background-video-1.8.2-mc1.21.2.jar |
-| 1.8.2+mc1.21.3 | 1.21.3 | evatex-background-video-1.8.2-mc1.21.3.jar |
-| 1.8.2+mc1.21.4 | 1.21.4 | evatex-background-video-1.8.2-mc1.21.4.jar |
-| 1.8.2+mc1.21.5 | 1.21.5 | evatex-background-video-1.8.2-mc1.21.5.jar |
-| 1.8.2+mc1.21.6 | 1.21.6 | evatex-background-video-1.8.2-mc1.21.6.jar |
-| 1.8.2+mc1.21.7 | 1.21.7 | evatex-background-video-1.8.2-mc1.21.7.jar |
-| 1.8.2+mc1.21.8 | 1.21.8 | evatex-background-video-1.8.2-mc1.21.8.jar |
-| 1.8.2+mc1.21.9 | 1.21.9 | evatex-background-video-1.8.2-mc1.21.9.jar |
-| 1.8.2+mc1.21.10 | 1.21.10 | evatex-background-video-1.8.2-mc1.21.10.jar |
-| 1.8.2+mc1.21.11 | 1.21.11 | evatex-background-video-1.8.2-mc1.21.11.jar |
-| 1.8.2+mc26.1 | 26.1 | evatex-background-video-1.8.2-mc26.1.jar |
-| 1.8.2+mc26.1.1 | 26.1.1 | evatex-background-video-1.8.2-mc26.1.1.jar |
-| 1.8.2+mc26.1.2 | 26.1.2 | evatex-background-video-1.8.2-mc26.1.2.jar |
-| 1.8.2+mc26.2 | 26.2 | evatex-background-video-1.8.2-mc26.2.jar |
-| 1.8.2+mc26.3 | 26.3 | evatex-background-video-1.8.2-mc26.3.jar |
+| 1.8.3+mc1.20 | 1.20 | evatex-background-video-1.8.3-mc1.20.jar |
+| 1.8.3+mc1.20.1 | 1.20.1 | evatex-background-video-1.8.3-mc1.20.1.jar |
+| 1.8.3+mc1.20.2 | 1.20.2 | evatex-background-video-1.8.3-mc1.20.2.jar |
+| 1.8.3+mc1.20.3 | 1.20.3 | evatex-background-video-1.8.3-mc1.20.3.jar |
+| 1.8.3+mc1.20.4 | 1.20.4 | evatex-background-video-1.8.3-mc1.20.4.jar |
+| 1.8.3+mc1.20.5 | 1.20.5 | evatex-background-video-1.8.3-mc1.20.5.jar |
+| 1.8.3+mc1.20.6 | 1.20.6 | evatex-background-video-1.8.3-mc1.20.6.jar |
+| 1.8.3+mc1.21 | 1.21 | evatex-background-video-1.8.3-mc1.21.jar |
+| 1.8.3+mc1.21.1 | 1.21.1 | evatex-background-video-1.8.3-mc1.21.1.jar |
+| 1.8.3+mc1.21.2 | 1.21.2 | evatex-background-video-1.8.3-mc1.21.2.jar |
+| 1.8.3+mc1.21.3 | 1.21.3 | evatex-background-video-1.8.3-mc1.21.3.jar |
+| 1.8.3+mc1.21.4 | 1.21.4 | evatex-background-video-1.8.3-mc1.21.4.jar |
+| 1.8.3+mc1.21.5 | 1.21.5 | evatex-background-video-1.8.3-mc1.21.5.jar |
+| 1.8.3+mc1.21.6 | 1.21.6 | evatex-background-video-1.8.3-mc1.21.6.jar |
+| 1.8.3+mc1.21.7 | 1.21.7 | evatex-background-video-1.8.3-mc1.21.7.jar |
+| 1.8.3+mc1.21.8 | 1.21.8 | evatex-background-video-1.8.3-mc1.21.8.jar |
+| 1.8.3+mc1.21.9 | 1.21.9 | evatex-background-video-1.8.3-mc1.21.9.jar |
+| 1.8.3+mc1.21.10 | 1.21.10 | evatex-background-video-1.8.3-mc1.21.10.jar |
+| 1.8.3+mc1.21.11 | 1.21.11 | evatex-background-video-1.8.3-mc1.21.11.jar |
+| 1.8.3+mc26.1 | 26.1 | evatex-background-video-1.8.3-mc26.1.jar |
+| 1.8.3+mc26.1.1 | 26.1.1 | evatex-background-video-1.8.3-mc26.1.1.jar |
+| 1.8.3+mc26.1.2 | 26.1.2 | evatex-background-video-1.8.3-mc26.1.2.jar |
+| 1.8.3+mc26.2 | 26.2 | evatex-background-video-1.8.3-mc26.2.jar |
+| 1.8.3+mc26.3 | 26.3 | evatex-background-video-1.8.3-mc26.3.jar |
 
 Release channel: release. Environment: client only. Loader: Fabric 0.19.5+. Java: 17+ through 1.20.4, 21+ for 1.20.5 through 1.21.11, 25+ for 26.x. Full Fabric API is not required; the resource modules are embedded. Atlas 3.0.3 and its dependencies are optional, separate, and supported on 1.21.11 only.
 
