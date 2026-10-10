@@ -1,0 +1,30 @@
+name: Minecraft compatibility builds
+on:
+  push:
+    paths: ['src/**', 'src120/**', 'scripts/**', 'tests/**', 'assets/evatexbackgroundvideo/**', 'fabric.mod.json', 'videomenu.mixins.json', '.github/workflows/compatibility.yml']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile-and-decoder:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        minecraft: ['1.20', '1.20.1', '1.20.2', '1.20.3', '1.20.4', '1.20.5', '1.20.6', '1.21', '1.21.1', '1.21.2', '1.21.3', '1.21.4', '1.21.5', '1.21.6', '1.21.7', '1.21.8', '1.21.9', '1.21.10', '1.21.11', '26.1', '26.1.1', '26.1.2', '26.2', '26.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ startsWith(matrix.minecraft, '26.') && '25' || '21' }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install decoder test dependency
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Compile exact Minecraft API (development jar)
+        run: python3 scripts/build.py --minecraft '${{ matrix.minecraft }}' --system-ffmpeg
+      - name: Verify playback, frame ownership and configuration
+        run: python3 scripts/test.py --minecraft '${{ matrix.minecraft }}'

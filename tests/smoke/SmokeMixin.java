@@ -21,16 +21,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SmokeMixin {
     @Unique private int evatexqa$ticks;
     @Unique private int evatexqa$stage;
+    @Unique private int evatexqa$waiting;
     @Unique private class_437 evatexqa$title;
     @Inject(method="method_1574", at=@At("TAIL"))
     private void evatexqa$scenes(CallbackInfo ci) {
         class_310 client=(class_310)(Object)this;
         if (client.method_18506()!=null || client.field_1755==null) return;
-        if (evatexqa$stage==0 && !(client.field_1755 instanceof class_442)) return;
-        if (++evatexqa$ticks<(evatexqa$stage==0 ? 300 : 100)) return;
+        if (evatexqa$stage==0 && !(client.field_1755 instanceof class_442)) {
+            if (++evatexqa$waiting==60) {
+                System.out.println("EVATEX_QA WAIT "+client.field_1755.getClass().getName());
+                evatexqa$capture(client,"waiting");
+            }
+            return;
+        }
+        int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
+        if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
         System.out.println("EVATEX_QA stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+VideoBackground.INSTANCE.status());
         if (evatexqa$stage<8 && !VideoBackground.INSTANCE.status().equals("playing")) throw new AssertionError("Video did not continue in menu");
+        if (evatexqa$stage==8 && !VideoBackground.INSTANCE.status().equals("idle")) throw new AssertionError("Disabled video kept playing");
         if (evatexqa$stage==1 && !net.minecraft.class_2561.method_43471("evatex.title").getString().equals("Video Menüsü")) throw new AssertionError("Turkish translations not loaded");
         evatexqa$capture(client, "stage-"+evatexqa$stage);
         switch (evatexqa$stage++) {

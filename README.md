@@ -6,14 +6,17 @@ Replace Minecraft's title screen and multiplayer server selection backgrounds wi
 
 ## Installation
 
-Install Fabric Loader **0.19.5 or later** and the jar matching your Minecraft version:
+Install Fabric Loader **0.19.5 or later** and the jar matching your exact Minecraft version:
 
-| Build | Minecraft | Java |
-| --- | --- | --- |
-| `mc1.20.1` | 1.20.1 | 17+ |
-| `mc1.21.11` | 1.21.11 | 21+ |
+| Minecraft releases | Java |
+| --- | --- |
+| 1.20, 1.20.1, 1.20.2, 1.20.3, 1.20.4 | 17+ |
+| 1.20.5, 1.20.6, 1.21 through 1.21.11 | 21+ |
+| 26.1, 26.1.1, 26.1.2, 26.2, 26.3 | 25+ |
 
-Fabric API is not required. These are separate builds; other game versions are not declared compatible. Windows x64 and Linux x64 FFmpeg binaries are bundled. macOS and ARM devices require an appropriate system `ffmpeg` on PATH.
+There are 24 separate builds covering every stable Java Edition release from 1.20 through 26.3. See `COMPATIBILITY.md` for the complete file list and validation results. Use one EVATEX jar at a time and remove the old EVATEX jar when updating. Exact-version metadata prevents loading the wrong API adapter.
+
+Fabric API is not required by EVATEX; its resource-loading modules are embedded. Windows x64 and Linux x64 FFmpeg binaries are bundled. macOS and ARM devices require an appropriate system `ffmpeg` on PATH. Minecraft versions before 1.20, snapshots and future versions are outside this release's support range.
 
 ## Use
 
@@ -33,22 +36,26 @@ On Minecraft 1.21.11, EVATEX supports Atlas Client **3.0.3** as a separate insta
 
 ## Build
 
-Requires Python 3, network access on the first build, and JDK 21 (`JAVA_HOME` or `java`/`javac` on PATH).
+Requires Python 3 and network access on the first build. Use JDK 21+ for 1.20/1.21 builds and JDK 25 for 26.x, via `JAVA_HOME` or `java`/`javac` on PATH.
 
 ```bash
 bash scripts/fetch-ffmpeg.sh
 python3 scripts/build.py --minecraft 1.21.11
 python3 scripts/build.py --minecraft 1.20.1
+# With JAVA_HOME pointing to JDK 25:
+python3 scripts/build.py --all
 ```
 
-The build script downloads Minecraft's official client and libraries, Fabric Loader/Mixin and intermediary mappings, remaps the client with Tiny Remapper, and compiles the appropriate source tree. Output jars and SHA256 files are in `build/dist`. Mojang artifacts are checked against published SHA1 hashes.
+The build script downloads Minecraft's official client and libraries and Fabric Loader/Mixin. Through 1.21.11 it uses intermediary mappings and Tiny Remapper; 26.x uses Minecraft's native names. Shared source trees are adapted to each version's actual GUI/texture APIs by `scripts/ports.py`. Reference Mojang mappings are development inputs and are not packaged. The launch classpath uses Fabric's ASM revision, replacing older vanilla ASM entries. Output jars and SHA256 files are in `build/dist`. Mojang artifacts are checked against published SHA1 hashes.
 
 For a small development jar that requires system FFmpeg, add `--system-ffmpeg`. Do not distribute that build as a bundled release.
 
 ## Verification
 
 ```bash
-python3 scripts/test.py
+python3 scripts/test.py --minecraft 1.21.11
+python3 scripts/qa_assets.py 1.21.11
+python3 scripts/smoke.py --minecraft 1.21.11 --assets build/qa-assets --bundled --quick
 ```
 
 Regression checks cover corrupt config values, pixel channel ordering, frame ownership, playback timing at different FPS settings, looping, resolution bounds and decoder shutdown. In-game checks and remaining limitations are recorded in `VALIDATION.md`.

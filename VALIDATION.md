@@ -1,6 +1,6 @@
 # Astral 1.8.0 validation
 
-Test environment: Linux x64, Java 21, Fabric Loader 0.19.5, real Minecraft client, real bundled FFmpeg. Test harnesses run in isolated game directories and are excluded from release jars.
+Test environment: Linux x64, Java 21/25, Fabric Loader 0.19.5, real Minecraft client, real bundled FFmpeg. Test harnesses run in isolated game directories and are excluded from release jars.
 
 ## Automated regressions
 
@@ -8,19 +8,17 @@ Test environment: Linux x64, Java 21, Fabric Loader 0.19.5, real Minecraft clien
 
 ## In-game checks
 
-| Minecraft | Installed mods | Result |
-| --- | --- | --- |
-| 1.20.1 | EVATEX with embedded Fabric resource modules | Title, Turkish Astral UI, multiplayer video, fallback and clean exit |
-| 1.21.11 | EVATEX with embedded Fabric resource modules | Title, Turkish Astral UI, multiplayer video, fallback and clean exit |
-| 1.21.11 | EVATEX + Atlas Client 3.0.3 + Fabric API + Player Animation Library | Atlas custom and vanilla UI, translated shortcut, video settings, multiplayer video, fallback and clean exit |
+All 24 exact-version builds listed in `COMPATIBILITY.md` are exercised in isolated real Minecraft clients on Linux x64. Java 21 runs 1.20/1.21 GUI checks; Java 25 runs 26.x checks. The harness visits the title screen, Turkish Astral settings, settings with animations disabled, multiplayer selection, title/server fallback variants and video-disabled idle shutdown. It checks decoder continuity, loaded Turkish translations, idle status when disabled and clean exit. Screenshots are also inspected: an active decoder alone does not prove video visibility.
 
-GUI capture paths and launch logs are in `build/smoke-<version>-standalone` and `build/smoke-1.21.11-atlas`. The GUI test checks decoder continuity, loaded Turkish translations and graceful exit. Screenshots are also visually inspected; an active decoder alone does not prove video visibility. GUI sessions share the desktop and allow normal user interaction.
+Atlas Client 3.0.3 is additionally tested on 1.21.11 with full Fabric API and Player Animation Library, in both custom ImGui and vanilla UI modes. Logs/screenshots are in `build/smoke-<version>-standalone` and `build/smoke-1.21.11-atlas`. QA helper mods are excluded from release jars.
 
-The first incomplete 1.20.1 language test had missing Minecraft asset packs in its isolated asset cache. After downloading those official resources, the same release jar passed. Offline Realms authentication and unavailable narrator/audio warnings are unrelated to EVATEX.
+Version-specific failures found and fixed include removed legacy server-list background flags/render callbacks, changed panorama/texture/button APIs, named GUI/shutdown APIs in 26.x, and missing legacy resource-loader support on 1.21.9/1.21.10. The isolated launcher classpath now excludes older vanilla ASM libraries in favor of Fabric's revision. Official non-audio assets are downloaded with checksum verification for repeatable language/font tests. Offline Realms authentication and unavailable narrator/audio warnings are unrelated to EVATEX.
+
+Pure config/decoder regressions pass on representatives 1.20, 1.21.11 and 26.3; GitHub Actions runs these regressions and compilation for all 24 versions. `scripts/check_packages.py` validates all bundled archives and checksums. Bundled decoder startup is also tested separately from system-FFmpeg development builds.
 
 ## Scope and remaining limits
 
-Only 1.20.1 and 1.21.11 are declared compatible. Exact-version metadata prevents loading incompatible mixins on other Minecraft APIs. The current Minecraft 26.x named APIs and Java 25 need a separate port; they are not supported by these jars. No claim is made for every Minecraft version or every hardware configuration.
+Support covers stable Java Edition releases from 1.20 through 26.3, using separate exact-version jars. Earlier releases, snapshots, future releases and non-Fabric loaders are outside this matrix. Compilation and menu checks do not establish compatibility with every other mod or every hardware configuration. No gameplay-world or server-side behavior is added.
 
 Atlas integration is optional and restricted to Atlas 3.0.3. It uses Atlas's existing ImGui context and the existing video GPU texture; Atlas code, settings and binaries remain separate. Its dependencies must still be installed.
 

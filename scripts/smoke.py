@@ -7,14 +7,18 @@ from pathlib import Path
 import shutil
 import subprocess
 import zipfile
+from build import VERSIONS
+from named_port import symbols, translate
 ROOT=Path(__file__).resolve().parent.parent
 parser=argparse.ArgumentParser()
 parser.add_argument('--assets',required=True,type=Path)
 parser.add_argument('--atlas',type=Path)
+parser.add_argument('--quick',action='store_true',help='Shorter per-stage dwell time for the version matrix')
 parser.add_argument('--bundled',action='store_true')
 parser.add_argument('--atlas-dependencies',type=Path)
-parser.add_argument('--minecraft',default='1.21.11',choices=['1.21.11','1.20.1'])
+parser.add_argument('--minecraft',default='1.21.11',choices=VERSIONS)
 args=parser.parse_args()
+args.assets=args.assets.resolve()
 version=args.minecraft
 java=Path(os.environ['JAVA_HOME'])/'bin/java';javac=java.with_name('javac')
 run=ROOT/'build'/('smoke-'+version+('-atlas' if args.atlas else '-standalone'))
@@ -24,8 +28,9 @@ classes=ROOT/'build'/('classes-'+version)
 cp=(ROOT/'build'/('classpath-'+version+'.txt')).read_text()
 helper=ROOT/'build'/('qa-classes-'+version);helper.mkdir(parents=True,exist_ok=True)
 source=ROOT/'tests/smoke/SmokeMixin.java'
-if version=='1.20.1':
-    source=ROOT/'build/SmokeMixin.java'
+if version in ('1.20','1.20.1','1.20.2','1.20.3','1.20.4','1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
+    source=ROOT/'build'/('qa-source-'+version)/'SmokeMixin.java'
+    source.parent.mkdir(parents=True,exist_ok=True)
     # Legacy screenshot API is synchronous and returns the NativeImage.
     text=(ROOT/'tests/smoke/SmokeMixin.java').read_text()
     start=text.index('        class_318.method_1663(')
@@ -36,10 +41,18 @@ if version=='1.20.1':
 }
 '''
     source.write_text(text)
-subprocess.run([str(javac),'-proc:none','--release','17' if version=='1.20.1' else '21','-cp',str(classes)+os.pathsep+cp,'-d',str(helper),str(source)],check=True)
+if version.startswith('26.'):
+    source=ROOT/'build'/('qa-source-'+version)/'SmokeMixin.java'
+    source.parent.mkdir(parents=True,exist_ok=True)
+    text=translate((ROOT/'tests/smoke/SmokeMixin.java').read_text(),symbols(ROOT/'build/dependencies'))
+    if version in ('26.2','26.3'):
+        text=text.replace('client.getMainRenderTarget()','client.gameRenderer.mainRenderTarget()')
+        text=text.replace('client.getOverlay()', 'client.gui.overlay()').replace('client.screen','client.gui.screen()').replace('client.setScreen(', 'client.gui.setScreen(')
+    source.write_text(text)
+subprocess.run([str(javac),'-proc:none','--release',str(VERSIONS[version][1]),'-cp',str(classes)+os.pathsep+cp,'-d',str(helper),str(source)],check=True)
 with zipfile.ZipFile(mods/'evatex-qa.jar','w') as z:
     z.writestr('fabric.mod.json',json.dumps({'schemaVersion':1,'id':'evatex-qa','version':'1.0','name':'EVATEX QA','environment':'client','mixins':['evatex-qa.mixins.json']}))
-    z.writestr('evatex-qa.mixins.json',json.dumps({'required':True,'package':'evatexqa','compatibilityLevel':'JAVA_17' if version=='1.20.1' else 'JAVA_21','client':['SmokeMixin'],'injectors':{'defaultRequire':1}}))
+    z.writestr('evatex-qa.mixins.json',json.dumps({'required':True,'package':'evatexqa','compatibilityLevel':'JAVA_'+str(VERSIONS[version][1]),'client':['SmokeMixin'],'injectors':{'defaultRequire':1}}))
     for file in helper.rglob('*.class'): z.write(file,file.relative_to(helper))
 suffix='' if args.bundled else '-system-ffmpeg'
 shutil.copyfile(ROOT/'build/dist'/f'evatex-background-video-1.8.0-mc{version}{suffix}.jar',mods/'evatex.jar')
@@ -63,7 +76,7 @@ game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
 runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width','1280','--height','720']
+command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width','1280','--height','720']
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

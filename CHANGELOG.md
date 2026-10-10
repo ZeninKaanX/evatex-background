@@ -13,4 +13,7 @@
 - Asynchronous video probing, timeout and process cleanup keep the menu responsive.
 - Validate corrupted config values and save configuration atomically.
 - Both `videos` and existing `videolar` folders are scanned; invalid paths and directories disguised as videos are ignored.
-- Separate builds target Minecraft 1.20.1 (Java 17+) and 1.21.11 (Java 21+). Other versions are not declared compatible without validation.
+- 24 separate Fabric builds cover every stable Java Edition release from 1.20 through 26.3, each with exact-version metadata.
+- Version-specific GUI, texture, panorama and resource-loading adapters, including native named APIs and Java 25 for Minecraft 26.x.
+- Fix Turkish/English resource loading on 1.21.9 and 1.21.10 by including both required loader modules.
+- Automated compatibility build and decoder regression matrix for all supported releases.
