@@ -21,7 +21,7 @@ public class DecoderRegression {
         check(AstralTheme.blend(0x00000000,0xFFFFFFFF,.5)==0x80808080,"palette interpolation");
         invalid.fps = Integer.MAX_VALUE; invalid.scale = 50; invalid.darkening = -9; invalid.validate();
         check(invalid.fps == 120 && invalid.scale == 1 && invalid.darkening == 0, "config upper/lower bounds");
-        Path unicodeFolder=Path.of("videos / Türkçe [clip]").toAbsolutePath();
+        Path unicodeFolder=Path.of("videos","Türkçe [clip]").toAbsolutePath();
         check(com.videomenu.FolderOpener.commands("Windows 11",unicodeFolder).get(0).equals(java.util.List.of("explorer.exe",unicodeFolder.toString())),"Windows opener keeps path as one argument");
         check(com.videomenu.FolderOpener.commands("Darwin",unicodeFolder).get(0).get(0).equals("open"),"Darwin routes to macOS opener");
         check(com.videomenu.FolderOpener.commands("Linux",unicodeFolder).get(0).equals(java.util.List.of("xdg-open",unicodeFolder.toString())),"Linux opener keeps Unicode/spaces");
@@ -62,9 +62,10 @@ public class DecoderRegression {
             int[][] first = new int[1][];
             int[][] snapshot = new int[1][];
             long[] firstAt = new long[1], lastAt = new long[1];
+            java.util.List<Long> times=new java.util.concurrent.CopyOnWriteArrayList<>();
             VideoDecoder decoder = new VideoDecoder(config,(frame,w,h)-> {
                 check(w==160 && h==90,"native resolution preserved");
-                int n=count.incrementAndGet();
+                int n=count.incrementAndGet();times.add(System.nanoTime());
                 if (n==1) { first[0]=frame; snapshot[0]=frame.clone(); firstAt[0]=System.nanoTime(); }
                 if (n==fps*3+1) { lastAt[0]=System.nanoTime(); enough.countDown(); }
             });
@@ -72,6 +73,10 @@ public class DecoderRegression {
             check(enough.await(10, TimeUnit.SECONDS),"video loops past clip duration");
             decoder.close();
             double elapsed = (lastAt[0]-firstAt[0])/1e9;
+            if(elapsed>=4.5) {
+                var gaps=new java.util.ArrayList<Double>();for(int i=1;i<times.size();i++)gaps.add((times.get(i)-times.get(i-1))/1e6);
+                gaps.sort(java.util.Comparator.reverseOrder());System.out.println("Decoder timing diagnostics fps="+fps+" largest frame gaps (ms)="+gaps.subList(0,Math.min(10,gaps.size()))+" ffmpeg="+decoder.lastError());
+            }
             check(elapsed >= 2.75 && elapsed < 4.5,"three video seconds at "+fps+" FPS: "+elapsed);
             check(Arrays.equals(first[0],snapshot[0]),"published frame remains immutable");
             Thread.sleep(200);

@@ -15,5 +15,12 @@ if (folder/'ffmpeg.gz').exists():
  binary=folder/'ffmpeg';binary.write_bytes(gzip.decompress((folder/'ffmpeg.gz').read_bytes()));binary.chmod(0o755)
 os.environ['PATH']=str(folder)+os.pathsep+os.environ['PATH']
 subprocess.run([sys.executable,str(ROOT/'scripts/build.py'),'--minecraft','1.21.11','--system-ffmpeg'],check=True)
-subprocess.run([sys.executable,str(ROOT/'scripts/test.py'),'--minecraft','1.21.11'],check=True)
+subprocess.run(['ffmpeg','-version'],check=True)
+result=subprocess.run([sys.executable,str(ROOT/'scripts/test.py'),'--minecraft','1.21.11'],capture_output=True,text=True)
+print(result.stdout+result.stderr,flush=True)
+if result.returncode:
+    lines=[line for line in (result.stdout+result.stderr).splitlines() if any(word in line for word in ('AssertionError','Exception','timing diagnostics','ERROR','PASS'))]
+    message=' | '.join(lines)[-6000:].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+    print('::error title=Desktop decoder diagnostic::'+message,flush=True)
+    raise SystemExit(result.returncode)
 print('PASS host-native decoder:',system,arch)
