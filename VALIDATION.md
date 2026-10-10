@@ -8,6 +8,8 @@ The user's supplied video is 1920×1080 H.264 at 60 FPS with stereo AAC audio, 1
 
 Sound uses stereo 48 kHz PCM from the same FFmpeg input as video. A 32 KiB bounded output buffer is primed before playback to absorb short scheduling delays. A continuous 12-second sound test records zero output-buffer underruns. An isolated PipeWire capture, routed using process-local `PIPEWIRE_NODE`, contains no unexpected silent gap of 50 ms or more in its approximately 11.6-second active interval; other desktop audio is excluded. Muting flushes and closes the device, while PCM is drained so video continues. Device initialization/write failures are handled without stopping video. Linux explicitly selects ALSA's default mixer so the user's PipeWire/PulseAudio output is respected.
 
+A four-frame bounded queue separates native pipe reads from presentation. The presentation clock preserves deadlines across normal OS timer oversleep and resets after substantial interruptions, preventing cumulative slow playback. The heap-based frame budget includes this queue.
+
 The 160×90 timing fixture separately validates 15/60 FPS pacing, looping, immutable frame ownership and cleanup. Tests also cover corrupt config values, invalid/Unicode paths, RGBA/ABGR channel order, portable folder commands, Turkish/English key parity and layout bounds across multiple dimensions.
 
 No 4K or 8K video is decoded or played on this computer. High-resolution checks use width/height integers only, verifying that 3840×2160 and 7680×4320 sources select the safe 1920×1080 output under default settings. This validates allocation policy, not real high-resolution codec performance. Larger source decoding still requires sufficient hardware.
@@ -22,7 +24,7 @@ Atlas Client 3.0.3 is checked separately on Minecraft 1.21.11 with its own Fabri
 
 Distributable jars contain Windows x64, Linux x64/ARM64 and macOS Intel/Apple Silicon engines. Compressed and extracted engine hashes are checked, and license/build information is included. Cached macOS/ARM binaries are checksum-verified before use; Linux permissions and incomplete extraction are repaired. Compatible system FFmpeg is a fallback if bundled execution fails.
 
-Only Linux x64 runtime is directly exercised on this host. Packaging does not prove Windows, macOS or ARM runtime behavior. GitHub Actions includes native decoder/config regressions on Ubuntu, Windows and macOS in addition to compilation/decoder checks for all Minecraft versions; consult actual workflow results before claiming those jobs passed. Desktop folder-manager behavior and full game UI on Windows/macOS still require those systems.
+Linux x64 full game UI and audio are exercised on this host. Native decoder/config regressions passed on Ubuntu x64, Windows x64 and macOS Apple Silicon in [GitHub Actions run 38072739304](https://github.com/ZeninKaanX/evatex-background-video-1.6.0/actions/runs/38072739304). These jobs use each host’s pinned engine and validate real 15/60 FPS decoding, looping and cleanup. Full game UI, physical audio devices and folder managers on Windows/macOS, plus Linux ARM64 and macOS Intel runtime, remain untested. Engine packaging and hashes alone do not prove those behaviors.
 
 ## Scope
 

@@ -12,7 +12,7 @@ FFmpeg is included for Windows x64, Linux x64/ARM64 and macOS Intel/Apple Silico
 
 Twenty custom title splash messages are added to the existing Minecraft/resource-pack pool, including the requested creator, motivational and anime messages.
 
-All 24 exact-version Fabric builds from Minecraft 1.20 through 26.3 remain supported. Atlas Client 3.0.3 remains a separate optional mod on 1.21.11. Tests use the supplied 1080p clip on Linux, including live audio toggling, looping and menu continuity. No 4K or 8K videos are played during validation; high-resolution bounds are checked using dimensions only. Windows and macOS binaries are packaged and checksum-verified, but their runtime behavior is not tested on this Linux computer.
+All 24 exact-version Fabric builds from Minecraft 1.20 through 26.3 remain supported. Atlas Client 3.0.3 remains a separate optional mod on 1.21.11. Tests use the supplied 1080p clip on Linux, including live audio toggling, looping and menu continuity. No 4K or 8K videos are played during validation; high-resolution bounds are checked using dimensions only. Native decoder regressions also pass on Windows x64 and macOS Apple Silicon in GitHub Actions. Full game UI and physical audio-device tests are performed on Linux; Windows/macOS UI and other bundled architectures remain untested.
 
 ## Upload metadata
 
