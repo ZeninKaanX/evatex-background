@@ -1,6 +1,7 @@
 # 1.8.2 — Clean menu shortcut
 
-- Move Video Menu to the top centre in Minecraft and Atlas Client 3.0.3.
+- Move Video Menu to the lower centre in Minecraft and Atlas Client 3.0.3.
+- Use a smaller 100×14 native shortcut and a compact Atlas button, clear of the footer; extremely short native menus fall back to the top.
 - Centre the native label using Minecraft font height.
 - Give the Atlas shortcut explicit local padding, alignment and rounding; restore every style override after drawing.
 - Scale shortcut placement with the game window and GUI scale, independently of launcher installation paths.

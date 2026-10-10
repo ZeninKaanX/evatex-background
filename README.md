@@ -64,4 +64,4 @@ Regression checks cover corrupt config values, pixel channel ordering, frame own
 
 Mod code: MIT (see `LICENSE`). Bundled FFmpeg executables: GPL v3, with `COPYING.GPLv3` included in the jar. The fetch script records binary origins and upstream build/source links in `assets/videomenu/ffmpeg/PROVENANCE.json`. FFmpeg is developed by the [FFmpeg project](https://ffmpeg.org/).
 
-The Video Menu shortcut is centred at the top of the title screen. Its position follows the game window and GUI scale, independently of launcher paths. Atlas Client 3.0.3 has a separate matching shortcut; unrelated custom menu replacements are not universally supported.
+The Video Menu shortcut is centred near the bottom of the title screen. Its position follows the game window and GUI scale, independently of launcher paths. Atlas Client 3.0.3 has a separate matching shortcut; unrelated custom menu replacements are not universally supported.

@@ -20,7 +20,7 @@ public abstract class TitleScreenMixin extends class_437 {
 
     @Inject(method = {"method_25426"}, at = {@At(value = "TAIL")})
     private void videomenu$addVideoMenuButton(CallbackInfo ci) {
-        this.method_37063(new com.videomenu.AstralButton(Math.max(4, (this.field_22789 - 130) / 2), 6, 130, 20, class_2561.method_43471("evatex.title"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0)), false));
+        this.method_37063(new com.videomenu.AstralButton(Math.max(4, (this.field_22789 - 100) / 2), this.field_22790 >= 220 ? this.field_22790 - 26 : 6, 100, 14, class_2561.method_43471("evatex.title"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0)), false));
     }
 
     @Inject(method = "method_25394", at = @At(value = "INVOKE", target = "Lnet/minecraft/class_332;method_51422(FFFF)V", ordinal = 1, shift = At.Shift.AFTER))
