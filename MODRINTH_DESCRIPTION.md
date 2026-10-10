@@ -2,6 +2,8 @@
 
 Use your own video as the background of Minecraft's title screen and multiplayer server selection. Choose a clip and adjust playback from the in-game Video Menu.
 
+Windows automatically attempts GPU video decoding and GPU downscaling. Unsupported drivers or video formats fall back to software decoding. Performance depends on the video, graphics card and driver.
+
 ## Features
 
 - Custom black-and-white Astral interface with optional transitions, stars and falling meteors.
