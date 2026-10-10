@@ -159,6 +159,8 @@ public final class VideoDecoder {
         cmd.add("-pix_fmt");
         cmd.add("rgba");
         cmd.add("-threads"); cmd.add("1");
+        cmd.add("-flush_packets"); cmd.add("1");
+        cmd.add("-avioflags"); cmd.add("direct");
         cmd.add("pipe:1");
         if (hasAudio) {
             try { audio = new VideoAudio(audioEnabled,audioVolume); }

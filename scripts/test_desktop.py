@@ -22,5 +22,20 @@ if result.returncode:
     lines=[line for line in (result.stdout+result.stderr).splitlines() if any(word in line for word in ('AssertionError','Exception','timing diagnostics','ERROR','PASS'))]
     message=' | '.join(lines)[-6000:].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
     print('::error title=Desktop decoder diagnostic::'+message,flush=True)
+    # Separate native decoder throughput from JVM-paced pipe reads on a failed host.
+    import time
+    fixture=ROOT/'build/tests-1.21.11/timing.mp4'
+    for fps in (15,60):
+        command=['ffmpeg','-hide_banner','-loglevel','error','-nostdin','-filter_threads','1','-stream_loop','-1','-threads','2','-i',str(fixture),'-map','0:v:0','-an','-vf',f'fps={fps},scale=160:90:flags=lanczos,setsar=1,format=rgba','-f','rawvideo','-pix_fmt','rgba','-threads','1','-flush_packets','1','-avioflags','direct','pipe:1']
+        start=time.monotonic();process=subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        try:
+            remaining=160*90*4*fps*3
+            while remaining:
+                data=process.stdout.read(min(65536,remaining))
+                if not data:break
+                remaining-=len(data)
+            elapsed=time.monotonic()-start
+            print(f'::error title=Native throughput diagnostic::fps={fps} elapsed={elapsed:.3f}s missing_bytes={remaining}',flush=True)
+        finally:process.kill();process.wait()
     raise SystemExit(result.returncode)
 print('PASS host-native decoder:',system,arch)
