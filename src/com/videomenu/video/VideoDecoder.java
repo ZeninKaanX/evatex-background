@@ -213,7 +213,7 @@ public final class VideoDecoder {
             finally {finished.set(true);}
         },"EVATEX-FrameReader");
         reader.setDaemon(true);frameReader=reader;reader.start();
-        long interval=1_000_000_000L/Math.max(1,config.fps),nextFrameAt=System.nanoTime();
+        long interval=1_000_000_000L/Math.max(1,config.fps),nextFrameAt=0;
         try {
             while(!closed) {
                 int[] frame;
@@ -226,7 +226,13 @@ public final class VideoDecoder {
                 if(closed)return;
                 listener.onFrame(frame,w,h);everPublishedFrame=true;++publishedFrames;
                 long now=System.nanoTime();
-                if(now<(nextFrameAt+=interval))park(nextFrameAt-now);else nextFrameAt=now;
+                // Preserve the timeline across ordinary OS timer oversleep rather than
+                // adding that delay to every subsequent frame. Reset only after a
+                // substantial interruption so there is no unbounded catch-up burst.
+                if(nextFrameAt==0)nextFrameAt=now;
+                nextFrameAt+=interval;
+                if(now<nextFrameAt)park(nextFrameAt-now);
+                else if(now-nextFrameAt>250_000_000L)nextFrameAt=now;
             }
         } finally {reader.interrupt();if(frameReader==reader)frameReader=null;}
     }
