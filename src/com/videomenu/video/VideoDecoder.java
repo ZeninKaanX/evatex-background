@@ -30,6 +30,7 @@ public final class VideoDecoder {
     private volatile long publishedFrames;
     private boolean everPublishedFrame;
     private Thread thread;
+    private volatile Thread frameReader;
     private volatile VideoAudio audio;
     private volatile boolean audioEnabled;
     private volatile double audioVolume;
@@ -71,6 +72,7 @@ public final class VideoDecoder {
     public void close() {
         this.closed = true;
         VideoAudio sink = audio; if (sink != null) sink.close();
+        Thread reader=frameReader;if(reader!=null)reader.interrupt();
         Process p = this.process;
         if (p != null) {
             p.destroyForcibly();
@@ -186,7 +188,7 @@ public final class VideoDecoder {
         double scale = Math.min(Math.max(this.config.scale, 0.05), 1.0);
         double limitHeight = config.maxDecodeHeight;
         // Bound Java-side frame storage independently of source resolution and worker count.
-        double maxPixels = Math.min(7680.0*4320, Math.max(640.0*360, Runtime.getRuntime().maxMemory()/48.0));
+        double maxPixels = Math.min(7680.0*4320, Math.max(640.0*360, Runtime.getRuntime().maxMemory()/96.0));
         scale = Math.min(scale, Math.min(limitHeight*16.0/9.0/srcW, limitHeight/srcH));
         scale = Math.min(scale, Math.sqrt(maxPixels/((double)srcW*srcH)));
         int dstW = Math.max(2, (int) Math.round((double) srcW * scale) & 0xFFFFFFFE);
@@ -195,26 +197,38 @@ public final class VideoDecoder {
     }
 
     private void readFrames(InputStream in, int w, int h) throws IOException {
-        int frameSize = w * h * 4;
-        byte[] rgba = new byte[frameSize];
-        int[] out = new int[w * h];
-        long interval = 1000000000L / (long) Math.max(1, this.config.fps);
-        long nextFrameAt = System.nanoTime();
-        while (!this.closed) {
-            if (!VideoDecoder.readFully(in, rgba)) {
-                return;
+        // Keep native pipe reads separate from the presentation clock. In particular,
+        // macOS pipe wakeups can otherwise delay several frames after each paced read.
+        var frames=new java.util.concurrent.ArrayBlockingQueue<int[]>(4);
+        var finished=new java.util.concurrent.atomic.AtomicBoolean();
+        var failure=new java.util.concurrent.atomic.AtomicReference<Throwable>();
+        Thread reader=new Thread(()->{
+            byte[] rgba=new byte[w*h*4];
+            try {
+                while(!closed && !Thread.currentThread().isInterrupted() && readFully(in,rgba)) {
+                    int[] pixels=new int[w*h];pack(rgba,w,h,pixels);frames.put(pixels);
+                }
+            } catch(InterruptedException e) {Thread.currentThread().interrupt();}
+            catch(Throwable e) {if(!closed)failure.set(e);}
+            finally {finished.set(true);}
+        },"EVATEX-FrameReader");
+        reader.setDaemon(true);frameReader=reader;reader.start();
+        long interval=1_000_000_000L/Math.max(1,config.fps),nextFrameAt=System.nanoTime();
+        try {
+            while(!closed) {
+                int[] frame;
+                try {frame=frames.poll(100,TimeUnit.MILLISECONDS);}
+                catch(InterruptedException e) {Thread.currentThread().interrupt();if(closed)return;throw new IOException("Video presentation interrupted",e);}
+                if(frame==null) {
+                    if(finished.get()) {if(failure.get()!=null)throw new IOException("Video frame reader failed",failure.get());return;}
+                    continue;
+                }
+                if(closed)return;
+                listener.onFrame(frame,w,h);everPublishedFrame=true;++publishedFrames;
+                long now=System.nanoTime();
+                if(now<(nextFrameAt+=interval))park(nextFrameAt-now);else nextFrameAt=now;
             }
-            VideoDecoder.pack(rgba, w, h, out);
-            if (!closed) this.listener.onFrame(out.clone(), w, h);
-            this.everPublishedFrame = true;
-            ++this.publishedFrames;
-            long now = System.nanoTime();
-            if (now < (nextFrameAt += interval)) {
-                VideoDecoder.park(nextFrameAt - now);
-            } else {
-                nextFrameAt = now;
-            }
-        }
+        } finally {reader.interrupt();if(frameReader==reader)frameReader=null;}
     }
 
     private static void pack(byte[] rgba, int w, int h, int[] out) {

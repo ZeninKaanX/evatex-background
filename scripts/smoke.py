@@ -78,6 +78,7 @@ if version.startswith('26.'):
         }
 ''' + text[end:]
     if version in ('26.2','26.3'):
+        text=text.replace('client.getSplashManager()','client.gui.splashManager()')
         text=text.replace('client.getMainRenderTarget()','client.gameRenderer.mainRenderTarget()')
         text=text.replace('client.getOverlay()', 'client.gui.overlay()').replace('client.screen','client.gui.screen()').replace('client.setScreen(', 'client.gui.setScreen(')
     source.write_text(text)
