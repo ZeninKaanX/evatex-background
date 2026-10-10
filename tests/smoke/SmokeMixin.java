@@ -58,8 +58,8 @@ public abstract class SmokeMixin {
         if (client.field_1755 instanceof class_442) {
             for (var child : client.field_1755.method_25396()) {
                 if (child instanceof com.videomenu.AstralButton button && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("evatex.title").getString())) {
-                    if (Math.abs(button.method_46426()+button.method_25368()/2-client.field_1755.field_22789/2)>1 || button.method_46427()!=(client.field_1755.field_22790>=220 ? client.field_1755.field_22790-26 : 6))
-                        throw new AssertionError("Video Menu shortcut is not lower-centred");
+                    if (button.method_46426()!=Math.max(4,client.field_1755.field_22789-104) || button.method_46427()!=Math.max(6,client.field_1755.field_22790-26))
+                        throw new AssertionError("Video Menu shortcut is not lower-right aligned");
                 }
             }
         }

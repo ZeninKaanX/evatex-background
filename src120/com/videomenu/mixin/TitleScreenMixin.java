@@ -20,7 +20,18 @@ public abstract class TitleScreenMixin extends class_437 {
 
     @Inject(method = {"method_25426"}, at = {@At(value = "TAIL")})
     private void videomenu$addVideoMenuButton(CallbackInfo ci) {
-        this.method_37063(new com.videomenu.AstralButton(Math.max(4, (this.field_22789 - 100) / 2), this.field_22790 >= 220 ? this.field_22790 - 26 : 6, 100, 14, class_2561.method_43471("evatex.title"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0)), false));
+        // Keep the original credits action and full localized notice on hover.
+        for (var child : this.method_25396()) {
+            if (child instanceof net.minecraft.class_7077 footer && footer.method_25369().getString().equals(class_2561.method_43471("title.credits").getString())) {
+                footer.method_47400(net.minecraft.class_7919.method_47407(footer.method_25369()));
+                footer.method_25355(class_2561.method_43470("© Mojang Studios"));
+                int textWidth=this.field_22793.method_1727(footer.method_25369().getString());
+                footer.method_25358(textWidth);
+                footer.method_46421(Math.max(4,this.field_22789-textWidth-4));
+                footer.method_46419(this.field_22790-10);
+            }
+        }
+        this.method_37063(new com.videomenu.AstralButton(Math.max(4, this.field_22789 - 104), Math.max(6, this.field_22790 - 26), 100, 14, class_2561.method_43471("evatex.title"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0)), false));
     }
 
     @Inject(method = "method_25394", at = @At(value = "INVOKE", target = "Lnet/minecraft/class_332;method_51422(FFFF)V", ordinal = 1, shift = At.Shift.AFTER))

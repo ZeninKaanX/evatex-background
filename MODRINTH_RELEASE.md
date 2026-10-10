@@ -2,7 +2,7 @@
 
 ## Release notes
 
-Video Menu now sits at the lower centre of the title screen in both Minecraft and Atlas Client 3.0.3, with a smaller button. Native windows below 220 GUI pixels high use the top fallback to avoid the crowded vanilla controls. The Atlas shortcut scales with the game window and has explicit local padding and centred text, keeping it clear of the account card. Minecraft buttons use the actual font height for vertical label alignment.
+Video Menu now sits at the lower right of the title screen in both Minecraft and Atlas Client 3.0.3, with a smaller black-and-white Astral button. Minecraft’s footer uses a compact right-aligned copyright label, preserving the original localized notice on hover and the credits action on click. Atlas has explicit local padding and centred text, restoring its style after rendering. Native button labels use the actual font height for vertical alignment.
 
 Placement depends on the game window and GUI scale rather than the launcher or installation path. All 24 exact-version Fabric builds remain available. Custom menus provided by other mods may need their own compatibility bridge; no claim is made that every launcher or menu replacement has been tested.
 

@@ -89,13 +89,13 @@ public final class AtlasCompatibility {
         try {
             float width = mc.method_22683().method_4480();
             // Atlas uses window pixels; Minecraft widgets use GUI-scaled coordinates.
-            // Keep the same lower-centre anchor without overlapping the account card.
+            // Keep the lower-right anchor without overlapping the account card.
             float scale = Math.max(1f, width / Math.max(1, mc.method_22683().method_4486()));
-            float buttonWidth = Math.min(Math.min(220f, Math.max(140f, 100f * scale)), Math.max(32f, width * .35f));
+            float buttonWidth = Math.min(Math.min(180f, Math.max(140f, 100f * scale)), Math.max(32f, width * .35f));
             float fontSize = ((Number)Api.FONT_SIZE.invoke(null)).floatValue();
             float buttonHeight = Math.max(fontSize + 10f, 28f);
             float height = mc.method_22683().method_4507();
-            Api.POS.invoke(null, (width-buttonWidth)/2f, Math.max(8f, height-buttonHeight-64f));
+            Api.POS.invoke(null, Math.max(8f,width-buttonWidth-24f), Math.max(8f,height-buttonHeight-24f));
             Api.SIZE.invoke(null, buttonWidth, buttonHeight);
             // No title bar, resize, move, scrollbar, saved layout or window background.
             int pushed = 0, variables = 0;
