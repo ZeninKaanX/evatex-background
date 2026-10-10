@@ -30,7 +30,7 @@ public abstract class SmokeMixin {
         if (++evatexqa$ticks<(evatexqa$stage==0 ? 300 : 100)) return;
         evatexqa$ticks=0;
         System.out.println("EVATEX_QA stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+VideoBackground.INSTANCE.status());
-        if (evatexqa$stage<6 && !VideoBackground.INSTANCE.status().equals("playing")) throw new AssertionError("Video did not continue in menu");
+        if (evatexqa$stage<8 && !VideoBackground.INSTANCE.status().equals("playing")) throw new AssertionError("Video did not continue in menu");
         if (evatexqa$stage==1 && !net.minecraft.class_2561.method_43471("evatex.title").getString().equals("Video Menüsü")) throw new AssertionError("Turkish translations not loaded");
         evatexqa$capture(client, "stage-"+evatexqa$stage);
         switch (evatexqa$stage++) {
@@ -44,18 +44,18 @@ public abstract class SmokeMixin {
                 VideoBackground.INSTANCE.reload(cfg); client.method_1507(new VideoSelectScreen(evatexqa$title,0));
             }
             case 3 -> client.method_1507(new class_500(evatexqa$title));
-            case 4 -> {
-                client.method_1507(evatexqa$title);
+            case 4 -> client.method_1507(evatexqa$title);
+            case 5 -> {
                 if (FabricLoader.getInstance().isModLoaded("atlas-client")) try {
                     Class.forName("me.koraizen.atlasclient.gui.UIModeManager").getMethod("setVanillaMode",boolean.class).invoke(null,true);
                 } catch (Exception e) { throw new RuntimeException(e); }
             }
-            case 5 -> client.method_1507(new class_500(evatexqa$title));
-            case 6 -> {
+            case 6 -> client.method_1507(new class_500(evatexqa$title));
+            case 7 -> {
                 VideoMenuConfig cfg=VideoMenuConfig.load(); cfg.enabled=false; cfg.save(); VideoBackground.INSTANCE.reload(cfg);
                 client.method_1507(evatexqa$title);
             }
-            case 7 -> {
+            case 8 -> {
                 System.out.println("EVATEX_QA COMPLETE"); client.method_1592();
             }
         }
