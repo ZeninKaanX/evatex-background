@@ -1,3 +1,17 @@
+# 1.8.1 — Playback and desktop compatibility
+
+- Own Astral volume slider with live 0–100% software gain, portable across audio devices; global system/game volume remains independent.
+- Live sound on/off control with default mute, using the same FFmpeg input as video.
+- Audio-device errors no longer prevent video playback.
+- Safe 1080p default output, adjustable decode-height limits and memory-bounded frame storage.
+- Limit FFmpeg decode/filter/output threads to reduce resource pressure on large inputs.
+- Paginate playback settings and use tabs on narrow screens to prevent overlapping controls.
+- Open video folders asynchronously using Windows, Linux and macOS commands; clear inherited native-library overrides for desktop helpers.
+- Bundle pinned, checksum-verified FFmpeg engines for macOS Intel/Apple Silicon and Linux ARM64 alongside Windows/Linux x64.
+- Repair cached executable permissions and incomplete extracted engines; fall back to system FFmpeg when execution fails.
+- Add 20 requested motivational, creator and anime splash texts to Minecraft’s existing random pool; preserve vanilla/resource-pack messages and holiday behavior.
+- Retain all 24 exact-version Fabric builds and separate Atlas Client 3.0.3 integration.
+
 # 1.8.0 — Astral
 
 - An exclusive black-and-white Astral interface, with optional screen and hover transitions and a bounded meteor animation.

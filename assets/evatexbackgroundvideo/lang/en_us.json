@@ -21,5 +21,12 @@
   "evatex.status.loading": "Loading video…",
   "evatex.status.playing": "Playing • saved automatically",
   "evatex.status.error": "Cannot play video; check the log",
-  "evatex.transitions": "Animations: %s"
+  "evatex.transitions": "Animations: %s",
+  "evatex.audio": "Audio: %s",
+  "evatex.decode_limit": "Decode limit: %sp",
+  "evatex.folder_opening": "Opening…",
+  "evatex.audio_error": "Audio device unavailable",
+  "evatex.library_tab": "Library",
+  "evatex.audio_no_track": "This video has no audio track",
+  "evatex.volume": "Volume: %s%%"
 }

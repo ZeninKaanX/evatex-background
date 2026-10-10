@@ -1,4 +1,4 @@
-# EVATEX Background Video — Astral 1.8.0
+# EVATEX Background Video — Astral 1.8.1
 
 Replace Minecraft's title screen and multiplayer server selection backgrounds with a looping video. Made by EverVerity.
 
@@ -16,19 +16,19 @@ Install Fabric Loader **0.19.5 or later** and the jar matching your exact Minecr
 
 There are 24 separate builds covering every stable Java Edition release from 1.20 through 26.3. See `COMPATIBILITY.md` for the complete file list and validation results. Use one EVATEX jar at a time and remove the old EVATEX jar when updating. Exact-version metadata prevents loading the wrong API adapter.
 
-Fabric API is not required by EVATEX; its resource-loading modules are embedded. Windows x64 and Linux x64 FFmpeg binaries are bundled. macOS and ARM devices require an appropriate system `ffmpeg` on PATH. Minecraft versions before 1.20, snapshots and future versions are outside this release's support range.
+Fabric API is not required by EVATEX; its resource-loading modules are embedded. FFmpeg engines are bundled for Windows x64, Linux x64/ARM64 and macOS Intel/Apple Silicon. No separate FFmpeg installation is required on these targets. A compatible system `ffmpeg` is used as a fallback if the bundled engine cannot run. Minecraft versions before 1.20, snapshots and future versions are outside this release's support range.
 
 ## Use
 
 1. Place MP4, MOV, WebM, MKV, AVI or M4V files in `videos` inside the game directory. Existing `videolar` folders and saved paths are also supported.
 2. Open **Video Menu** on the title screen and select a clip.
-3. Adjust resolution, frame rate, framing (fill or fit), darkening and vignette. The mod has its own black-and-white Astral interface, with optional screen fades, hover transitions and falling meteors. Settings save automatically. Refresh rescans files after adding videos.
+3. Adjust sound, resolution, decode-size limit, frame rate, framing (fill or fit), darkening and vignette. The mod has its own black-and-white Astral interface, with optional screen fades, hover transitions and falling meteors. Separate library and playback pages prevent controls from overlapping at larger GUI scales; narrow screens use tabs. Folder opening runs asynchronously with Windows, Linux and macOS commands. Settings save automatically. Refresh rescans files after adding videos.
 
 The Astral interface uses dark panels and black/white accents, with keyboard focus and native narration support. Text follows Minecraft's selected language. Turkish and English are included; other languages use the English fallback.
 
-New configurations decode at 100% source resolution, bounded to 3840×2160 while preserving aspect ratio. Existing settings are preserved. Resolution controls decoded pixel size, not framing. Lanczos downscaling and linear texture sampling improve clarity. FPS conversion preserves playback speed. Playback continues between the title screen, multiplayer server selection and video settings, and stops outside these screens.
+New configurations use 100% scale with a safe 1920×1080 output limit, preserving aspect ratio. Higher-resolution sources are downscaled before Java-side frame storage. The decode-size control offers 720p through 4320p; an additional memory bound limits frame allocations. Decoding large source files still requires sufficient hardware. Existing settings are preserved. Resolution controls decoded pixel size, not framing. Lanczos downscaling and linear texture sampling improve clarity. FPS conversion preserves playback speed. Playback continues between the title screen, multiplayer server selection and video settings, and stops outside these screens.
 
-If a clip fails, the vanilla panorama remains available. Check `logs/latest.log` for FFmpeg or file errors. Background video has no audio.
+If a clip fails, the vanilla panorama remains available. Check `logs/latest.log` for FFmpeg or file errors. Sound is muted by default and can be toggled live without restarting the video. The Astral slider adjusts video volume from 0–100% independently of the system/game volume. Files without an audio track remain silent. Audio-device failures allow video playback to continue.
 
 ## Atlas Client compatibility
 

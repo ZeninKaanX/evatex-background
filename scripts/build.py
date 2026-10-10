@@ -14,6 +14,7 @@ from ports import sources, API
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / 'build' / 'dependencies'
+MOD_VERSION = json.loads((ROOT/'fabric.mod.json').read_text())['version']
 VERSIONS = {v: ('src120' if v.startswith('1.20.') or v == '1.20' else 'src', 17 if v in ('1.20','1.20.1','1.20.2','1.20.3','1.20.4') else 21) for v in ('1.20','1.20.1','1.20.2','1.20.3','1.20.4','1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4','1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10','1.21.11')}
 
 VERSIONS.update({v: ('src',25) for v in ('26.1','26.1.1','26.1.2','26.2','26.3')})
@@ -87,7 +88,7 @@ def build(version, system_ffmpeg, prepare_only=False):
     (ROOT/'build'/('classpath-'+version+'.txt')).write_text(cp)
     binary_dir = ROOT/'assets/videomenu/ffmpeg'
     if not system_ffmpeg:
-        for binary in ('win64/ffmpeg.exe','linux64/ffmpeg','COPYING.GPLv3'):
+        for binary in ('win64/ffmpeg.exe','linux64/ffmpeg','COPYING.GPLv3','PLATFORMS.json','darwin-x64/ffmpeg.gz','darwin-arm64/ffmpeg.gz','linux-arm64/ffmpeg.gz'):
             if not (binary_dir/binary).is_file(): raise RuntimeError('Run scripts/fetch-ffmpeg.sh before packaging: missing '+binary)
     api_version = API[version]
     api = fetch(maven+f'net/fabricmc/fabric-api/fabric-api/{api_version}/fabric-api-{api_version}.jar', CACHE/f'fabric-api-{api_version}.jar')
@@ -108,18 +109,28 @@ def build(version, system_ffmpeg, prepare_only=False):
     config['jars']=[{'file':name} for name in nested]
     dist=ROOT/'build/dist'; dist.mkdir(parents=True,exist_ok=True)
     suffix='-system-ffmpeg' if system_ffmpeg else ''
-    output=dist/f'evatex-background-video-1.8.0-mc{version}{suffix}.jar'
-    with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED) as z:
+    output=dist/f'evatex-background-video-{MOD_VERSION}-mc{version}{suffix}.jar'
+    # Compress identical bundled engines once, then copy their ZIP records per version.
+    asset_files=[file for file in sorted((ROOT/'assets').rglob('*')) if file.is_file() and not (system_ffmpeg and binary_dir in file.parents)]
+    digest=hashlib.sha256()
+    for file in asset_files:
+        digest.update(str(file.relative_to(ROOT)).encode());digest.update(str(file.stat().st_mtime_ns).encode());digest.update(str(file.stat().st_size).encode())
+    resource_cache=ROOT/'build'/('resources-'+digest.hexdigest()+'.zip')
+    if not resource_cache.exists():
+        temporary=resource_cache.with_suffix('.tmp')
+        with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED) as z:
+            for file in asset_files:z.write(file,file.relative_to(ROOT),compress_type=zipfile.ZIP_STORED if file.suffix=='.gz' else zipfile.ZIP_DEFLATED)
+        temporary.replace(resource_cache)
+    shutil.copyfile(resource_cache,output)
+    with zipfile.ZipFile(output,'a',zipfile.ZIP_DEFLATED) as z:
         for name, data in nested.items(): z.writestr(name,data)
         z.writestr('fabric.mod.json',json.dumps(config,indent=2)+'\n')
         mixin_config=json.loads(mixin_file.read_text())
         mixin_config['compatibilityLevel']='JAVA_'+str(release)
         z.writestr('videomenu.mixins.json',json.dumps(mixin_config,indent=2)+'\n')
         for name in ('LICENSE','README.md','CHANGELOG.md','VALIDATION.md','MODRINTH_RELEASE.md','COMPATIBILITY.md','docs/astral-interface.png'): z.write(ROOT/name,name)
-        for folder in (classes,ROOT/'assets'):
-            for file in sorted(folder.rglob('*')):
-                if file.is_file() and not (system_ffmpeg and binary_dir in file.parents):
-                    z.write(file,file.relative_to(classes if folder==classes else ROOT))
+        for file in sorted(classes.rglob('*')):
+            if file.is_file():z.write(file,file.relative_to(classes))
     output.with_suffix('.jar.sha256').write_text(hashlib.sha256(output.read_bytes()).hexdigest()+'  '+output.name+'\n')
     print('Built',output)
 

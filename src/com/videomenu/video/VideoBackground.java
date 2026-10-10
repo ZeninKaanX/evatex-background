@@ -36,6 +36,7 @@ public final class VideoBackground {
     private VideoBackground() {}
     public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
     public String status() { return status; }
+    public synchronized String audioStatus() { return decoder == null ? "muted" : decoder.audioStatus(); }
     public boolean isActive() { return latest != null; }
     public synchronized void setMenuVisible(boolean visible) {
         if (menuVisible == visible) return;
@@ -45,9 +46,10 @@ public final class VideoBackground {
     public synchronized void reload(VideoMenuConfig value) {
         VideoMenuConfig next = value.copy();
         boolean restart = config == null || !Objects.equals(config.videoPath, next.videoPath)
-            || config.scale != next.scale || config.fps != next.fps || config.enabled != next.enabled;
+            || config.maxDecodeHeight != next.maxDecodeHeight || config.scale != next.scale || config.fps != next.fps || config.enabled != next.enabled;
         config = next;
         if (restart) restart();
+        else if (decoder != null) {decoder.setAudioEnabled(next.audioEnabled);decoder.setAudioVolume(next.audioVolume);}
     }
     private void restart() {
         long session = ++generation;

@@ -17,6 +17,9 @@ public final class VideoMenuConfig {
     public int fps = 30;
     public double scale = 1.0;
     public boolean enabled = true;
+    public boolean audioEnabled = false;
+    public double audioVolume = 1.0;
+    public int maxDecodeHeight = 1080;
     public boolean fillScreen = true;
     public boolean themeTransitions = true;
     public double darkening = 0.25;
@@ -32,6 +35,9 @@ public final class VideoMenuConfig {
         try {
             JsonObject obj = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
             config.themeTransitions = getBoolean(obj, "themeTransitions", true);
+            config.audioEnabled = getBoolean(obj, "audioEnabled", false);
+            config.audioVolume = getDouble(obj,"audioVolume",1.0);
+            config.maxDecodeHeight = getInt(obj, "maxDecodeHeight", 1080);
             config.enabled = getBoolean(obj, "enabled", true);
             config.fillScreen = getBoolean(obj, "fillScreen", true);
             config.videoPath = VideoMenuConfig.getString(obj, "videoPath", config.videoPath);
@@ -51,13 +57,16 @@ public final class VideoMenuConfig {
         copy.videoPath = videoPath; copy.fps = fps; copy.scale = scale;
         copy.darkening = darkening; copy.showVignette = showVignette;
         copy.themeTransitions = themeTransitions;
+        copy.audioEnabled = audioEnabled; copy.audioVolume=audioVolume; copy.maxDecodeHeight = maxDecodeHeight;
         copy.enabled = enabled; copy.fillScreen = fillScreen;
         copy.validate();
         return copy;
     }
 
     public void validate() {
+        audioVolume = Double.isFinite(audioVolume) ? Math.max(0,Math.min(1,audioVolume)) : 1.0;
         if (videoPath == null) videoPath = "";
+        maxDecodeHeight = Math.max(360, Math.min(4320, maxDecodeHeight));
         fps = Math.max(15, Math.min(120, fps));
         scale = Double.isFinite(scale) ? Math.max(0.25, Math.min(1.0, scale)) : 1.0;
         darkening = Double.isFinite(darkening) ? Math.max(0.0, Math.min(0.8, darkening)) : 0.25;
@@ -87,6 +96,9 @@ public final class VideoMenuConfig {
         obj.addProperty("_HELP", "Bu dosya EVATEX-Background Video modunun ayarlarıdır (EverVerity tarafından yapılmıştır). Genelde bu dosyayı elle düzenlemenize gerek yoktur; ana menüdeki 'Video Menüsü' butonuyla video ve ayarları oyun içinden değiştirebilirsiniz. videoPath: ana menüde oynatılacak video dosyasının yolu. Videoları oyun klasöründeki 'videolar' klasörüne atarsanız otomatik listelenir. Not: Video, mod ile birlikte gelen FFmpeg ile çözülür; ek kurulum gerekmez.");
         obj.addProperty("themeTransitions", themeTransitions);
         obj.addProperty("enabled", enabled);
+        obj.addProperty("audioEnabled", audioEnabled);
+            obj.addProperty("audioVolume", audioVolume);
+        obj.addProperty("maxDecodeHeight", maxDecodeHeight);
         obj.addProperty("fillScreen", fillScreen);
         obj.addProperty("videoPath", this.videoPath);
         obj.addProperty("fps", this.fps);

@@ -9,7 +9,8 @@
     "MinecraftClientMixin",
     "ServerBackgroundMixin",
     "atlas.AtlasBackdropMixin",
-    "atlas.AtlasMainMenuMixin"
+    "atlas.AtlasMainMenuMixin",
+    "SplashManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

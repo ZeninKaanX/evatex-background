@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "evatexbackgroundvideo",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "name": "EVATEX-Background Video",
   "description": "Own black-and-white Astral interface and video backgrounds for the title screen and multiplayer server selection.",
   "authors": [

@@ -53,6 +53,8 @@ def sources(root,version):
             edit('video/VideoBackground.java','class_10799.field_56883, TEXTURE_ID','net.minecraft.class_1921::method_62277, TEXTURE_ID')
     if version == '1.20':
         edit('AstralButton.java','protected void method_48579','public void method_48579')
+    if version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
+        (folder/'com/videomenu/mixin/SplashManagerMixin.java').write_text((root/'src120/com/videomenu/mixin/SplashManagerMixin.java').read_text())
     if version.startswith('26.'):
         from named_port import symbols, translate
         mapping=symbols(root/'build/dependencies')
@@ -71,6 +73,7 @@ def sources(root,version):
                 content=content.replace('drawCenteredString','centeredText').replace('drawString','text')
                 content=content.replace('net.minecraft.util.Util.getPlatform().openFile(VideoFiles.directory().toFile());','java.awt.Desktop.getDesktop().open(VideoFiles.directory().toFile());')
                 content=content.replace('GuiGraphics','GuiGraphicsExtractor').replace('renderBackground','extractBackground').replace('renderContents','extractContents')
+                if file.name=='AstralVolumeSlider.java':content=content.replace('renderWidget','extractWidgetRenderState')
                 if file.name in ('VideoSelectScreen.java','TitleScreenMixin.java'):
                     content=content.replace('public void render(', 'public void extractRenderState(').replace('super.render(', 'super.extractRenderState(').replace('method = "render"','method = "extractRenderState"').replace(';render(', ';extractRenderState(')
                 if version in ('26.2','26.3'):

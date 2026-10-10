@@ -1,27 +1,31 @@
-# Astral 1.8.0 validation
+# Astral 1.8.1 validation
 
-Test environment: Linux x64, Java 21/25, Fabric Loader 0.19.5, real Minecraft client, real bundled FFmpeg. Test harnesses run in isolated game directories and are excluded from release jars.
+The local test host is Linux x64 with Java 21/25 and Fabric Loader 0.19.5. Clients run in isolated directories on the right, secondary display. Test helpers and personal media are excluded from distribution jars.
 
-## Automated regressions
+## Decoder and sound
 
-`scripts/test.py` passes config normalization, invalid file handling, RGBA/ABGR channel ordering, frame ownership, native-resolution and 4K bounds, English/Turkish key parity, real FFmpeg playback at 15 and 60 FPS, looping and shutdown. The timing fixture publishes 45 frames at 15 FPS in about 2.93 seconds and 180 frames at 60 FPS in about 2.98 seconds. These checks test playback speed, not a hardware performance benchmark.
+The user's supplied video is 1920×1080 H.264 at 60 FPS with stereo AAC audio, 16.602 seconds long. It is used without changing the original file. Lightweight audio regression output is 480×270 at 30 FPS; menu tests use the normal 1080p output cap. Live volume changes, including zero gain and restore, do not restart the decoder. PCM gain tests check signed 16-bit positive/negative samples and exact zeroing; the UI harness applies and verifies the native slider. Live unmute/mute does not restart the FFmpeg process, video continues while muted, and the original clip loops past its duration. Shutdown stops frame publication and closes the audio device/process.
+
+Sound uses stereo 48 kHz PCM from the same FFmpeg input as video. A 32 KiB bounded output buffer is primed before playback to absorb short scheduling delays. A continuous 12-second sound test records zero output-buffer underruns. An isolated PipeWire capture, routed using process-local `PIPEWIRE_NODE`, contains no unexpected silent gap of 50 ms or more in its approximately 11.6-second active interval; other desktop audio is excluded. Muting flushes and closes the device, while PCM is drained so video continues. Device initialization/write failures are handled without stopping video. Linux explicitly selects ALSA's default mixer so the user's PipeWire/PulseAudio output is respected.
+
+The 160×90 timing fixture separately validates 15/60 FPS pacing, looping, immutable frame ownership and cleanup. Tests also cover corrupt config values, invalid/Unicode paths, RGBA/ABGR channel order, portable folder commands, Turkish/English key parity and layout bounds across multiple dimensions.
+
+No 4K or 8K video is decoded or played on this computer. High-resolution checks use width/height integers only, verifying that 3840×2160 and 7680×4320 sources select the safe 1920×1080 output under default settings. This validates allocation policy, not real high-resolution codec performance. Larger source decoding still requires sufficient hardware.
 
 ## In-game checks
 
-All 24 exact-version builds listed in `COMPATIBILITY.md` are exercised in isolated real Minecraft clients on Linux x64. Java 21 runs 1.20/1.21 GUI checks; Java 25 runs 26.x checks. The harness visits the title screen, Turkish Astral settings, settings with animations disabled, multiplayer selection, title/server fallback variants and video-disabled idle shutdown. It checks decoder continuity, loaded Turkish translations, idle status when disabled and clean exit. Screenshots are also inspected: an active decoder alone does not prove video visibility.
+The 24-version matrix from Minecraft 1.20 through 26.3 visits the title, both Astral settings pages, multiplayer selection, return to title and video-disabled idle state. It asserts video continuity, Turkish translations, live sound enable/disable and clean exit. The splash pool must preserve the vanilla/resource-pack messages and contain all 20 additions; a forced chemical-formula splash checks Unicode rendering. GLFW positions older clients on the secondary display; SDL positions Minecraft 26.3 there. Logs and screenshots are under `build/smoke-<version>-standalone`; the result manifest is `build/qa-1.8.1-matrix.json`. Run `scripts/qa_matrix.py` on this desktop to reproduce.
 
-Atlas Client 3.0.3 is additionally tested on 1.21.11 with full Fabric API and Player Animation Library, in both custom ImGui and vanilla UI modes. Logs/screenshots are in `build/smoke-<version>-standalone` and `build/smoke-1.21.11-atlas`. QA helper mods are excluded from release jars.
+Atlas Client 3.0.3 is checked separately on Minecraft 1.21.11 with its own Fabric API and Player Animation Library dependencies. Atlas's custom ImGui and vanilla modes remain separate from EVATEX. Screenshots are inspected for actual visible video and control layout; a decoder reporting active is not sufficient evidence of rendering.
 
-Version-specific failures found and fixed include removed legacy server-list background flags/render callbacks, changed panorama/texture/button APIs, named GUI/shutdown APIs in 26.x, and missing legacy resource-loader support on 1.21.9/1.21.10. The isolated launcher classpath now excludes older vanilla ASM libraries in favor of Fabric's revision. Official non-audio assets are downloaded with checksum verification for repeatable language/font tests. Offline Realms authentication and unavailable narrator/audio warnings are unrelated to EVATEX.
+## Desktop platforms
 
-Pure config/decoder regressions pass on representatives 1.20, 1.21.11 and 26.3; GitHub Actions runs these regressions and compilation for all 24 versions. `scripts/check_packages.py` validates all bundled archives and checksums. Bundled decoder startup is also tested separately from system-FFmpeg development builds.
+Distributable jars contain Windows x64, Linux x64/ARM64 and macOS Intel/Apple Silicon engines. Compressed and extracted engine hashes are checked, and license/build information is included. Cached macOS/ARM binaries are checksum-verified before use; Linux permissions and incomplete extraction are repaired. Compatible system FFmpeg is a fallback if bundled execution fails.
 
-## Scope and remaining limits
+Only Linux x64 runtime is directly exercised on this host. Packaging does not prove Windows, macOS or ARM runtime behavior. GitHub Actions includes native decoder/config regressions on Ubuntu, Windows and macOS in addition to compilation/decoder checks for all Minecraft versions; consult actual workflow results before claiming those jobs passed. Desktop folder-manager behavior and full game UI on Windows/macOS still require those systems.
 
-Support covers stable Java Edition releases from 1.20 through 26.3, using separate exact-version jars. Earlier releases, snapshots, future releases and non-Fabric loaders are outside this matrix. Compilation and menu checks do not establish compatibility with every other mod or every hardware configuration. No gameplay-world or server-side behavior is added.
+## Scope
 
-Atlas integration is optional and restricted to Atlas 3.0.3. It uses Atlas's existing ImGui context and the existing video GPU texture; Atlas code, settings and binaries remain separate. Its dependencies must still be installed.
+Support is limited to the 24 exact stable Java Edition/Fabric versions in `COMPATIBILITY.md`. Older releases, snapshots, future releases and other loaders are outside this matrix. Atlas support is restricted to 3.0.3 on 1.21.11. No guarantee is made for every other mod, hardware configuration or codec.
 
-Meteor effects have a fixed 48-star field and at most 3 meteors (2 on small GUI dimensions), rendered only in EVATEX settings. Disabling animations stops moving meteors and hover/screen fades. Decoder startup runs off the render thread, uploads occur only when a new frame is available, and leaving supported menus closes the decoder. High-resolution video still consumes CPU, RAM and upload bandwidth; reduce resolution/FPS on slower computers. No per-device performance guarantee is made.
-
-Bundled FFmpeg playback was verified on Linux x64. Windows x64 binaries are packaged but were not executed here. macOS and ARM require a suitable external system FFmpeg. Video audio is intentionally disabled. Only Turkish and English translations are provided.
+Meteor counts are bounded, animations can be disabled, startup runs outside the render thread, texture uploads occur only for new frames, and leaving supported menus closes playback. The mod adds menu behavior rather than world/server features. Only Turkish and English translations are bundled; other game languages fall back to English.
