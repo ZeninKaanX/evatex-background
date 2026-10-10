@@ -1,0 +1,22 @@
+package com.videomenu.mixin;
+
+import com.videomenu.VideoSelectScreen;
+import com.videomenu.video.VideoBackground;
+import net.minecraft.class_310;
+import net.minecraft.class_442;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(class_310.class)
+public abstract class MinecraftClientMixin {
+    @Inject(method = "method_1574", at = @At("HEAD"))
+    private void evatex$menuLifecycle(CallbackInfo ci) {
+        var screen = ((class_310)(Object)this).field_1755;
+        VideoBackground.INSTANCE.setMenuVisible(((class_310)(Object)this).field_1687 == null &&
+            (screen instanceof class_442 || screen instanceof net.minecraft.class_500 || screen instanceof VideoSelectScreen));
+    }
+    @Inject(method = "method_1490", at = @At("HEAD"))
+    private void evatex$shutdown(CallbackInfo ci) { VideoBackground.INSTANCE.close(); }
+}

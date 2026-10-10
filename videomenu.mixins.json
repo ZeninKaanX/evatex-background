@@ -1,13 +1,18 @@
 {
-  "required": false,
+  "required": true,
   "package": "com.videomenu.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
     "RotatingCubeMapRendererMixin",
     "NativeImageAccessor",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "MinecraftClientMixin",
+    "ServerBackgroundMixin",
+    "atlas.AtlasBackdropMixin",
+    "atlas.AtlasMainMenuMixin"
   ],
   "injectors": {
-    "defaultRequire": 0
-  }
+    "defaultRequire": 1
+  },
+  "plugin": "com.videomenu.mixin.VideoMixinPlugin"
 }

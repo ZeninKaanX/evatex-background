@@ -20,21 +20,11 @@ public abstract class TitleScreenMixin extends class_437 {
 
     @Inject(method = {"method_25426"}, at = {@At(value = "TAIL")})
     private void videomenu$addVideoMenuButton(CallbackInfo ci) {
-        this.method_37063(class_4185.method_46430(class_2561.method_43470("Video Menüsü"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0))).method_46434(this.field_22789 - 104, 4, 100, 20).method_46431());
+        this.method_37063(new com.videomenu.AstralButton(Math.max(4, this.field_22789 - 134), 4, 130, 20, class_2561.method_43471("evatex.title"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0)), false));
     }
 
-    @Inject(method = {"method_25426"}, at = {@At(value = "HEAD")})
-    private void videomenu$resumeVideo(CallbackInfo ci) {
-        VideoBackground.INSTANCE.resume();
-    }
-
-    @Inject(method = {"method_25432"}, at = {@At(value = "HEAD")})
-    private void videomenu$pauseVideo(CallbackInfo ci) {
-        VideoBackground.INSTANCE.pause();
-    }
-
-    @Inject(method = {"method_25394(Lnet/minecraft/class_332;IIF)V"}, at = {@At(value = "TAIL")})
-    private void videomenu$renderVideo(class_332 context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
-        VideoBackground.INSTANCE.render(context, this.field_22789, this.field_22790);
+    @Inject(method = "method_25394", at = @At(value = "INVOKE", target = "Lnet/minecraft/class_332;method_51422(FFFF)V", ordinal = 1, shift = At.Shift.AFTER))
+    private void evatex$drawVideoBeforeWidgets(class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        VideoBackground.INSTANCE.render(context, field_22789, field_22790);
     }
 }

@@ -1,16 +1,19 @@
 {
   "schemaVersion": 1,
   "id": "evatexbackgroundvideo",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "name": "EVATEX-Background Video",
-  "description": "Minecraft ana menü arka planını istediğiniz videoyla değiştirir. Videoyu ana menüdeki 'Video Menüsü' butonundan seçebilirsiniz; videoları oyun klasöründeki 'videolar' klasörüne atın.\nReplace Minecraft's main menu background with your own video. Pick a video from the 'Video Menu' button on the title screen; drop videos into the 'videolar' folder in your game directory.\nEverVerity tarafından yapılmıştır / Made by EverVerity.",
+  "description": "Own black-and-white Astral interface and video backgrounds for the title screen and multiplayer server selection.",
   "authors": [
     "EverVerity"
   ],
   "contributors": [
     "eververity"
   ],
-  "contact": {},
+  "contact": {
+    "sources": "https://github.com/ZeninKaanX/evatex-background-video-1.6.0",
+    "issues": "https://github.com/ZeninKaanX/evatex-background-video-1.6.0/issues"
+  },
   "license": "MIT",
   "icon": "assets/videomenu/icon.png",
   "environment": "client",
@@ -28,8 +31,8 @@
     }
   },
   "depends": {
-    "fabricloader": ">=0.16.0",
-    "minecraft": ">=1.20 <1.21",
-    "java": ">=17"
+    "fabricloader": ">=0.19.5",
+    "minecraft": "1.21.11",
+    "java": ">=21"
   }
 }

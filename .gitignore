@@ -18,3 +18,7 @@ assets/videomenu/ffmpeg/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local regression/smoke test logs
+logs/
+__pycache__/

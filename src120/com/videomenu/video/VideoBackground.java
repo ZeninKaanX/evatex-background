@@ -4,6 +4,9 @@ import com.videomenu.VideoMenuClient;
 import com.videomenu.VideoMenuConfig;
 import com.videomenu.mixin.NativeImageAccessor;
 import java.nio.IntBuffer;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import net.minecraft.class_1011;
 import net.minecraft.class_1043;
 import net.minecraft.class_2960;
@@ -14,164 +17,106 @@ import org.lwjgl.system.MemoryUtil;
 public final class VideoBackground {
     public static final VideoBackground INSTANCE = new VideoBackground();
     public static final class_2960 TEXTURE_ID = new class_2960("evatexbackgroundvideo", "video");
-    public static final class_2960 OVERLAY_TEXTURE = new class_2960("minecraft", "textures/gui/title/background/panorama_overlay.png");
-
+    private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "EVATEX-Startup"); t.setDaemon(true); return t;
+    });
     private volatile VideoMenuConfig config;
     private VideoDecoder decoder;
-    private volatile boolean active;
-    private volatile int[] latestFrame;
-    private long lastUploadedIndex;
-    private volatile int frameW;
-    private volatile int frameH;
-    private volatile class_1043 texture;
-    private volatile IntBuffer pixelBuffer;
+    private boolean menuVisible;
+    private long generation;
+    private volatile Frame latest;
+    private volatile String status = "idle";
+    private Frame uploaded;
+    private class_1043 texture;
+    private IntBuffer pixels;
+    private int textureW, textureH;
 
-    private VideoBackground() {
+    private record Frame(int[] pixels, int width, int height) {}
+    private VideoBackground() {}
+    public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
+    public String status() { return status; }
+    public boolean isActive() { return latest != null; }
+    public synchronized void setMenuVisible(boolean visible) {
+        if (menuVisible == visible) return;
+        menuVisible = visible;
+        restart();
     }
-
-    public synchronized void init(VideoMenuConfig config) {
-        if (this.config != null) {
-            return;
-        }
-        this.config = config;
-        this.decoder = new VideoDecoder(config, this::onFrame);
-        this.active = this.decoder.start();
+    public synchronized void reload(VideoMenuConfig value) {
+        VideoMenuConfig next = value.copy();
+        boolean restart = config == null || !Objects.equals(config.videoPath, next.videoPath)
+            || config.scale != next.scale || config.fps != next.fps || config.enabled != next.enabled;
+        config = next;
+        if (restart) restart();
     }
-
-    public boolean isActive() {
-        return this.active;
-    }
-
-    public synchronized void pause() {
-        if (!this.active) {
-            return;
-        }
-        VideoMenuClient.LOGGER.info("[VideoMenu] Ana menü kapatıldı, video durduruluyor.");
-        if (this.decoder != null) {
-            this.decoder.close();
-            this.decoder = null;
-        }
-        this.active = false;
-        this.latestFrame = null;
-    }
-
-    public synchronized void resume() {
-        if (this.config == null || this.active) {
-            return;
-        }
-        VideoMenuClient.LOGGER.info("[VideoMenu] Ana menü açıldı, video yeniden başlatılıyor.");
-        if (this.decoder != null) {
-            this.decoder.close();
-            this.decoder = null;
-        }
-        if (this.texture != null) {
-            try {
-                this.texture.close();
-            } catch (Throwable t) {
-            }
-            this.texture = null;
-            this.pixelBuffer = null;
-        }
-        this.latestFrame = null;
-        this.frameW = 0;
-        this.frameH = 0;
-        this.lastUploadedIndex = -1L;
-        this.decoder = new VideoDecoder(this.config, this::onFrame);
-        this.active = this.decoder.start();
-    }
-
-    public synchronized void reload(VideoMenuConfig newConfig) {
-        VideoMenuClient.LOGGER.info("[VideoMenu] Ayarlar uygulanıyor, video yeniden başlatılıyor.");
-        if (this.decoder != null) {
-            this.decoder.close();
-            this.decoder = null;
-        }
-        if (this.texture != null) {
-            try {
-                this.texture.close();
-            } catch (Throwable t) {
-            }
-            this.texture = null;
-            this.pixelBuffer = null;
-        }
-        this.config = newConfig;
-        this.latestFrame = null;
-        this.frameW = 0;
-        this.frameH = 0;
-        this.lastUploadedIndex = -1L;
-        this.decoder = new VideoDecoder(this.config, this::onFrame);
-        this.active = this.decoder.start();
-    }
-
-    private void onFrame(int[] abgrPixels, int width, int height) {
-        this.frameW = width;
-        this.frameH = height;
-        this.latestFrame = abgrPixels;
-    }
-
-    public boolean render(class_332 context, int width, int height) {
-        if (!this.active) {
-            return false;
-        }
-        if (this.latestFrame == null) {
-            return false;
-        }
-        this.ensureTexture();
-        if (this.texture == null) {
-            return false;
-        }
-        long published = this.decoder.publishedFrames();
-        if (published != this.lastUploadedIndex) {
+    private void restart() {
+        long session = ++generation;
+        if (decoder != null) { decoder.close(); decoder = null; }
+        latest = null;
+        releaseTexture();
+        status = "idle";
+        if (!menuVisible || config == null || !config.enabled || config.videoPath.isBlank()) return;
+        status = "loading";
+        VideoDecoder next = new VideoDecoder(config, (data, w, h) -> {
             synchronized (this) {
-                int[] latest = this.latestFrame;
-                if (latest != null) {
-                    this.pixelBuffer.clear();
-                    this.pixelBuffer.put(latest);
-                    this.texture.method_4524();
-                }
+                if (session == generation) { latest = new Frame(data, w, h); status = "playing"; }
             }
-            this.lastUploadedIndex = published;
-        }
-        int vw = this.frameW;
-        int vh = this.frameH;
-        double fit = Math.min((double) width / (double) vw, (double) height / (double) vh);
-        int dw = (int) ((double) vw * fit);
-        int dh = (int) ((double) vh * fit);
-        int dx = (width - dw) / 2;
-        int dy = (height - dh) / 2;
-        context.method_25293(TEXTURE_ID, dx, dy, dw, dh, 0.0f, 0.0f, vw, vh, vw, vh);
-        if (this.config.darkening > 0.0) {
-            int alpha = (int) (this.config.darkening * 255.0);
-            if (alpha > 255) {
-                alpha = 255;
-            }
-            context.method_25294(0, 0, width, height, alpha << 24);
-        }
-        if (this.config.showVignette) {
-            context.method_25293(OVERLAY_TEXTURE, 0, 0, width, height, 0.0f, 0.0f, 16, 128, 16, 128);
-        }
-        return true;
+        }, () -> { synchronized (this) { if (session == generation) { latest = null; status = "error"; } } });
+        decoder = next;
+        worker.execute(() -> {
+            boolean started = next.start();
+            synchronized (this) { if (session == generation && !started) status = "error"; }
+        });
     }
-
-    private void ensureTexture() {
-        if (this.texture != null) {
-            return;
+    public synchronized void close() {
+        menuVisible = false;
+        restart();
+        worker.shutdownNow();
+    }
+    private void releaseTexture() {
+        if (texture != null) {
+            class_310.method_1551().method_1531().method_4615(TEXTURE_ID);
+            texture = null;
         }
-        int w = this.frameW;
-        int h = this.frameH;
-        if (w <= 0 || h <= 0) {
-            return;
-        }
+        pixels = null; uploaded = null;
+    }
+    public boolean render(class_332 context, int width, int height) {
+        Frame frame = latest;
+        VideoMenuConfig settings = config;
+        if (frame == null || settings == null) { if (texture != null) releaseTexture(); return false; }
         try {
-            class_1011 image = new class_1011(class_1011.class_1012.field_4997, w, h, false);
-            long pointer = ((NativeImageAccessor) (Object) image).videomenu$getPointer();
-            this.pixelBuffer = MemoryUtil.memIntBuffer(pointer, w * h);
-            this.texture = new class_1043(image);
-            class_310.method_1551().method_1531().method_4616(TEXTURE_ID, this.texture);
-            this.texture.method_4524();
-        } catch (Throwable t) {
-            VideoMenuClient.LOGGER.error("[VideoMenu] Video dokusu oluşturulamadı.", t);
-            this.texture = null;
+            if (texture == null || textureW != frame.width || textureH != frame.height) {
+                releaseTexture();
+                class_1011 image = new class_1011(class_1011.class_1012.field_4997, frame.width, frame.height, false);
+                pixels = MemoryUtil.memIntBuffer(((NativeImageAccessor)(Object) image).videomenu$getPointer(), frame.pixels.length);
+                texture = new class_1043(image);
+                texture.method_4527(true, false);
+                textureW = frame.width; textureH = frame.height;
+                class_310.method_1551().method_1531().method_4616(TEXTURE_ID, texture);
+            }
+            if (uploaded != frame) {
+                pixels.clear(); pixels.put(frame.pixels); texture.method_4524(); uploaded = frame;
+            }
+            double fit = settings.fillScreen
+                ? Math.max((double) width / frame.width, (double) height / frame.height)
+                : Math.min((double) width / frame.width, (double) height / frame.height);
+            int dw = (int) Math.ceil(frame.width * fit), dh = (int) Math.ceil(frame.height * fit);
+            context.method_25294(0, 0, width, height, 0xFF080808);
+            context.method_25293(TEXTURE_ID, (width-dw)/2, (height-dh)/2, dw, dh,
+                0f, 0f, frame.width, frame.height, frame.width, frame.height);
+            context.method_25294(0, 0, width, height, (int)(settings.darkening * 255) << 24);
+            if (settings.showVignette) {
+                int edge = Math.max(1, Math.min(width, height) / 5);
+                context.method_25296(0, 0, width, edge, 0x80000000, 0x00000000);
+                context.method_25296(0, height-edge, width, height, 0x00000000, 0x80000000);
+            }
+            return true;
+        } catch (RuntimeException e) {
+            VideoMenuClient.LOGGER.error("Cannot render video texture", e);
+            synchronized (this) {
+                generation++; if (decoder != null) decoder.close(); latest = null; status = "error";
+            }
+            releaseTexture();
+            return false;
         }
     }
 }

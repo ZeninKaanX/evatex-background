@@ -14,22 +14,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = {class_442.class})
 public abstract class TitleScreenMixin extends class_437 {
+    @org.spongepowered.asm.mixin.Unique private com.videomenu.AstralButton evatex$button;
     protected TitleScreenMixin() {
         super(class_2561.method_43473());
     }
 
     @Inject(method = {"method_25426"}, at = {@At(value = "TAIL")})
     private void videomenu$addVideoMenuButton(CallbackInfo ci) {
-        this.method_37063(class_4185.method_46430(class_2561.method_43470("Video Menüsü"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0))).method_46434(this.field_22789 - 104, 4, 100, 20).method_46431());
+        this.evatex$button = this.method_37063(new com.videomenu.AstralButton(Math.max(4, this.field_22789 - 134), 4, 130, 20, class_2561.method_43471("evatex.title"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0)), false));
     }
 
-    @Inject(method = {"method_25426"}, at = {@At(value = "HEAD")})
-    private void videomenu$resumeVideo(CallbackInfo ci) {
-        VideoBackground.INSTANCE.resume();
-    }
-
-    @Inject(method = {"method_25432"}, at = {@At(value = "HEAD")})
-    private void videomenu$pauseVideo(CallbackInfo ci) {
-        VideoBackground.INSTANCE.pause();
+    @Inject(method = "method_25394", at = @At(value = "INVOKE", target = "Lnet/minecraft/class_437;method_25394(Lnet/minecraft/class_332;IIF)V"))
+    private void evatex$keepShortcutVisible(net.minecraft.class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        if (evatex$button != null) evatex$button.field_22764 = !com.videomenu.AtlasCompatibility.isCustomUi();
     }
 }

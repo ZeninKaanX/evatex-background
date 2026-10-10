@@ -12,6 +12,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.TimeUnit;
+import com.videomenu.VideoFiles;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.fabricmc.loader.api.FabricLoader;
@@ -21,18 +23,23 @@ public final class VideoDecoder {
     private static volatile Path bundledFfmpeg;
     private final VideoMenuConfig config;
     private final FrameListener listener;
+    private final Runnable onFailure;
     private volatile boolean closed;
     private volatile Process process;
     private volatile long publishedFrames;
     private boolean everPublishedFrame;
     private Thread thread;
 
-    public VideoDecoder(VideoMenuConfig config, FrameListener listener) {
-        this.config = config;
+    public VideoDecoder(VideoMenuConfig config, FrameListener listener) { this(config, listener, () -> {}); }
+
+    public VideoDecoder(VideoMenuConfig config, FrameListener listener, Runnable onFailure) {
+        this.onFailure = onFailure;
+        this.config = config.copy();
         this.listener = listener;
     }
 
     public boolean start() {
+        if (closed) return false;
         Path file = this.resolveVideoFile();
         if (file == null || !Files.isRegularFile(file, new LinkOption[0])) {
             VideoMenuClient.LOGGER.error("[VideoMenu] Video dosyası bulunamadı: '{}'", this.config.videoPath);
@@ -43,7 +50,11 @@ public final class VideoDecoder {
             VideoMenuClient.LOGGER.error("[VideoMenu] FFmpeg bulunamadı veya video okunamadı: '{}'. MP4 (H.264) bir dosya kullanın.", this.config.videoPath);
             return false;
         }
-        this.thread = new Thread(() -> this.run(file, size[0], size[1]), "VideoMenu-Decoder");
+        if (closed) return false;
+        this.thread = new Thread(() -> {
+            try { this.run(file, size[0], size[1]); }
+            finally { if (!closed) onFailure.run(); }
+        }, "VideoMenu-Decoder");
         this.thread.setDaemon(true);
         this.thread.start();
         return true;
@@ -53,7 +64,7 @@ public final class VideoDecoder {
         this.closed = true;
         Process p = this.process;
         if (p != null) {
-            p.destroy();
+            p.destroyForcibly();
         }
         if (this.thread != null) {
             this.thread.interrupt();
@@ -71,8 +82,13 @@ public final class VideoDecoder {
             try {
                 Process p;
                 this.process = p = this.spawnFfmpeg(file, target[0], target[1], streamLoop);
-                this.readFrames(p.getInputStream(), target[0], target[1]);
-                this.waitForExit(p);
+                try {
+                    this.readFrames(p.getInputStream(), target[0], target[1]);
+                    this.waitForExit(p);
+                } finally {
+                    p.destroyForcibly();
+                    this.process = null;
+                }
                 if (streamLoop && !this.everPublishedFrame) {
                     streamLoop = false;
                     continue;
@@ -110,7 +126,6 @@ public final class VideoDecoder {
             cmd.add("-stream_loop");
             cmd.add("-1");
         }
-        cmd.add("-re");
         cmd.add("-i");
         cmd.add(file.toString());
         cmd.add("-map");
@@ -119,7 +134,7 @@ public final class VideoDecoder {
         cmd.add("-sn");
         cmd.add("-dn");
         cmd.add("-vf");
-        cmd.add("scale=" + dstW + ":" + dstH + ",format=rgba");
+        cmd.add("fps=" + config.fps + ",scale=" + dstW + ":" + dstH + ":flags=lanczos,setsar=1,format=rgba");
         cmd.add("-f");
         cmd.add("rawvideo");
         cmd.add("-pix_fmt");
@@ -127,11 +142,14 @@ public final class VideoDecoder {
         cmd.add("pipe:1");
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectError(ProcessBuilder.Redirect.DISCARD);
-        return pb.start();
+        Process p = pb.start();
+        if (closed) p.destroyForcibly();
+        return p;
     }
 
     private int[] computeTarget(int srcW, int srcH) {
         double scale = Math.min(Math.max(this.config.scale, 0.05), 1.0);
+        scale = Math.min(scale, Math.min(3840.0 / srcW, 2160.0 / srcH));
         int dstW = Math.max(2, (int) Math.round((double) srcW * scale) & 0xFFFFFFFE);
         int dstH = Math.max(2, (int) Math.round((double) srcH * scale) & 0xFFFFFFFE);
         return new int[]{dstW, dstH};
@@ -147,10 +165,8 @@ public final class VideoDecoder {
             if (!VideoDecoder.readFully(in, rgba)) {
                 return;
             }
-            synchronized (this.listener) {
-                VideoDecoder.pack(rgba, w, h, out);
-                this.listener.onFrame(out, w, h);
-            }
+            VideoDecoder.pack(rgba, w, h, out);
+            if (!closed) this.listener.onFrame(out.clone(), w, h);
             this.everPublishedFrame = true;
             ++this.publishedFrames;
             long now = System.nanoTime();
@@ -206,22 +222,43 @@ public final class VideoDecoder {
     }
 
     private int[] probeWithFfmpeg(Path file) {
+        Process p = null;
+        Path report = null;
         try {
-            Process p = new ProcessBuilder(VideoDecoder.ffmpegPath(), "-hide_banner", "-i", file.toString()).redirectErrorStream(true).start();
-            String out = new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-            p.waitFor();
-            Matcher m = DIM_PATTERN.matcher(out);
-            if (m.find()) {
-                return new int[]{Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2))};
+            report = Files.createTempFile("evatex-probe-", ".log");
+            p = new ProcessBuilder(VideoDecoder.ffmpegPath(), "-nostdin", "-hide_banner", "-i", file.toString())
+                .redirectErrorStream(true).redirectOutput(report.toFile()).start();
+            process = p;
+            if (closed || !p.waitFor(10, TimeUnit.SECONDS)) return null;
+            String out = Files.readString(report, StandardCharsets.UTF_8);
+            for (String line : out.split("\\R")) {
+                if (!line.contains("Video:")) continue;
+                Matcher m = DIM_PATTERN.matcher(line);
+                if (m.find()) {
+                    int w = Integer.parseInt(m.group(1)), h = Integer.parseInt(m.group(2));
+                    Matcher sar = Pattern.compile("SAR (\\d+):(\\d+)").matcher(line);
+                    if (sar.find() && Integer.parseInt(sar.group(2)) > 0)
+                        w = Math.max(2, (int)Math.round((double)w * Integer.parseInt(sar.group(1)) / Integer.parseInt(sar.group(2))));
+                    // FFmpeg autorotates portrait footage before applying the scale filter.
+                    if (out.contains("rotation of -90") || out.contains("rotation of 90")) {
+                        int swap = w; w = h; h = swap;
+                    }
+                    return new int[]{w, h};
+                }
             }
         } catch (IOException | RuntimeException e) {
+            VideoMenuClient.LOGGER.warn("Cannot probe video {}", file, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } finally {
+            if (p != null) p.destroyForcibly();
+            process = null;
+            if (report != null) try { Files.deleteIfExists(report); } catch (IOException ignored) {}
         }
         return null;
     }
 
-    private static String ffmpegPath() {
+    private static synchronized String ffmpegPath() {
         Path bundled = VideoDecoder.bundledFfmpeg;
         if (bundled == null) {
             bundled = VideoDecoder.extractBundledFfmpeg();
@@ -234,12 +271,15 @@ public final class VideoDecoder {
         String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
         String platform;
         String exeName;
-        if (os.contains("win")) {
+        if (os.contains("mac") || os.contains("darwin")) {
+            return null;
+        } else if (os.contains("win")) {
             platform = "win64";
             exeName = "ffmpeg.exe";
         } else if (os.contains("mac") || os.contains("darwin")) {
             return null;
         } else {
+            if (!System.getProperty("os.arch", "").matches("amd64|x86_64")) return null;
             platform = "linux64";
             exeName = "ffmpeg";
         }
@@ -248,7 +288,7 @@ public final class VideoDecoder {
                 VideoMenuClient.LOGGER.info("[VideoMenu] Dahili FFmpeg bulunamadı; sistem ffmpeg'i kullanılacak.");
                 return null;
             }
-            Path dir = FabricLoader.getInstance().getGameDir().resolve(".evatex-ffmpeg").resolve(platform);
+            Path dir = FabricLoader.getInstance().getGameDir().resolve(".evatex-ffmpeg").resolve("1.8.0").resolve(platform);
             Files.createDirectories(dir);
             Path out = dir.resolve(exeName);
             if (!Files.isRegularFile(out, new LinkOption[0])) {
@@ -276,14 +316,7 @@ public final class VideoDecoder {
     }
 
     public static Path resolveVideoPath(String path) {
-        if (path == null || path.isBlank()) {
-            return null;
-        }
-        Path p = Path.of(path);
-        if (!p.isAbsolute()) {
-            p = FabricLoader.getInstance().getGameDir().resolve(path);
-        }
-        return p.toAbsolutePath();
+        return VideoFiles.resolve(path);
     }
 
     @FunctionalInterface

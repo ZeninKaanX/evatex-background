@@ -1,13 +1,16 @@
 {
-  "required": false,
+  "required": true,
   "package": "com.videomenu.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
     "RotatingCubeMapRendererMixin",
     "NativeImageAccessor",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "MinecraftClientMixin",
+    "ServerBackgroundMixin",
+    "ServerListBackgroundMixin"
   ],
   "injectors": {
-    "defaultRequire": 0
+    "defaultRequire": 1
   }
 }
