@@ -37,6 +37,14 @@ Full Fabric API is not required by EVATEX; the necessary resource-loading module
 
 **Atlas Client 3.0.3** is supported as a separate mod on **Minecraft 1.21.11**, in both custom and vanilla menu modes. Atlas requires its own dependencies. Earlier Minecraft releases, snapshots and other mod loaders are outside this release's support range.
 
+## Atlas Client integration
+
+EVATEX includes a dedicated integration for **Atlas Client 3.0.3 on Minecraft 1.21.11**. Your video plays behind Atlas’s custom title menu and multiplayer server selection. A compact Astral **Video Menu** button sits at the lower right, with centred text and its own black-and-white styling.
+
+Atlas’s menu layout and settings are preserved. EVATEX remains a separate mod with its own video controls; the two mods are not combined. Atlas’s vanilla menu mode also works. In the normal Minecraft title screen, the EVATEX shortcut is centred near the bottom.
+
+Install Atlas and its required dependencies separately. This integration targets the version listed above; compatibility with every custom menu or launcher has not been verified.
+
 ## Links and license
 
 [Source code](https://github.com/ZeninKaanX/evatex-background-video-1.6.0) · [Report an issue](https://github.com/ZeninKaanX/evatex-background-video-1.6.0/issues)
