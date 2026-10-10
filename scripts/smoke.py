@@ -20,6 +20,7 @@ parser.add_argument('--height',type=int,default=720)
 parser.add_argument('--language',default='tr_tr')
 parser.add_argument('--quick',action='store_true',help='Shorter per-stage dwell time for the version matrix')
 parser.add_argument('--bundled',action='store_true')
+parser.add_argument('--shortcut-only',action='store_true',help='Check and capture the title shortcut without replaying audio/settings regression scenes')
 parser.add_argument('--atlas-dependencies',type=Path)
 parser.add_argument('--minecraft',default='1.21.11',choices=VERSIONS)
 args=parser.parse_args()
@@ -113,7 +114,7 @@ game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
 runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

@@ -1,6 +1,6 @@
 # 1.8.2 — Clean menu shortcut
 
-- Move Video Menu to the lower right in Minecraft and Atlas Client 3.0.3.
+- Move Video Menu to the lower centre in Minecraft and lower right in Atlas Client 3.0.3.
 - Use a smaller 100×14 native shortcut and a compact Atlas button, clear of the footer.
 - Compact the copyright label at the lower right; preserve the localized full notice on hover and original credits action.
 - Centre the native label using Minecraft font height.

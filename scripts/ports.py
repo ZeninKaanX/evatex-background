@@ -41,6 +41,8 @@ def sources(root,version):
         content=file.read_text();start=content.index('    @Inject(method = "method_25394"');file.write_text(content[:start]+'}\n')
         file=folder/'com/videomenu/mixin/RotatingCubeMapRendererMixin.java'
         file.write_text((root/'src/com/videomenu/mixin/RotatingCubeMapRendererMixin.java').read_text().replace('IIZ)V','IIFF)V').replace('boolean rotate, CallbackInfo ci','float delta, float rotation, CallbackInfo ci'))
+    if version in ('1.21.5','1.21.6','1.21.7','1.21.8'):
+        edit('mixin/TitleScreenMixin.java','footer.method_25306(null)','footer.method_25306()')
     if version=='1.21.5':
         edit('mixin/RotatingCubeMapRendererMixin.java','IIZ)V','IIFF)V')
         edit('mixin/RotatingCubeMapRendererMixin.java','boolean rotate, CallbackInfo ci','float delta, float rotation, CallbackInfo ci')

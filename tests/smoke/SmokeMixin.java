@@ -53,19 +53,23 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if (Boolean.getBoolean("evatex.qa.shortcutOnly") && evatexqa$stage==1) {
+            System.out.println("EVATEX_QA COMPLETE shortcut layout");client.method_1592();return;
+        }
         System.out.println("EVATEX_QA stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+VideoBackground.INSTANCE.status());
         if (evatexqa$stage<8 && !VideoBackground.INSTANCE.status().equals("playing")) throw new AssertionError("Video did not continue in menu");
         if (client.field_1755 instanceof class_442) {
             for (var child : client.field_1755.method_25396()) {
                 if (child instanceof com.videomenu.AstralButton button && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("evatex.title").getString())) {
-                    if (button.method_46426()!=Math.max(4,client.field_1755.field_22789-104) || button.method_46427()!=Math.max(6,client.field_1755.field_22790-26))
-                        throw new AssertionError("Video Menu shortcut is not lower-right aligned");
+                    if (Math.abs(button.method_46426()+button.method_25368()/2-client.field_1755.field_22789/2)>1 || button.method_46427()!=(client.field_1755.field_22790>=220 ? client.field_1755.field_22790-26 : 6))
+                        throw new AssertionError("Video Menu shortcut is not lower-centred");
                 }
             }
         }
         if (evatexqa$stage==8 && !VideoBackground.INSTANCE.status().equals("idle")) throw new AssertionError("Disabled video kept playing");
         if (evatexqa$stage==1 && System.getProperty("evatex.qa.language","tr_tr").equals("tr_tr") && !net.minecraft.class_2561.method_43471("evatex.title").getString().equals("Video Menüsü")) throw new AssertionError("Turkish translations not loaded");
         evatexqa$capture(client, "stage-"+evatexqa$stage);
+        if (Boolean.getBoolean("evatex.qa.shortcutOnly")) {evatexqa$stage++;return;}
         switch (evatexqa$stage++) {
             case 0 -> {
                 try {
