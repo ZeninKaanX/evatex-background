@@ -1,0 +1,29 @@
+name: Windows playback performance
+on:
+  workflow_dispatch:
+  push:
+    paths: ['tooling/WindowsPlaybackBenchmark.java', 'tooling/windows_benchmark.py', '.github/workflows/windows-performance.yml']
+permissions:
+  contents: read
+jobs:
+  windows-playback:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Native Windows decoder and fallback regressions
+        run: python scripts/test_desktop.py
+      - name: Measure 1080p and 720p playback using the actual decoder and TCP transport
+        run: python tooling/windows_benchmark.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-playback-measurements
+          path: build/windows-performance/report.json
