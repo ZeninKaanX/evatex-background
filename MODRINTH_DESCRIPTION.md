@@ -1,10 +1,10 @@
 # EVATEX-Background
 
-Use your own video, GIF or photo as the background of Minecraft's title screen, server selection, world selection, resource packs and main-menu options. Choose a background and adjust playback from the in-game Backgrounds.
+**EVATEX-Background**, formerly **EVATEX-Background Video**, is a client-side Fabric mod for Minecraft Java Edition. Use your own video, GIF or photo as the background of Minecraft's title screen, server selection, world selection, resource packs and main-menu options. Choose a background and adjust playback from the in-game Backgrounds.
 
 Windows automatically attempts GPU video decoding and GPU downscaling. Unsupported drivers or video formats fall back to software decoding. Performance depends on the video, graphics card and driver.
 
-Version 1.8.5 also covers credits, game rules and supported Sodium video settings. Windows moving wallpapers are sized to the visible framebuffer to reduce unnecessary processing. These menu backgrounds can be disabled separately in EVATEX settings.
+Menu backgrounds also cover credits, game rules and supported Sodium video settings. Windows moving wallpapers are sized to the visible framebuffer to reduce unnecessary processing. These menu backgrounds can be disabled separately in EVATEX settings.
 
 ## Features
 
@@ -18,6 +18,13 @@ Version 1.8.5 also covers credits, game rules and supported Sodium video setting
 - Live sound on/off and volume controls, muted by default.
 - Responsive library and settings pages, with tabs on narrow screens.
 - Automatic saving and an option to disable backgrounds or interface animations.
+
+## Optional Astral home
+
+EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, profile information, EVATEX background controls and native game settings. Other native/mod title actions are retained in the footer, with pagination when needed. The selected background and optional meteors continue behind the menu.
+
+Enable **EVATEX main menu** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
+
 
 ## Installation
 
@@ -53,6 +60,10 @@ Install Atlas and its required dependencies separately. This integration targets
 
 ## Links and license
 
-[Source code](https://github.com/ZeninKaanX/evatex-background-video-1.6.0) · [Report an issue](https://github.com/ZeninKaanX/evatex-background-video-1.6.0/issues)
+[Source code](https://github.com/ZeninKaanX/evatex-background-video-1.8.2) · [Report an issue](https://github.com/ZeninKaanX/evatex-background-video-1.8.2/issues)
 
 EVATEX is developed by EverVerity and released under the MIT license. Bundled FFmpeg binaries use GPLv3; license and provenance files are included in the jar. [FFmpeg source](https://ffmpeg.org/download.html) and build information are available from [BtbN](https://github.com/BtbN/FFmpeg-Builds) [Gyan](https://www.gyan.dev/ffmpeg/builds/) and [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static).
+
+## Development history
+
+EVATEX-Background 1.8.6 was shaped by EverVerity and Codex during the night of 12 October 2026: an adaptive shortcut that preserves menu aesthetics, and an optional Astral home that stays off by default. The [1.8.6 development note](https://github.com/ZeninKaanX/evatex-background-video-1.8.2/blob/main/CHANGELOG.md) records this small part of the mod's story.

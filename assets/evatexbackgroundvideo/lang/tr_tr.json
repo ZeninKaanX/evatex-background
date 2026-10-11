@@ -31,5 +31,6 @@
   "evatex.volume": "Ses seviyesi: %s%%",
   "evatex.world_background": "Dünya seçimi: %s",
   "evatex.options_background": "Ayarlar menüleri: %s",
-  "evatex.menu_meteors": "Menü meteorları: %s"
+  "evatex.menu_meteors": "Menü meteorları: %s",
+  "evatex.custom_main_menu": "EVATEX ana menüsü: %s"
 }

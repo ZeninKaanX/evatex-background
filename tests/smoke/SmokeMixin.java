@@ -57,6 +57,7 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if (Boolean.getBoolean("evatex.qa.homeMenu")) { evatexqa$home(client); return; }
         if (Boolean.getBoolean("evatex.qa.collisionLayout")) { evatexqa$collision(client); return; }
         if (Boolean.getBoolean("evatex.qa.reportedMenus")) { evatexqa$reportedMenus(client); return; }
         if (Boolean.getBoolean("evatex.qa.extendedMenus")) { evatexqa$menus(client); return; }
@@ -137,6 +138,89 @@ public abstract class SmokeMixin {
             }
         }
     }
+    @Unique private void evatexqa$press(net.minecraft.class_4185 button) {
+        try {
+            for(var method:button.getClass().getMethods()) if(method.getName().equals("method_25306")) {
+                if(method.getParameterCount()==0) method.invoke(button);else if(method.getParameterCount()==1) method.invoke(button,new Object[]{null});
+                return;
+            }
+            throw new AssertionError("Missing native button action");
+        }catch(ReflectiveOperationException e){throw new RuntimeException(e);}
+    }
+    @Unique private net.minecraft.class_4185 evatexqa$button(class_437 screen,net.minecraft.class_2561 label) {
+        for(var child:screen.method_25396()) if(child instanceof net.minecraft.class_4185 button && button.method_25369().getString().equals(label.getString())) return button;
+        throw new AssertionError("Button missing: "+label.getString());
+    }
+    @Unique private boolean evatexqa$atlasCustom() {
+        try {return (boolean)Class.forName("com.videomenu.AtlasCompatibility").getMethod("isCustomUi").invoke(null);}
+        catch(ReflectiveOperationException e){throw new RuntimeException(e);}
+    }
+    @Unique private void evatexqa$homeGeometry(class_437 screen) {
+        java.util.List<com.videomenu.ShortcutLayout.Rect> bounds=new java.util.ArrayList<>();
+        for(var child:screen.method_25396()) if(child instanceof net.minecraft.class_339 widget && widget.field_22764) {
+            var rect=new com.videomenu.ShortcutLayout.Rect(widget.method_46426(),widget.method_46427(),widget.method_25368(),widget.method_25364());
+            if(!com.videomenu.ShortcutLayout.clear(rect,screen.field_22789,screen.field_22790,bounds,0)) throw new AssertionError("Astral home controls overlap or leave the window: "+rect);
+            bounds.add(rect);
+        }
+    }
+    @Unique private void evatexqa$home(class_310 client) {
+        var screen=client.field_1755;
+        System.out.println("EVATEX_QA home stage="+evatexqa$stage+" screen="+screen.getClass().getName()+" size="+screen.field_22789+"x"+screen.field_22790);
+        try {
+            switch(evatexqa$stage++) {
+                case 0 -> {
+                    if(VideoMenuConfig.load().customMainMenu || screen instanceof com.videomenu.EvatexTitleScreen) throw new AssertionError("Custom home must default off");
+                    client.method_1507(new VideoSelectScreen(screen,0));
+                }
+                case 1,10 -> {
+                    if(!(screen instanceof VideoSelectScreen)) throw new AssertionError("Missing EVATEX settings");
+                    var page=VideoSelectScreen.class.getDeclaredField("settingsPage");page.setAccessible(true);
+                    page.setInt(screen,13/com.videomenu.AstralLayout.of(screen.field_22789,screen.field_22790).rows());
+                    var rebuild=VideoSelectScreen.class.getDeclaredMethod("rebuild");rebuild.setAccessible(true);rebuild.invoke(screen);
+                    boolean on=evatexqa$stage==11;
+                    evatexqa$capture(client,on ? "home-setting-on" : "home-setting-off");
+                    evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43469("evatex.custom_main_menu",net.minecraft.class_2561.method_43471(on ? "options.on" : "options.off"))));
+                    if(VideoMenuConfig.load().customMainMenu==on) throw new AssertionError("Home setting failed to persist");
+                    screen.method_25419();
+                    if(!on) evatexqa$stage=3;
+                }
+                case 3 -> {
+                    if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Optional home did not open");
+                    if(net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("atlas-client") && evatexqa$atlasCustom()) throw new AssertionError("Atlas must leave the standalone EVATEX home visible");
+                    evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-wide");
+                    evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("menu.options")));
+                }
+                case 4 -> {
+                    if(!(screen instanceof net.minecraft.class_429)) throw new AssertionError("Native options action failed");
+                    evatexqa$capture(client,"home-options");screen.method_25419();
+                }
+                case 5 -> {
+                    if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Options did not return to Astral home");
+                    evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("menu.singleplayer")));
+                }
+                case 6 -> {
+                    if(!(screen instanceof net.minecraft.class_526)) throw new AssertionError("Native singleplayer action failed");
+                    evatexqa$capture(client,"home-worlds");screen.method_25419();
+                }
+                case 7 -> org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),960,720);
+                case 8 -> {
+                    if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Worlds did not return to Astral home");
+                    if(screen.field_22789>=360) throw new AssertionError("Compact layout was not exercised");
+                    evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-compact");
+                    org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),1280,720);
+                }
+                case 9 -> evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.title")));
+                case 11 -> {
+                    if(!(screen instanceof class_442) || screen instanceof com.videomenu.EvatexTitleScreen || VideoMenuConfig.load().customMainMenu) throw new AssertionError("Home did not disable cleanly");
+                    if(net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("atlas-client") && !evatexqa$atlasCustom()) throw new AssertionError("Atlas custom menu mode was not restored");
+                    evatexqa$capture(client,"home-disabled");
+                    System.out.println("EVATEX_QA COMPLETE optional Astral home: default off, actual setting persistence, native options/world actions, return paths, compact geometry, disable");
+                    client.method_1592();
+                }
+            }
+        }catch(ReflectiveOperationException e){throw new RuntimeException(e);}
+    }
+
     @Unique private void evatexqa$collision(class_310 client) {
         if (evatexqa$stage==5 || evatexqa$stage==7) {
             if (!(client.field_1755 instanceof VideoSelectScreen)) throw new AssertionError("Shortcut action failed");

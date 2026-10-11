@@ -13,7 +13,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftClientMixin {
     @Inject(method = "method_1574", at = @At("HEAD"))
     private void evatex$menuLifecycle(CallbackInfo ci) {
-        var screen = ((class_310)(Object)this).field_1755;
+        var client=(class_310)(Object)this;
+        var screen = client.field_1755;
+        if (client.field_1687==null && (screen instanceof class_442 || com.videomenu.MenuShortcut.titleMenu(screen))) {
+            boolean custom=VideoBackground.INSTANCE.customMainMenu();
+            if (custom && !(screen instanceof com.videomenu.EvatexTitleScreen)) {
+                client.method_1507(new com.videomenu.EvatexTitleScreen());screen=client.field_1755;
+            } else if (!custom && screen instanceof com.videomenu.EvatexTitleScreen) {
+                client.method_1507(new class_442());screen=client.field_1755;
+            }
+        }
+        if (screen instanceof com.videomenu.EvatexTitleScreen home) home.captureLateButtons();
         if (screen instanceof com.videomenu.ShortcutHost host) host.evatex$refreshShortcut();
         VideoBackground.INSTANCE.setMenuVisible(VideoBackground.INSTANCE.supportsMenu(screen,
             ((class_310)(Object)this).field_1687 != null));

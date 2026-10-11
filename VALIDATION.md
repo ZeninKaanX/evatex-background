@@ -1,3 +1,7 @@
+# Optional Astral home checks
+
+The custom home defaults to false when creating or migrating configuration. Real-client checks toggle its actual EVATEX setting, verify persistence, invoke native options and singleplayer actions, return to the home, resize into the compact layout and disable it. Tests use muted 10% audio on the secondary display.
+
 # 1.8.6 adaptive shortcut validation
 
 Layout checks cover occupied preferred anchors, narrow/short windows, entirely full menus, deterministic placement, resize and hidden controls. Targeted real-client checks inject a competing button after initialization, remove it, resize the GUI and confirm the shortcut action. A replacement MainMenuScreen with filled central controls checks the rotated vertical edge rail and its action. Lunar is not installed on this host; no Lunar runtime test is claimed.

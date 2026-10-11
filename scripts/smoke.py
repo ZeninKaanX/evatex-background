@@ -23,6 +23,8 @@ parser.add_argument('--bundled',action='store_true')
 parser.add_argument('--sodium',type=Path,help='Optional installed Sodium jar for reported-menu QA')
 parser.add_argument('--reported-menus',action='store_true',help='Check packs, credits, rules, video settings and minimized-window playback')
 parser.add_argument('--extended-menus',action='store_true',help='Verify wallpaper continuity and independent world/options/meteor switches with muted 10% audio')
+parser.add_argument('--hidden-window',action='store_true',help='Render a real hidden GL window when the locked desktop cannot map new windows')
+parser.add_argument('--home-menu',action='store_true',help='Toggle optional Astral home through its actual setting, test native actions, resize and disable')
 parser.add_argument('--collision-layout',action='store_true',help='Inject competing title controls, hide them, resize, and activate the shortcut')
 parser.add_argument('--shortcut-only',action='store_true',help='Check and capture the title shortcut without replaying audio/settings regression scenes')
 parser.add_argument('--atlas-dependencies',type=Path)
@@ -95,11 +97,16 @@ if version.startswith('26.'):
     custom_source=ROOT/'build'/('qa-custom-'+version)/'MainMenuScreen.java'
     custom_source.parent.mkdir(parents=True,exist_ok=True)
     custom_source.write_text(translate((ROOT/'tests/smoke/MainMenuScreen.java').read_text(),symbols(ROOT/'build/dependencies')))
+hidden_source=ROOT/'tests/smoke/HiddenWindowMixin.java'
+if version.startswith('26.'):
+    hidden_source=ROOT/'build'/('qa-custom-'+version)/'HiddenWindowMixin.java'
+    hidden_source.parent.mkdir(parents=True,exist_ok=True)
+    hidden_source.write_text(translate((ROOT/'tests/smoke/HiddenWindowMixin.java').read_text(),symbols(ROOT/'build/dependencies')))
 for previous in helper.rglob('*.class'): previous.unlink()
-subprocess.run([str(javac),'-proc:none','--release',str(VERSIONS[version][1]),'-cp',str(classes)+os.pathsep+cp,'-d',str(helper),str(source),str(custom_source)],check=True)
+subprocess.run([str(javac),'-proc:none','--release',str(VERSIONS[version][1]),'-cp',str(classes)+os.pathsep+cp,'-d',str(helper),str(source),str(custom_source),str(hidden_source)],check=True)
 with zipfile.ZipFile(mods/'evatex-qa.jar','w') as z:
     z.writestr('fabric.mod.json',json.dumps({'schemaVersion':1,'id':'evatex-qa','version':'1.0','name':'EVATEX QA','environment':'client','mixins':['evatex-qa.mixins.json']}))
-    z.writestr('evatex-qa.mixins.json',json.dumps({'required':True,'package':'evatexqa','compatibilityLevel':'JAVA_'+str(VERSIONS[version][1]),'client':['SmokeMixin'],'injectors':{'defaultRequire':1}}))
+    z.writestr('evatex-qa.mixins.json',json.dumps({'required':True,'package':'evatexqa','compatibilityLevel':'JAVA_'+str(VERSIONS[version][1]),'client':['SmokeMixin','HiddenWindowMixin'],'injectors':{'defaultRequire':1}}))
     for file in helper.rglob('*.class'): z.write(file,file.relative_to(helper))
 suffix='' if args.bundled else '-system-ffmpeg'
 shutil.copyfile(ROOT/'build/dist'/f'evatex-background-video-{MOD_VERSION}-mc{version}{suffix}.jar',mods/'evatex.jar')
@@ -123,7 +130,7 @@ if args.atlas:
             values=json.loads(atlas_config.read_text()); values['vanillaMode']=False
             atlas_config.write_text(json.dumps(values,indent=2))
 (config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'audioEnabled':False,'audioVolume':0.1,'scale':1.0,'darkening':.15,'showVignette':True}))
-if args.extended_menus or args.reported_menus:
+if args.extended_menus or args.reported_menus or args.home_menu:
     # A real summary-only save prevents vanilla auto-forwarding an empty list to world creation.
     # No world is entered/generated; all files live inside this isolated QA game directory.
     import gzip, struct
@@ -143,7 +150,7 @@ game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
 runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

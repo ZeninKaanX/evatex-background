@@ -31,5 +31,6 @@
   "evatex.volume": "Volume: %s%%",
   "evatex.world_background": "World selection: %s",
   "evatex.options_background": "Options menus: %s",
-  "evatex.menu_meteors": "Menu meteors: %s"
+  "evatex.menu_meteors": "Menu meteors: %s",
+  "evatex.custom_main_menu": "EVATEX main menu: %s"
 }

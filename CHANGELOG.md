@@ -1,10 +1,18 @@
-# 1.8.6 — Adaptive menu shortcut
+# 1.8.6 — Adaptive shortcuts and optional Astral home
 
+- Add an optional original Astral home menu, disabled by default, with native game actions, profile card, background controls, responsive layout and menu meteors. Retain extra title actions with footer pagination and restore the installed title when disabled.
 - Place the Backgrounds shortcut around visible menu controls instead of fixed coordinates. Keep the lower-centre preference when clear, and preserve the Atlas lower-right bridge.
 - Use a slim vertical side shortcut with rotated text when horizontal placement has no suitable space. Preserve native hover, focus, keyboard and narration behavior.
 - Re-evaluate late-added controls, widget visibility, window resizing and GUI scaling. Cache unchanged geometry and compact the shortcut for narrow gaps.
 - Attach through the shared screen lifecycle so title subclasses and recognized custom main menu screens receive the shortcut. Do not place an overlapping hitbox when no safe area exists.
 - Read nested native widget bounds and public custom-widget bounds without client-specific dependencies. Fully custom, opaque renderers still need a compatible native overlay.
+
+### The night of EVATEX 1.8.6 — 12 October 2026
+
+After 2 a.m. in Türkiye, EverVerity worked with Codex on the adaptive shortcut and the optional, default-off Astral home. Before going to sleep, the developer's priority was to preserve the menu's aesthetics and give players a choice. This note preserves the story behind EVATEX-Background 1.8.6.
+
+Türkçe: 12 Ekim 2026 gecesi saat ikiyi geçmişti. EverVerity, Codex ile estetiği koruyan akıllı butonu ve varsayılanı kapalı özel Astral menüyü şekillendirdi. Uyumaya gitmeden önce önceliği güzel bir arayüz ve oyuncunun seçme özgürlüğüydü. EVATEX-Background 1.8.6'nın bu küçük hikâyesi burada kayıtlıdır.
+
 
 # 1.8.5
 

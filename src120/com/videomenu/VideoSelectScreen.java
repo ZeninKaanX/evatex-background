@@ -13,7 +13,7 @@ public final class VideoSelectScreen extends class_437 {
     private static final int[] FPS = {15, 24, 30, 45, 60, 90, 120};
     private static final int[] LIMITS = {720,1080,1440,2160,4320};
     private static final double[] DARK = {0, 0.15, 0.25, 0.4, 0.6, 0.8};
-    private static final int SETTINGS = 13;
+    private static final int SETTINGS = 14;
     private final class_437 parent;
     private VideoMenuConfig config;
     private List<Path> videos = List.of();
@@ -58,7 +58,7 @@ public final class VideoSelectScreen extends class_437 {
                 final int setting=i;
                 if(i==2) {method_37063(new AstralVolumeSlider(right,layout.top()+(i-settingsPage*rows)*layout.step(),width,layout.step()-2,config.audioVolume,value->{config.audioVolume=value;volumeDirty=true;volumeChangedAt=System.nanoTime();VideoBackground.INSTANCE.reload(config);}));continue;}
                 add(right,layout.top()+(i-settingsPage*rows)*layout.step(),width,layout.step()-2,
-                    settingLabel(i),b->{changeSetting(setting);apply();},i==0&&config.enabled || i==1&&config.audioEnabled || i==10&&config.worldMenuBackground || i==11&&config.optionsMenuBackground || i==12&&config.menuMeteors);
+                    settingLabel(i),b->{changeSetting(setting);apply();},i==0&&config.enabled || i==1&&config.audioEnabled || i==10&&config.worldMenuBackground || i==11&&config.optionsMenuBackground || i==12&&config.menuMeteors || i==13&&config.customMainMenu);
             }
             if (settingPages>1) pagination(right,settingPages,true);
         }
@@ -88,6 +88,7 @@ public final class VideoSelectScreen extends class_437 {
             case 10 -> text("world_background",onOff(config.worldMenuBackground));
             case 11 -> text("options_background",onOff(config.optionsMenuBackground));
             case 12 -> text("menu_meteors",onOff(config.menuMeteors));
+            case 13 -> text("custom_main_menu",onOff(config.customMainMenu));
             default -> text("volume",Math.round(config.audioVolume*100));
         };
     }
@@ -105,6 +106,7 @@ public final class VideoSelectScreen extends class_437 {
             case 10 -> config.worldMenuBackground=!config.worldMenuBackground;
             case 11 -> config.optionsMenuBackground=!config.optionsMenuBackground;
             case 12 -> config.menuMeteors=!config.menuMeteors;
+            case 13 -> config.customMainMenu=!config.customMainMenu;
         }
     }
     private AstralButton add(int x,int y,int w,int h,class_2561 label,class_4185.class_4241 action,boolean selected) {

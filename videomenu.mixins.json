@@ -12,7 +12,8 @@
     "atlas.AtlasBackdropMixin",
     "atlas.AtlasMainMenuMixin",
     "SplashManagerMixin",
-    "MenuShortcutMixin"
+    "MenuShortcutMixin",
+    "atlas.AtlasHomeModeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

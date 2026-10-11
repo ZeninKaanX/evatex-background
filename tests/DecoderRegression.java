@@ -68,6 +68,9 @@ public class DecoderRegression {
         check(packed[0] == 0xFF0000FF && packed[1] == 0xFFFF0000, "RGBA -> native ABGR channel order");
         Method target = VideoDecoder.class.getDeclaredMethod("computeTarget", int.class,int.class); target.setAccessible(true);
         VideoMenuConfig config = new VideoMenuConfig();
+        check(!config.customMainMenu,"optional Astral home is disabled by default");
+        config.customMainMenu=true;check(config.copy().customMainMenu,"optional Astral home survives config copy");
+        config.customMainMenu=false;
         VideoDecoder sizing = new VideoDecoder(config, (frame,w,h) -> {});
         int[] size = (int[])target.invoke(sizing,7680,4320);
         check(size[0] == 1920 && size[1] == 1080,"8K source safely targets 1080p without allocating or decoding 8K");

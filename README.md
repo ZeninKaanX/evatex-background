@@ -77,3 +77,11 @@ Regression checks cover corrupt config values, pixel channel ordering, frame own
 Mod code: MIT (see `LICENSE`). Bundled FFmpeg executables: GPL v3, with `COPYING.GPLv3` included in the jar. The fetch script records binary origins and upstream build/source links in `assets/videomenu/ffmpeg/PROVENANCE.json`. FFmpeg is developed by the [FFmpeg project](https://ffmpeg.org/).
 
 The Backgrounds shortcut prefers the lower centre and automatically avoids visible native widgets and custom widgets exposing public bounds, including controls added after menu initialization. It recalculates when controls, window dimensions or GUI scale change. A slim vertical side shortcut with rotated text is available when horizontal placement would be cramped. Atlas Client 3.0.3 keeps its separate matching lower-right shortcut. Clients that draw menus without exposed widget bounds or bypass native widget rendering still require a compatible overlay; universal third-party menu support is not claimed. Lunar provides a [Vanilla Overlay](https://support.lunarclient.com/solutions/enabling-vanilla-overlay) for external mod menu buttons.
+
+## Optional Astral home
+
+EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, profile information, EVATEX background controls and native game settings. Other native/mod title actions are retained in the footer, with pagination when needed. The selected background and optional meteors continue behind the menu.
+
+Enable **EVATEX main menu** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
+
+The development story behind this release is recorded in the [EVATEX 1.8.6 changelog](CHANGELOG.md).

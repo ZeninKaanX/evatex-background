@@ -20,10 +20,11 @@ public final class MenuShortcut {
     public static boolean customUi() { return false; }
     public static boolean titleMenu(class_437 screen) {
         if (class_310.method_1551().field_1687 != null) return false;
+        if (screen instanceof EvatexTitleScreen) return false;
         if (screen instanceof class_442) return true;
         String name=screen.getClass().getSimpleName().toLowerCase(Locale.ROOT);
-        return name.equals("mainmenu") || name.equals("mainmenuscreen") || name.equals("titlescreen")
-            || name.equals("titlemenuscreen") || name.equals("homescreen");
+        return name.endsWith("mainmenu") || name.endsWith("mainmenuscreen") || name.endsWith("titlescreen")
+            || name.endsWith("titlemenuscreen") || name.endsWith("homescreen");
     }
     private static final ClassValue<Method[]> CUSTOM_BOUNDS=new ClassValue<>() {
         @Override protected Method[] computeValue(Class<?> type) {

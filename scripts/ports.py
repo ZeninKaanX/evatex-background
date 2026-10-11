@@ -23,6 +23,7 @@ def sources(root,version):
         if old not in content: raise RuntimeError('Missing API adapter anchor: '+name)
         file.write_text(content.replace(old,new))
     if version in LEGACY and version not in ('1.20','1.20.1'):
+        edit('EvatexTitleScreen.java','method_25420(class_332 ctx)','method_25420(class_332 ctx,int mx,int my,float delta)')
         edit('VideoSelectScreen.java','method_25420(class_332 context)','method_25420(class_332 context, int mouseX, int mouseY, float delta)')
         edit('mixin/ServerBackgroundMixin.java','evatex$serverVideo(class_332 context, CallbackInfo ci','evatex$serverVideo(class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci')
     if version in ('1.20.2','1.20.3','1.20.4'):
@@ -54,6 +55,10 @@ def sources(root,version):
         edit('AstralButton.java','matrix.translate(x+w/2f,y+h/2f);','matrix.method_22904(x+w/2f,y+h/2f,0);')
         edit('AstralButton.java','matrix.rotate(clockwise ? (float)Math.PI/2 : -(float)Math.PI/2);','matrix.method_22907(new org.joml.Quaternionf().rotateZ(clockwise ? (float)Math.PI/2 : -(float)Math.PI/2));')
         edit('AstralButton.java','matrix.popMatrix();','matrix.method_22909();')
+        edit('AstralDraw.java','matrix.pushMatrix()','matrix.method_22903()')
+        edit('AstralDraw.java','matrix.translate((float)x,(float)y)','matrix.method_22904(x,y,0)')
+        edit('AstralDraw.java','matrix.scale(scale,scale)','matrix.method_22905(scale,scale,scale)')
+        edit('AstralDraw.java','matrix.popMatrix()','matrix.method_22909()')
     if version=='1.21.5':
         edit('mixin/RotatingCubeMapRendererMixin.java','IIZ)V','IIFF)V')
         edit('mixin/RotatingCubeMapRendererMixin.java','boolean rotate, CallbackInfo ci','float delta, float rotation, CallbackInfo ci')
@@ -61,11 +66,13 @@ def sources(root,version):
         edit('video/VideoBackground.java', 'context.method_25293(TEXTURE_ID, (width-dw)/2, (height-dh)/2, dw, dh,\n                0f, 0f, frame.width, frame.height, frame.width, frame.height);', 'context.method_25302(net.minecraft.class_1921::method_62277, TEXTURE_ID, (width-dw)/2, (height-dh)/2,\n                0f, 0f, dw, dh, frame.width, frame.height, frame.width, frame.height);')
     if version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
         edit('AstralButton.java','method_75752','method_48579')
+        edit('AstralHomeButton.java','method_75752','method_48579')
         edit('video/VideoTexture.java','field_63613 = RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true, false);')
         if version == '1.21.5':
             edit('video/VideoBackground.java','class_10799.field_56883, TEXTURE_ID','net.minecraft.class_1921::method_62277, TEXTURE_ID')
     if version == '1.20':
         edit('AstralButton.java','protected void method_48579','public void method_48579')
+        edit('AstralHomeButton.java','protected void method_48579','public void method_48579')
     if version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
         (folder/'com/videomenu/mixin/SplashManagerMixin.java').write_text((root/'src120/com/videomenu/mixin/SplashManagerMixin.java').read_text())
     if version.startswith('26.'):
@@ -87,8 +94,9 @@ def sources(root,version):
                 content=content.replace('net.minecraft.util.Util.getPlatform().openFile(VideoFiles.directory().toFile());','java.awt.Desktop.getDesktop().open(VideoFiles.directory().toFile());')
                 content=content.replace('EditGameRulesScreen','WorldCreationGameRulesScreen')
                 content=content.replace('GuiGraphics','GuiGraphicsExtractor').replace('renderBackground','extractBackground').replace('renderContents','extractContents').replace('renderListBackground','extractListBackground').replace('renderListSeparators','extractListSeparators')
+                if file.name=='EvatexTitleScreen.java':content=content.replace('drawable.render(', 'drawable.extractRenderState(')
                 if file.name=='AstralVolumeSlider.java':content=content.replace('renderWidget','extractWidgetRenderState')
-                if file.name in ('VideoSelectScreen.java','TitleScreenMixin.java'):
+                if file.name in ('VideoSelectScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java'):
                     content=content.replace('public void render(', 'public void extractRenderState(').replace('super.render(', 'super.extractRenderState(').replace('method = "render"','method = "extractRenderState"').replace(';render(', ';extractRenderState(')
                 if version in ('26.2','26.3'):
                     content=content.replace('method = "destroy"','method = "close"')

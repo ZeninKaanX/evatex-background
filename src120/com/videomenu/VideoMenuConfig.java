@@ -26,6 +26,7 @@ public final class VideoMenuConfig {
     public boolean worldMenuBackground = true;
     public boolean optionsMenuBackground = true;
     public boolean menuMeteors = true;
+    public boolean customMainMenu = false;
     public double darkening = 0.25;
     public boolean showVignette = true;
 
@@ -40,6 +41,7 @@ public final class VideoMenuConfig {
             JsonObject obj = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
             config.worldMenuBackground = getBoolean(obj, "worldMenuBackground", true);
             config.optionsMenuBackground = getBoolean(obj, "optionsMenuBackground", true);
+            config.customMainMenu = getBoolean(obj, "customMainMenu", false);
             config.menuMeteors = getBoolean(obj, "menuMeteors", true);
             config.themeTransitions = getBoolean(obj, "themeTransitions", true);
             config.audioEnabled = getBoolean(obj, "audioEnabled", false);
@@ -67,6 +69,7 @@ public final class VideoMenuConfig {
         copy.worldMenuBackground = worldMenuBackground;
         copy.optionsMenuBackground = optionsMenuBackground;
         copy.menuMeteors = menuMeteors;
+        copy.customMainMenu = customMainMenu;
         copy.themeTransitions = themeTransitions;
         copy.audioEnabled = audioEnabled; copy.audioVolume=audioVolume; copy.maxDecodeHeight = maxDecodeHeight;
         copy.hardwareAcceleration = hardwareAcceleration;
@@ -109,6 +112,7 @@ public final class VideoMenuConfig {
         obj.addProperty("worldMenuBackground", worldMenuBackground);
         obj.addProperty("optionsMenuBackground", optionsMenuBackground);
         obj.addProperty("menuMeteors", menuMeteors);
+        obj.addProperty("customMainMenu", customMainMenu);
         obj.addProperty("themeTransitions", themeTransitions);
         obj.addProperty("enabled", enabled);
         obj.addProperty("audioEnabled", audioEnabled);

@@ -11,4 +11,11 @@ public final class AstralDraw {
         ctx.method_25294(x+1,y+height-3,x+width-1,y+height-1,color);
         ctx.method_25294(x+3,y+height-1,x+width-3,y+height,color);
     }
+    public static void displayText(net.minecraft.class_332 ctx,String text,int x,int y,float scale,int color) {
+        var matrix=ctx.method_51448();matrix.pushMatrix();
+        try {
+            matrix.translate((float)x,(float)y);matrix.scale(scale,scale);
+            ctx.method_25303(net.minecraft.class_310.method_1551().field_1772,text,0,0,color);
+        } finally {matrix.popMatrix();}
+    }
 }

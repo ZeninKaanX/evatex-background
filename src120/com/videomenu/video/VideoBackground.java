@@ -37,6 +37,7 @@ public final class VideoBackground {
 
     private record Frame(int[] pixels, int width, int height) {}
     private VideoBackground() {}
+    public boolean customMainMenu() {var value=config;return value!=null && value.customMainMenu;}
     public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
     public String status() { return status; }
     public synchronized String audioStatus() { return decoder == null ? "muted" : decoder.audioStatus(); }
