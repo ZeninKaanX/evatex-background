@@ -127,7 +127,7 @@ public final class VideoSelectScreen extends class_437 {
             ctx.method_25303(field_22793,text("library",videos.size()).getString(),left,header,palette.accent());
             if(videos.isEmpty()) {
                 ctx.method_25303(field_22793,field_22793.method_27523(text("empty").getString(),width),left,layout.top()+6,palette.muted());
-                ctx.method_25303(field_22793,"videos / videolar",left,layout.top()+22,palette.muted());
+                ctx.method_25303(field_22793,"videos / backgrounds",left,layout.top()+22,palette.muted());
             }
             if(pages(videos.size())>1)ctx.method_25300(field_22793,(page+1)+" / "+pages(videos.size()),left+width/2,layout.pagerY()+5,palette.muted());
         }
@@ -139,7 +139,7 @@ public final class VideoSelectScreen extends class_437 {
         int center=layout.singleColumn() ? left+width/2 : right+width/2;
         ctx.method_25300(field_22793,field_22793.method_27523(text(key).getString(),width),center,layout.statusY(),palette.muted());
         super.method_25394(ctx,mx,my,delta);
-        ctx.method_25300(field_22793,"EverVerity • EVATEX 1.8.3",field_22789/2,field_22790-9,palette.muted());
+        ctx.method_25300(field_22793,"EverVerity • EVATEX 1.8.4",field_22789/2,field_22790-9,palette.muted());
         if(config.themeTransitions) {
             double fade=Math.max(0,1-(System.nanoTime()-openedAt)/280_000_000.0);
             if(fade>0)ctx.method_25294(0,0,field_22789,field_22790,(int)(fade*fade*180)<<24);

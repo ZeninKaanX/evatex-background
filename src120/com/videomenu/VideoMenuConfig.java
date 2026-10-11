@@ -96,7 +96,7 @@ public final class VideoMenuConfig {
 
     private String toJson() {
         JsonObject obj = new JsonObject();
-        obj.addProperty("_HELP", "Bu dosya EVATEX-Background Video modunun ayarlarıdır (EverVerity tarafından yapılmıştır). Genelde bu dosyayı elle düzenlemenize gerek yoktur; ana menüdeki 'Video Menüsü' butonuyla video ve ayarları oyun içinden değiştirebilirsiniz. videoPath: ana menüde oynatılacak video dosyasının yolu. Videoları oyun klasöründeki 'videolar' klasörüne atarsanız otomatik listelenir. Not: Video, mod ile birlikte gelen FFmpeg ile çözülür; ek kurulum gerekmez.");
+        obj.addProperty("_HELP", "EVATEX-Background ayarları. Arka Plan menüsünden video, GIF veya fotoğraf seçebilirsiniz. Dosyaları oyun klasöründeki videos, videolar veya backgrounds klasörüne ekleyin. videoPath seçili arka planın yoludur; eski ayarlar korunur. FFmpeg modla birlikte gelir.");
         obj.addProperty("themeTransitions", themeTransitions);
         obj.addProperty("enabled", enabled);
         obj.addProperty("audioEnabled", audioEnabled);

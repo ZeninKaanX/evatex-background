@@ -1,33 +1,34 @@
-# EVATEX Background Video
+# EVATEX-Background
 
-Use your own video as the background of Minecraft's title screen and multiplayer server selection. Choose a clip and adjust playback from the in-game Video Menu.
+Use your own video, GIF or photo as the background of Minecraft's title screen and multiplayer server selection. Choose a background and adjust playback from the in-game Backgrounds.
 
 Windows automatically attempts GPU video decoding and GPU downscaling. Unsupported drivers or video formats fall back to software decoding. Performance depends on the video, graphics card and driver.
 
 ## Features
 
+- Video, animated GIF and photo backgrounds.
 - Custom black-and-white Astral interface with optional transitions, stars and falling meteors.
-- Continuous playback across the title screen, server selection and video settings.
+- Continuous playback across the title screen, server selection and background settings.
 - Resolution and frame-rate controls, fill/fit framing, darkening and vignette.
 - Safe 1080p decoded output by default, with adjustable scale and decode-size limits.
 - Turkish and English translations following Minecraft's selected language, with English fallback.
 - Live sound on/off and volume controls, muted by default.
 - Responsive library and settings pages, with tabs on narrow screens.
-- Automatic saving and an option to disable video or interface animations.
+- Automatic saving and an option to disable backgrounds or interface animations.
 
 ## Installation
 
 1. Install Fabric Loader **0.19.5 or newer**.
 2. Download the EVATEX file matching your exact Minecraft version.
 3. Place it in your game directory's `mods` folder and remove any previous EVATEX jar.
-4. Add videos to the `videos` folder in your game directory. Existing `videolar` folders also work.
-5. Open **Video Menu** from the title screen and select a video.
+4. Add videos, GIFs or photos to `videos` or `backgrounds` in your game directory. Existing `videolar` folders also work.
+5. Open **Backgrounds** from the title screen and select a background.
 
-Common formats include MP4, WebM, MKV, MOV and AVI. Sound is muted by default; enable it in Video Menu. Settings are saved automatically. Lower resolution or frame rate can reduce resource use on slower computers.
+Supported formats include MP4, WebM, MKV, MOV, AVI, M4V, GIF, PNG, JPG/JPEG and BMP. Photos are loaded once and GIFs loop automatically. Sound is muted by default; enable it in Backgrounds. Settings are saved automatically. Lower resolution or frame rate can reduce resource use on slower computers.
 
 ## Compatibility
 
-EVATEX 1.8.2 provides separate Fabric builds for all 24 stable Minecraft Java Edition releases from **1.20 through 26.3**. Install one matching jar at a time.
+EVATEX 1.8.4 provides separate Fabric builds for all 24 stable Minecraft Java Edition releases from **1.20 through 26.3**. Install one matching jar at a time.
 
 | Minecraft | Java |
 | --- | --- |
@@ -41,9 +42,9 @@ Full Fabric API is not required by EVATEX; the necessary resource-loading module
 
 ## Atlas Client integration
 
-EVATEX includes a dedicated integration for **Atlas Client 3.0.3 on Minecraft 1.21.11**. Your video plays behind Atlas’s custom title menu and multiplayer server selection. A compact Astral **Video Menu** button sits at the lower right, with centred text and its own black-and-white styling.
+EVATEX includes a dedicated integration for **Atlas Client 3.0.3 on Minecraft 1.21.11**. Your background appears behind Atlas’s custom title menu and multiplayer server selection. A compact Astral **Backgrounds** button sits at the lower right, with centred text and its own black-and-white styling.
 
-Atlas’s menu layout and settings are preserved. EVATEX remains a separate mod with its own video controls; the two mods are not combined. Atlas’s vanilla menu mode also works. In the normal Minecraft title screen, the EVATEX shortcut is centred near the bottom.
+Atlas’s menu layout and settings are preserved. EVATEX remains a separate mod with its own background controls; the two mods are not combined. Atlas’s vanilla menu mode also works. In the normal Minecraft title screen, the EVATEX shortcut is centred near the bottom.
 
 Install Atlas and its required dependencies separately. This integration targets the version listed above; compatibility with every custom menu or launcher has not been verified.
 

@@ -67,7 +67,7 @@ public abstract class SmokeMixin {
             }
         }
         if (evatexqa$stage==8 && !VideoBackground.INSTANCE.status().equals("idle")) throw new AssertionError("Disabled video kept playing");
-        if (evatexqa$stage==1 && System.getProperty("evatex.qa.language","tr_tr").equals("tr_tr") && !net.minecraft.class_2561.method_43471("evatex.title").getString().equals("Video Menüsü")) throw new AssertionError("Turkish translations not loaded");
+        if (evatexqa$stage==1 && System.getProperty("evatex.qa.language","tr_tr").equals("tr_tr") && !net.minecraft.class_2561.method_43471("evatex.title").getString().equals("Arka Plan")) throw new AssertionError("Turkish translations not loaded");
         evatexqa$capture(client, "stage-"+evatexqa$stage);
         if (Boolean.getBoolean("evatex.qa.shortcutOnly")) {evatexqa$stage++;return;}
         switch (evatexqa$stage++) {

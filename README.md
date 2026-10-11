@@ -1,12 +1,16 @@
-# EVATEX Background Video — Astral 1.8.3
+# EVATEX-Background — Astral 1.8.4
 
-Replace Minecraft's title screen and multiplayer server selection backgrounds with a looping video. Made by EverVerity.
+Replace Minecraft's title screen and multiplayer server selection backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
 
-## Windows playback optimization
+## Backgrounds and Windows playback
 
-EVATEX 1.8.3 requests D3D11 hardware video decoding and GPU downscaling on Windows. Unsupported drivers/codecs fall back to hardware decoding without GPU scaling, then software decoding. Linux and macOS retain their existing decoder selection. Video size, frame-rate and audio settings are preserved.
+Photos are decoded once; the decoder then exits while the texture remains visible. Animated GIFs loop at their source timing, sampled at the configured presentation frame rate. PNG/JPEG/BMP are treated as static photos; animated PNG/WebP are not advertised as supported.
+
+The production frame pipeline reuses a bounded pool and a persistent render staging buffer instead of allocating a full pixel array every frame. Windows transports decoded pixels over a buffered loopback TCP connection to avoid small anonymous-process-pipe buffers. The connection is local and closes with the decoder.
+
+EVATEX 1.8.4 requests D3D11 hardware video decoding and GPU downscaling on Windows. Unsupported drivers/codecs fall back to hardware decoding without GPU scaling, then software decoding. Linux and macOS retain their existing decoder selection. Video size, frame-rate and audio settings are preserved.
 
 The log records `EVATEX video decoder active: D3D11_SCALE`, `D3D11` or `SOFTWARE` after actual frames arrive. GPU work appears in Windows Task Manager's **Video Decode** graph; the **3D** graph alone does not measure video decoding. If a driver causes trouble, set `hardwareAcceleration` to `false` in `config/evatexbackgroundvideo.json` while the game is closed.
 
@@ -28,8 +32,8 @@ Fabric API is not required by EVATEX; its resource-loading modules are embedded.
 
 ## Use
 
-1. Place MP4, MOV, WebM, MKV, AVI or M4V files in `videos` inside the game directory. Existing `videolar` folders and saved paths are also supported.
-2. Open **Video Menu** on the title screen and select a clip.
+1. Place videos (MP4, MOV, WebM, MKV, AVI, M4V), animated GIFs or photos (PNG, JPG/JPEG, BMP) in `videos` or `backgrounds` inside the game directory. Existing `videolar` folders and saved paths are also supported.
+2. Open **Backgrounds** on the title screen and select a background.
 3. Adjust sound, resolution, decode-size limit, frame rate, framing (fill or fit), darkening and vignette. The mod has its own black-and-white Astral interface, with optional screen fades, hover transitions and falling meteors. Separate library and playback pages prevent controls from overlapping at larger GUI scales; narrow screens use tabs. Folder opening runs asynchronously with Windows, Linux and macOS commands. Settings save automatically. Refresh rescans files after adding videos.
 
 The Astral interface uses dark panels and black/white accents, with keyboard focus and native narration support. Text follows Minecraft's selected language. Turkish and English are included; other languages use the English fallback.
@@ -40,7 +44,7 @@ If a clip fails, the vanilla panorama remains available. Check `logs/latest.log`
 
 ## Atlas Client compatibility
 
-On Minecraft 1.21.11, EVATEX supports Atlas Client **3.0.3** as a separate installed mod. Optional mixins display the video behind Atlas’s custom main menu and server selection UI, and expose a translated Video Menu shortcut. Atlas’s vanilla UI mode is also supported. Its jar and configuration are not modified or bundled. When no playable video is selected, Atlas keeps its own background. Other Atlas versions do not load these optional hooks. Atlas still requires its own Fabric API and Player Animation Library dependencies.
+On Minecraft 1.21.11, EVATEX supports Atlas Client **3.0.3** as a separate installed mod. Optional mixins display the video behind Atlas’s custom main menu and server selection UI, and expose a translated Backgrounds shortcut. Atlas’s vanilla UI mode is also supported. Its jar and configuration are not modified or bundled. When no playable video is selected, Atlas keeps its own background. Other Atlas versions do not load these optional hooks. Atlas still requires its own Fabric API and Player Animation Library dependencies.
 
 ## Build
 
@@ -72,4 +76,4 @@ Regression checks cover corrupt config values, pixel channel ordering, frame own
 
 Mod code: MIT (see `LICENSE`). Bundled FFmpeg executables: GPL v3, with `COPYING.GPLv3` included in the jar. The fetch script records binary origins and upstream build/source links in `assets/videomenu/ffmpeg/PROVENANCE.json`. FFmpeg is developed by the [FFmpeg project](https://ffmpeg.org/).
 
-The Video Menu shortcut is centred near the bottom of the title screen. Its position follows the game window and GUI scale, independently of launcher paths. Atlas Client 3.0.3 has a separate matching shortcut; unrelated custom menu replacements are not universally supported.
+The Backgrounds shortcut is centred near the bottom of the title screen. Its position follows the game window and GUI scale, independently of launcher paths. Atlas Client 3.0.3 has a separate matching shortcut; unrelated custom menu replacements are not universally supported.

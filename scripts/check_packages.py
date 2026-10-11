@@ -18,6 +18,7 @@ for version in ([args.minecraft] if args.minecraft else VERSIONS):
         assert len(names)==len(set(names)), 'Duplicate archive entries'
         meta=json.loads(archive.read('fabric.mod.json'))
         assert meta['version']==MOD_VERSION
+        assert meta['id']=='evatexbackgroundvideo' and meta['name']=='EVATEX-Background'
         assert meta['depends']['minecraft']==version
         assert meta['depends']['java']=='>='+str(VERSIONS[version][1])
         mixins=json.loads(archive.read('videomenu.mixins.json'))

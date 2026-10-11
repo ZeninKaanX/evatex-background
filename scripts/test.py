@@ -21,6 +21,8 @@ if not cp.exists(): raise SystemExit('Run scripts/build.py first')
 work=ROOT/'build'/('tests-'+version); work.mkdir(parents=True,exist_ok=True)
 video=work/'timing.mp4'
 subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','lavfi','-i','testsrc2=size=160x90:rate=30','-t','1','-c:v','libx264','-pix_fmt','yuv420p',str(video)],check=True)
+for extension in ['png','jpg','bmp']:
+    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-i',str(video),'-frames:v','1','-threads','1','-update','1',str(work/('photo %03d Türkçe.'+extension))],check=True)
 classpath=os.pathsep.join([str(classes),cp.read_text()])
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/DecoderRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'DecoderRegression',str(video)],check=True)

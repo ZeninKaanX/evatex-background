@@ -23,11 +23,11 @@ public final class VideoFiles {
     }
     public static List<Path> discover(String selected) {
         java.util.ArrayList<Path> result = new java.util.ArrayList<>();
-        for (String folder : new String[]{"videos", "videolar"}) {
+        for (String folder : new String[]{"videos", "videolar", "backgrounds"}) {
             Path dir = FabricLoader.getInstance().getGameDir().resolve(folder);
             if (!Files.isDirectory(dir)) continue;
             try (Stream<Path> files = Files.list(dir)) {
-                files.filter(Files::isRegularFile).filter(VideoFiles::isVideo)
+                files.filter(Files::isRegularFile).filter(VideoFiles::isMedia)
                     .map(p -> p.toAbsolutePath().normalize()).forEach(result::add);
             } catch (IOException e) { VideoMenuClient.LOGGER.warn("Cannot read video folder {}", dir, e); }
         }
@@ -36,9 +36,14 @@ public final class VideoFiles {
         result.sort(Comparator.comparing(p -> p.getFileName().toString().toLowerCase(Locale.ROOT)));
         return result;
     }
-    private static boolean isVideo(Path path) {
+    public static boolean isStillImage(Path path) {
         String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
-        for (String extension : new String[]{".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v"}) {
+        return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".bmp");
+    }
+    public static boolean isGif(Path path) { return path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".gif"); }
+    public static boolean isMedia(Path path) {
+        String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        for (String extension : new String[]{".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v", ".gif", ".png", ".jpg", ".jpeg", ".bmp"}) {
             if (name.endsWith(extension)) return true;
         }
         return false;

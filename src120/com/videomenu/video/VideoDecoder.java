@@ -19,12 +19,18 @@ import java.util.regex.Pattern;
 import net.fabricmc.loader.api.FabricLoader;
 
 public final class VideoDecoder {
-    private static final Pattern DIM_PATTERN = Pattern.compile("(\\d{2,5})x(\\d{2,5})");
+    private static final Pattern DIM_PATTERN = Pattern.compile("\\b([1-9]\\d{0,4})x([1-9]\\d{0,4})\\b");
     private static volatile Path bundledFfmpeg;
     private static volatile boolean systemOnly;
     private final VideoMenuConfig config;
     private final FrameListener listener;
     private final Runnable onFailure;
+    private final boolean borrowedFrames;
+    private boolean stillImage;
+    private boolean gif;
+    private volatile java.net.ServerSocket videoServer;
+    private volatile java.net.Socket videoSocket;
+    private final boolean socketTransport = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
     private final java.util.List<Backend> backendCandidates;
     private volatile boolean closed;
     private volatile Process process;
@@ -42,6 +48,12 @@ public final class VideoDecoder {
     public VideoDecoder(VideoMenuConfig config, FrameListener listener) { this(config, listener, () -> {}); }
 
     public VideoDecoder(VideoMenuConfig config, FrameListener listener, Runnable onFailure) {
+        this(config, listener, onFailure, false);
+    }
+
+    /** With borrowedFrames, pixels are valid only during the synchronous callback. */
+    public VideoDecoder(VideoMenuConfig config, FrameListener listener, Runnable onFailure, boolean borrowedFrames) {
+        this.borrowedFrames = borrowedFrames;
         this.onFailure = onFailure;
         this.config = config.copy();
         this.audioEnabled = config.audioEnabled;
@@ -57,6 +69,8 @@ public final class VideoDecoder {
             VideoMenuClient.LOGGER.error("[VideoMenu] Video dosyası bulunamadı: '{}'", this.config.videoPath);
             return false;
         }
+        stillImage = VideoFiles.isStillImage(file);
+        gif = VideoFiles.isGif(file);
         int[] size = this.probeSize(file);
         if (size == null) {
             VideoMenuClient.LOGGER.error("[VideoMenu] FFmpeg bulunamadı veya video okunamadı: '{}'. MP4 (H.264) bir dosya kullanın.", this.config.videoPath);
@@ -65,7 +79,7 @@ public final class VideoDecoder {
         if (closed) return false;
         this.thread = new Thread(() -> {
             try { this.run(file, size[0], size[1]); }
-            finally { if (!closed) onFailure.run(); }
+            finally { if (!closed && !(stillImage && publishedFrames > 0)) onFailure.run(); }
         }, "VideoMenu-Decoder");
         this.thread.setDaemon(true);
         this.thread.start();
@@ -74,6 +88,7 @@ public final class VideoDecoder {
 
     public void close() {
         this.closed = true;
+        closeVideoTransport();
         VideoAudio sink = audio; if (sink != null) sink.close();
         Thread reader=frameReader;if(reader!=null)reader.interrupt();
         Process p = this.process;
@@ -109,9 +124,9 @@ public final class VideoDecoder {
 
     private void run(Path file, int srcW, int srcH) {
         int[] target = this.computeTarget(srcW, srcH);
-        var candidates = backendCandidates;
+        var candidates = stillImage || gif ? java.util.List.of(Backend.SOFTWARE) : backendCandidates;
         int attempt = 0;
-        boolean streamLoop = true;
+        boolean streamLoop = !stillImage;
         int emptyAttempts = 0;
         while (!closed) {
             Backend backend = candidates.get(attempt);
@@ -131,15 +146,17 @@ public final class VideoDecoder {
                 }, "EVATEX-Decoder-Startup");
                 startup.setDaemon(true); startup.start();
                 try {
-                    readFrames(p.getInputStream(), target[0], target[1]);
+                    try (InputStream input = videoInput(p)) { readFrames(input, target[0], target[1]); }
                     waitForExit(p);
                 } finally {
                     startup.interrupt();
+                    closeVideoTransport();
                     p.destroyForcibly();
                     process = null;
                     VideoAudio sink = audio; audio = null; if (sink != null) sink.close();
                 }
                 if (closed) return;
+                if (stillImage && publishedFrames > framesBefore) return;
                 if (backend != Backend.SOFTWARE) {
                     // -stream_loop should never end. Retry without a failed GPU path,
                     // including failures after playback has already started.
@@ -155,6 +172,8 @@ public final class VideoDecoder {
                     }
                 } else emptyAttempts = 0;
             } catch (Exception e) {
+                closeVideoTransport();
+                Process failed = process; if (failed != null) failed.destroyForcibly(); process = null;
                 if (closed) return;
                 VideoAudio sink = audio; audio = null; if (sink != null) sink.close();
                 if (backend != Backend.SOFTWARE) {
@@ -198,6 +217,8 @@ public final class VideoDecoder {
             cmd.addAll(java.util.List.of("-hwaccel", "d3d11va", "-hwaccel_output_format", "d3d11"));
         }
         cmd.add("-threads"); cmd.add("2");
+        if (gif) cmd.addAll(java.util.List.of("-ignore_loop", "1"));
+        if (stillImage) cmd.addAll(java.util.List.of("-f", "image2", "-pattern_type", "none"));
         cmd.add("-i");
         cmd.add(file.toString());
         cmd.add("-map");
@@ -206,15 +227,25 @@ public final class VideoDecoder {
         cmd.add("-sn");
         cmd.add("-dn");
         cmd.add("-vf");
-        cmd.add(videoFilter(backend, config.fps, dstW, dstH, downloadFormat));
+        String filter = videoFilter(backend, config.fps, dstW, dstH, downloadFormat);
+        if (stillImage) filter = filter.substring(filter.indexOf(',') + 1);
+        cmd.add(filter);
+        if (stillImage) cmd.addAll(java.util.List.of("-frames:v", "1"));
         cmd.add("-f");
         cmd.add("rawvideo");
         cmd.add("-pix_fmt");
         cmd.add("rgba");
         cmd.add("-threads"); cmd.add("1");
-        cmd.add("-flush_packets"); cmd.add("1");
-        cmd.add("-avioflags"); cmd.add("direct");
-        cmd.add("pipe:1");
+        // Windows anonymous process pipes have small buffers. A bounded local TCP
+        // connection avoids repeatedly stalling both FFmpeg and Java on those pipes.
+        if (socketTransport) {
+            java.net.ServerSocket server = new java.net.ServerSocket();
+            videoServer = server;
+            server.setReceiveBufferSize(262144);
+            server.bind(new java.net.InetSocketAddress("127.0.0.1", 0), 1);
+            server.setSoTimeout(500);
+            cmd.add("tcp://127.0.0.1:" + server.getLocalPort());
+        } else cmd.add("pipe:1");
         if (hasAudio) {
             try { audio = new VideoAudio(audioEnabled,audioVolume); }
             catch (IOException e) { VideoMenuClient.LOGGER.warn("Cannot initialize video audio; continuing silently",e); }
@@ -222,6 +253,7 @@ public final class VideoDecoder {
         }
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectError(ProcessBuilder.Redirect.PIPE);
+        if (socketTransport) pb.redirectOutput(ProcessBuilder.Redirect.DISCARD);
         Process p;
         try { p = startFfmpeg(pb); }
         catch (IOException e) { VideoAudio sink = audio; audio = null; if (sink != null) sink.close(); throw e; }
@@ -240,6 +272,28 @@ public final class VideoDecoder {
         return p;
     }
 
+    private InputStream videoInput(Process p) throws IOException {
+        if (!socketTransport) return p.getInputStream();
+        java.net.ServerSocket server = videoServer;
+        if (server == null) throw new IOException("Video connection closed");
+        while (!closed) {
+            try {
+                java.net.Socket socket = server.accept();
+                videoSocket = socket;
+                if (closed) { socket.close(); throw new IOException("Video closed"); }
+                return new java.io.BufferedInputStream(socket.getInputStream(), 262144);
+            } catch (java.net.SocketTimeoutException ignored) { if (!p.isAlive()) break; }
+        }
+        throw new IOException("Decoder stopped before opening the video connection");
+    }
+
+    private void closeVideoTransport() {
+        java.net.Socket socket = videoSocket; videoSocket = null;
+        java.net.ServerSocket server = videoServer; videoServer = null;
+        try { if (socket != null) socket.close(); } catch (IOException ignored) {}
+        try { if (server != null) server.close(); } catch (IOException ignored) {}
+    }
+
     private int[] computeTarget(int srcW, int srcH) {
         double scale = Math.min(Math.max(this.config.scale, 0.05), 1.0);
         double limitHeight = config.maxDecodeHeight;
@@ -256,13 +310,17 @@ public final class VideoDecoder {
         // Keep native pipe reads separate from the presentation clock. In particular,
         // macOS pipe wakeups can otherwise delay several frames after each paced read.
         var frames=new java.util.concurrent.ArrayBlockingQueue<int[]>(4);
+        var available=new java.util.concurrent.ArrayBlockingQueue<int[]>(6);
+        for (int i=0;i<(stillImage ? 2 : 6);i++) available.add(new int[w*h]);
         var finished=new java.util.concurrent.atomic.AtomicBoolean();
         var failure=new java.util.concurrent.atomic.AtomicReference<Throwable>();
         Thread reader=new Thread(()->{
             byte[] rgba=new byte[w*h*4];
             try {
-                while(!closed && !Thread.currentThread().isInterrupted() && readFully(in,rgba)) {
-                    int[] pixels=new int[w*h];pack(rgba,w,h,pixels);frames.put(pixels);
+                while(!closed && !Thread.currentThread().isInterrupted()) {
+                    int[] pixels = available.take();
+                    if (!readFully(in, rgba)) { available.offer(pixels); break; }
+                    pack(rgba,w,h,pixels);frames.put(pixels);
                 }
             } catch(InterruptedException e) {Thread.currentThread().interrupt();}
             catch(Throwable e) {if(!closed)failure.set(e);}
@@ -282,9 +340,10 @@ public final class VideoDecoder {
                 if(closed)return;
                 if (decoderBackend.startsWith("starting ")) {
                     decoderBackend = decoderBackend.substring(9);
-                    VideoMenuClient.LOGGER.info("EVATEX video decoder active: {} ({}x{} at {} FPS)", decoderBackend, w, h, config.fps);
+                    VideoMenuClient.LOGGER.info("EVATEX video decoder active: {} ({}x{} at {} FPS; {})", decoderBackend, w, h, config.fps, socketTransport ? "local TCP" : "pipe");
                 }
-                listener.onFrame(frame,w,h);++publishedFrames;
+                try { listener.onFrame(borrowedFrames ? frame : frame.clone(),w,h);++publishedFrames; }
+                finally { available.offer(frame); }
                 long now=System.nanoTime();
                 // Preserve the timeline across ordinary OS timer oversleep rather than
                 // adding that delay to every subsequent frame. Reset only after a
@@ -337,8 +396,10 @@ public final class VideoDecoder {
         Path report = null;
         try {
             report = Files.createTempFile("evatex-probe-", ".log");
-            p = startFfmpeg(new ProcessBuilder(VideoDecoder.ffmpegPath(), "-nostdin", "-hide_banner", "-i", file.toString())
-                .redirectErrorStream(true).redirectOutput(report.toFile()));
+            ArrayList<String> probe = new ArrayList<>(java.util.List.of(VideoDecoder.ffmpegPath(), "-nostdin", "-hide_banner"));
+            if (stillImage) probe.addAll(java.util.List.of("-f", "image2", "-pattern_type", "none"));
+            probe.addAll(java.util.List.of("-i", file.toString()));
+            p = startFfmpeg(new ProcessBuilder(probe).redirectErrorStream(true).redirectOutput(report.toFile()));
             process = p;
             if (closed || !p.waitFor(10, TimeUnit.SECONDS)) return null;
             String out = Files.readString(report, StandardCharsets.UTF_8);

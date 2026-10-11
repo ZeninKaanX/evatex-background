@@ -1,3 +1,11 @@
+# Background media and frame transport 1.8.4
+
+Real-FFmpeg regression now covers PNG/JPEG/BMP single-frame loading, literal percent and Unicode paths, successful still-image process exit without clearing the background, GIF changes/looping with paced timing, forced local TCP playback on every test host, bounded reusable pixel arrays, immutable public callbacks, GPU-failure fallback over TCP, and socket cleanup. Production callbacks borrow pooled arrays only during their synchronous call; VideoBackground copies into persistent staging storage while holding the same monitor used for texture uploads.
+
+Windows uses a buffered loopback video connection; other systems retain stdout transport. Still photos leave no continuously running decoder. GPU selection retains the 1.8.3 D3D11 paths. The visible name and translated media labels change without migrating the mod ID, config filename or saved videoPath.
+
+This validates frame ownership and media behavior, not a guaranteed Windows FPS or CPU reduction. Actual performance on the user's affected Windows machine remains unmeasured. No 4K/8K playback and no full per-version GUI matrix are performed for this patch.
+
 # Windows GPU optimization 1.8.3
 
 This patch addresses the missing hardware decoder request found in 1.8.2. Windows tries D3D11 decoding and scaling, then D3D11 decoding with CPU scaling, then software decoding. The hardware filter requires D3D11 frames and reports active only after a complete frame is read. A watchdog limits first-frame waits to 12 seconds per attempt. Configured FPS, size cap, source video and audio settings are unchanged.

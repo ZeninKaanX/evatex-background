@@ -26,6 +26,7 @@ public final class VideoBackground {
     private boolean menuVisible;
     private long generation;
     private volatile Frame latest;
+    private int[] staging;
     private volatile String status = "idle";
     private Frame uploaded;
     private class_1043 texture;
@@ -54,16 +55,20 @@ public final class VideoBackground {
     private void restart() {
         long session = ++generation;
         if (decoder != null) { decoder.close(); decoder = null; }
-        latest = null;
+        latest = null; staging = null;
         releaseTexture();
         status = "idle";
         if (!menuVisible || config == null || !config.enabled || config.videoPath.isBlank()) return;
         status = "loading";
         VideoDecoder next = new VideoDecoder(config, (data, w, h) -> {
             synchronized (this) {
-                if (session == generation) { latest = new Frame(data, w, h); status = "playing"; }
+                if (session == generation) {
+                    if (staging == null || staging.length != data.length) staging = new int[data.length];
+                    System.arraycopy(data, 0, staging, 0, data.length);
+                    latest = new Frame(staging, w, h); status = "playing";
+                }
             }
-        }, () -> { synchronized (this) { if (session == generation) { latest = null; status = "error"; } } });
+        }, () -> { synchronized (this) { if (session == generation) { latest = null; staging = null; status = "error"; } } }, true);
         decoder = next;
         worker.execute(() -> {
             boolean started = next.start();
@@ -82,7 +87,7 @@ public final class VideoBackground {
         }
         pixels = null; uploaded = null;
     }
-    public boolean prepareFrame() {
+    public synchronized boolean prepareFrame() {
         Frame frame = latest;
         VideoMenuConfig settings = config;
         if (frame == null || settings == null) { if (texture != null) releaseTexture(); return false; }

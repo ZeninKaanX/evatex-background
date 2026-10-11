@@ -1,3 +1,12 @@
+# 1.8.4 — EVATEX-Background
+
+- Rename the visible mod to EVATEX-Background while retaining the existing mod ID and configuration.
+- Add GIF looping and PNG/JPEG/BMP single-frame backgrounds, including literal percent/Unicode filenames.
+- Discover media in backgrounds as well as the existing videos/videolar folders.
+- Reuse a bounded frame pool and persistent render staging buffer in the game pipeline.
+- Use buffered loopback video transport on Windows; retain D3D11 decoding/scaling fallback and live audio.
+- Generalize translated menu labels without moving the normal or Atlas shortcuts.
+
 # 1.8.3 — Windows hardware decoding
 
 - Request D3D11VA hardware decoding on Windows instead of always using CPU decoding.
