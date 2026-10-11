@@ -28,7 +28,7 @@ Supported formats include MP4, WebM, MKV, MOV, AVI, M4V, GIF, PNG, JPG/JPEG and 
 
 ## Compatibility
 
-EVATEX 1.8.4 provides separate Fabric builds for all 24 stable Minecraft Java Edition releases from **1.20 through 26.3**. Install one matching jar at a time.
+EVATEX provides separate Fabric builds for all 24 stable Minecraft Java Edition releases from **1.20 through 26.3**. Install one matching jar at a time.
 
 | Minecraft | Java |
 | --- | --- |
