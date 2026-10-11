@@ -24,7 +24,7 @@ def sources(root,version):
         file.write_text(content.replace(old,new))
     if version in LEGACY and version not in ('1.20','1.20.1'):
         edit('VideoSelectScreen.java','method_25420(class_332 context)','method_25420(class_332 context, int mouseX, int mouseY, float delta)')
-        edit('mixin/ServerBackgroundMixin.java','class_332 context, CallbackInfo ci','class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci')
+        edit('mixin/ServerBackgroundMixin.java','evatex$serverVideo(class_332 context, CallbackInfo ci','evatex$serverVideo(class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci')
     if version in ('1.20.2','1.20.3','1.20.4'):
         edit('mixin/ServerListBackgroundMixin.java','    @Shadow private boolean field_26847;\n','')
         edit('mixin/ServerListBackgroundMixin.java','evatex$background=field_26846; evatex$edges=field_26847;','evatex$background=field_26846;')
