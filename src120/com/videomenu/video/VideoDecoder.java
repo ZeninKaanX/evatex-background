@@ -26,6 +26,8 @@ public final class VideoDecoder {
     private final FrameListener listener;
     private final Runnable onFailure;
     private final boolean borrowedFrames;
+    private final int viewportWidth, viewportHeight;
+    private volatile int sourceWidth, sourceHeight, decodedWidth, decodedHeight;
     private boolean stillImage;
     private boolean gif;
     private volatile java.net.ServerSocket videoServer;
@@ -53,6 +55,13 @@ public final class VideoDecoder {
 
     /** With borrowedFrames, pixels are valid only during the synchronous callback. */
     public VideoDecoder(VideoMenuConfig config, FrameListener listener, Runnable onFailure, boolean borrowedFrames) {
+        this(config, listener, onFailure, borrowedFrames, 0, 0);
+    }
+
+    public VideoDecoder(VideoMenuConfig config, FrameListener listener, Runnable onFailure, boolean borrowedFrames,
+                        int viewportWidth, int viewportHeight) {
+        this.viewportWidth = viewportWidth;
+        this.viewportHeight = viewportHeight;
         this.borrowedFrames = borrowedFrames;
         this.onFailure = onFailure;
         this.config = config.copy();
@@ -123,24 +132,37 @@ public final class VideoDecoder {
     }
 
     private void run(Path file, int srcW, int srcH) {
+        sourceWidth = srcW; sourceHeight = srcH;
         int[] target = this.computeTarget(srcW, srcH);
+        decodedWidth = target[0]; decodedHeight = target[1];
         var candidates = stillImage || gif ? java.util.List.of(Backend.SOFTWARE) : backendCandidates;
         int attempt = 0;
         boolean streamLoop = !stillImage;
-        int emptyAttempts = 0;
+        int emptyAttempts = 0, audioRestarts = 0;
         while (!closed) {
             Backend backend = candidates.get(attempt);
             long framesBefore = publishedFrames;
+            var audioEnded = new java.util.concurrent.atomic.AtomicBoolean();
             try {
                 Process p;
                 process = p = spawnFfmpeg(file, target[0], target[1], streamLoop, backend);
-                // A broken driver must not leave the menu waiting forever for frame 1.
+                // Monitor startup and a prematurely ended audio output independently
+                // of rendering; video may continue even after the PCM connection ends.
                 Thread startup = new Thread(() -> {
+                    long deadline = System.nanoTime() + 12_000_000_000L;
                     try {
-                        Thread.sleep(12000);
-                        if (!closed && process == p && publishedFrames == framesBefore) {
-                            lastError = "Decoder did not produce its first frame within 12 seconds";
-                            p.destroyForcibly();
+                        while (!closed && process == p && p.isAlive()) {
+                            Thread.sleep(500);
+                            if (publishedFrames == framesBefore && System.nanoTime() >= deadline) {
+                                lastError = "Decoder did not produce its first frame within 12 seconds";
+                                p.destroyForcibly(); return;
+                            }
+                            VideoAudio sink = audio;
+                            if (sink != null && sink.streamEnded() && publishedFrames > framesBefore) {
+                                audioEnded.set(true);
+                                lastError = "PCM stream ended while video playback continued";
+                                p.destroyForcibly(); return;
+                            }
                         }
                     } catch (InterruptedException ignored) {}
                 }, "EVATEX-Decoder-Startup");
@@ -157,6 +179,15 @@ public final class VideoDecoder {
                 }
                 if (closed) return;
                 if (stillImage && publishedFrames > framesBefore) return;
+                if (audioEnded.get()) {
+                    if (publishedFrames-framesBefore >= config.fps*10L) audioRestarts = 0;
+                    if (++audioRestarts > 2) {
+                        VideoMenuClient.LOGGER.error("Audio output repeatedly ended during video playback: {}", lastError);
+                        return;
+                    }
+                    VideoMenuClient.LOGGER.warn("Restarting shared video/audio decoder after PCM output ended");
+                    continue;
+                }
                 if (backend != Backend.SOFTWARE) {
                     // -stream_loop should never end. Retry without a failed GPU path,
                     // including failures after playback has already started.
@@ -176,6 +207,15 @@ public final class VideoDecoder {
                 Process failed = process; if (failed != null) failed.destroyForcibly(); process = null;
                 if (closed) return;
                 VideoAudio sink = audio; audio = null; if (sink != null) sink.close();
+                if (audioEnded.get()) {
+                    if (publishedFrames-framesBefore >= config.fps*10L) audioRestarts = 0;
+                    if (++audioRestarts > 2) {
+                        VideoMenuClient.LOGGER.error("Audio output repeatedly ended during video playback", e);
+                        return;
+                    }
+                    VideoMenuClient.LOGGER.warn("Restarting shared video/audio decoder after PCM transport failure");
+                    continue;
+                }
                 if (backend != Backend.SOFTWARE) {
                     VideoMenuClient.LOGGER.warn("EVATEX {} unavailable; trying next decoder", backend, e);
                     ++attempt; continue;
@@ -298,13 +338,28 @@ public final class VideoDecoder {
         try { if (server != null) server.close(); } catch (IOException ignored) {}
     }
 
+    public boolean viewportChanged(int width, int height, boolean fill) {
+        if (!socketTransport || stillImage || decodedWidth == 0 || width <= 0 || height <= 0) return false;
+        int[] target = computeTarget(sourceWidth, sourceHeight, width, height, fill);
+        return target[0] != decodedWidth || target[1] != decodedHeight;
+    }
+
     private int[] computeTarget(int srcW, int srcH) {
+        return computeTarget(srcW, srcH, viewportWidth, viewportHeight, config.fillScreen);
+    }
+    private int[] computeTarget(int srcW, int srcH, int viewportWidth, int viewportHeight, boolean fill) {
         double scale = Math.min(Math.max(this.config.scale, 0.05), 1.0);
         double limitHeight = config.maxDecodeHeight;
         // Bound Java-side frame storage independently of source resolution and worker count.
         double maxPixels = Math.min(7680.0*4320, Math.max(640.0*360, Runtime.getRuntime().maxMemory()/96.0));
         scale = Math.min(scale, Math.min(limitHeight*16.0/9.0/srcW, limitHeight/srcH));
         scale = Math.min(scale, Math.sqrt(maxPixels/((double)srcW*srcH)));
+        // Avoid converting, copying and uploading pixels a Windows menu cannot display.
+        // Use the fill/fit ratio so portrait and cropped wallpapers retain visible detail.
+        if (socketTransport && !stillImage && viewportWidth > 0 && viewportHeight > 0) {
+            double horizontal = (double)viewportWidth / srcW, vertical = (double)viewportHeight / srcH;
+            scale = Math.min(scale, fill ? Math.max(horizontal, vertical) : Math.min(horizontal, vertical));
+        }
         int dstW = Math.max(2, (int) Math.round((double) srcW * scale) & 0xFFFFFFFE);
         int dstH = Math.max(2, (int) Math.round((double) srcH * scale) & 0xFFFFFFFE);
         return new int[]{dstW, dstH};

@@ -17,4 +17,10 @@ public abstract class ServerBackgroundMixin {
         if (class_310.method_1551().field_1687 == null
             && VideoBackground.INSTANCE.renderMenu(context, screen.field_22789, screen.field_22790, screen)) ci.cancel();
     }
+    @Inject(method = "method_25434", at = @At("HEAD"), cancellable = true)
+    private void evatex$packVideo(class_332 context, CallbackInfo ci) {
+        class_437 screen = (class_437)(Object)this;
+        if (screen instanceof net.minecraft.class_5375 && class_310.method_1551().field_1687 == null
+            && VideoBackground.INSTANCE.renderMenu(context, screen.field_22789, screen.field_22790, screen)) ci.cancel();
+    }
 }

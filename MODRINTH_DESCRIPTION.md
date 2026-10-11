@@ -1,16 +1,16 @@
 # EVATEX-Background
 
-Use your own video, GIF or photo as the background of Minecraft's title screen, server selection, world selection and main-menu options. Choose a background and adjust playback from the in-game Backgrounds.
+Use your own video, GIF or photo as the background of Minecraft's title screen, server selection, world selection, resource packs and main-menu options. Choose a background and adjust playback from the in-game Backgrounds.
 
 Windows automatically attempts GPU video decoding and GPU downscaling. Unsupported drivers or video formats fall back to software decoding. Performance depends on the video, graphics card and driver.
 
-World selection and options wallpapers are available in the 1.8.5 beta update. These menu backgrounds can be disabled separately in EVATEX settings.
+The 1.8.5 beta also covers credits, game rules and supported Sodium video settings. Windows moving wallpapers are sized to the visible framebuffer to reduce unnecessary processing. These menu backgrounds can be disabled separately in EVATEX settings.
 
 ## Features
 
 - Video, animated GIF and photo backgrounds.
 - Custom black-and-white Astral interface with optional transitions, stars and falling meteors.
-- Continuous playback across the title screen, server selection, world selection, main-menu options and background settings.
+- Continuous playback across the title screen, server selection, world selection, resource packs, credits, game rules, supported options menus and background settings.
 - Separate world/options wallpaper switches, light menu darkening and optional Astral meteors. In-game options retain their normal background.
 - Resolution and frame-rate controls, fill/fit framing, darkening and vignette.
 - Safe 1080p decoded output by default, with adjustable scale and decode-size limits.

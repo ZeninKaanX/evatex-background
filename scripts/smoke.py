@@ -20,6 +20,8 @@ parser.add_argument('--height',type=int,default=720)
 parser.add_argument('--language',default='tr_tr')
 parser.add_argument('--quick',action='store_true',help='Shorter per-stage dwell time for the version matrix')
 parser.add_argument('--bundled',action='store_true')
+parser.add_argument('--sodium',type=Path,help='Optional installed Sodium jar for reported-menu QA')
+parser.add_argument('--reported-menus',action='store_true',help='Check packs, credits, rules, video settings and minimized-window playback')
 parser.add_argument('--extended-menus',action='store_true',help='Verify wallpaper continuity and independent world/options/meteor switches with muted 10% audio')
 parser.add_argument('--shortcut-only',action='store_true',help='Check and capture the title shortcut without replaying audio/settings regression scenes')
 parser.add_argument('--atlas-dependencies',type=Path)
@@ -59,8 +61,10 @@ if version.startswith('26.'):
     source=ROOT/'build'/('qa-source-'+version)/'SmokeMixin.java'
     source.parent.mkdir(parents=True,exist_ok=True)
     text=translate((ROOT/'tests/smoke/SmokeMixin.java').read_text(),symbols(ROOT/'build/dependencies'))
-    text=text.replace('client.getWindow().getWindow()', 'client.getWindow().handle()')
+    text=text.replace('client.getWindow().getWindow()', 'client.getWindow().handle()').replace('EditGameRulesScreen','WorldCreationGameRulesScreen')
     if version=='26.3':
+        text=text.replace('org.lwjgl.glfw.GLFW.glfwIconifyWindow','org.lwjgl.sdl.SDLVideo.SDL_MinimizeWindow').replace('org.lwjgl.glfw.GLFW.glfwRestoreWindow','org.lwjgl.sdl.SDLVideo.SDL_RestoreWindow')
+        text=text.replace('org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(client.getWindow().handle(),org.lwjgl.glfw.GLFW.GLFW_ICONIFIED)', '(org.lwjgl.sdl.SDLVideo.SDL_GetWindowFlags(client.getWindow().handle()) & org.lwjgl.sdl.SDLVideo.SDL_WINDOW_MINIMIZED)')
         start=text.index('        if (!evatexqa$positioned) {')
         end=text.index('        if (client.getOverlay()',start)
         text=text[:start]+'''        if (!evatexqa$positioned) {
@@ -92,6 +96,7 @@ with zipfile.ZipFile(mods/'evatex-qa.jar','w') as z:
     for file in helper.rglob('*.class'): z.write(file,file.relative_to(helper))
 suffix='' if args.bundled else '-system-ffmpeg'
 shutil.copyfile(ROOT/'build/dist'/f'evatex-background-video-{MOD_VERSION}-mc{version}{suffix}.jar',mods/'evatex.jar')
+if args.sodium: shutil.copyfile(args.sodium,mods/'sodium.jar')
 if args.atlas:
     shutil.copyfile(args.atlas,mods/'atlas-client.jar')
     for pattern in ('fabric-api-*.jar','PlayerAnimationLibFabric-*.jar'):
@@ -111,7 +116,7 @@ if args.atlas:
             values=json.loads(atlas_config.read_text()); values['vanillaMode']=False
             atlas_config.write_text(json.dumps(values,indent=2))
 (config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'audioEnabled':False,'audioVolume':0.1,'scale':1.0,'darkening':.15,'showVignette':True}))
-if args.extended_menus:
+if args.extended_menus or args.reported_menus:
     # A real summary-only save prevents vanilla auto-forwarding an empty list to world creation.
     # No world is entered/generated; all files live inside this isolated QA game directory.
     import gzip, struct
@@ -131,7 +136,7 @@ game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
 runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

@@ -24,7 +24,10 @@ public final class VideoBackground {
     private volatile VideoMenuConfig config;
     private VideoDecoder decoder;
     private boolean menuVisible;
-    private long generation;
+    private int pendingWidth, pendingHeight;
+    private long viewportChangedAt;
+    private volatile long generation;
+    private final Object frameLock = new Object();
     private volatile Frame latest;
     private int[] staging;
     private volatile String status = "idle";
@@ -48,8 +51,17 @@ public final class VideoBackground {
     public boolean decoratesMenu(net.minecraft.class_437 screen) {
         VideoMenuConfig settings = config;
         return settings != null && settings.enabled &&
-            (settings.worldMenuBackground && (screen instanceof net.minecraft.class_526 || screen instanceof net.minecraft.class_525 || screen instanceof net.minecraft.class_524)
-             || settings.optionsMenuBackground && (screen instanceof net.minecraft.class_429 || screen instanceof net.minecraft.class_4667));
+            (settings.worldMenuBackground && (screen instanceof net.minecraft.class_526 || screen instanceof net.minecraft.class_525 || screen instanceof net.minecraft.class_524 || screen instanceof net.minecraft.class_5235)
+             || settings.optionsMenuBackground && (screen instanceof net.minecraft.class_429 || screen instanceof net.minecraft.class_4667
+                 || screen instanceof net.minecraft.class_5375 || screen instanceof net.minecraft.class_8219 || isSodiumOptions(screen)));
+    }
+    private static boolean isSodiumOptions(net.minecraft.class_437 screen) {
+        if (screen == null) return false;
+        // Optional classes are identified without linking Sodium into the mod.
+        String name = screen.getClass().getName();
+        return name.equals("net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen")
+            || name.equals("net.caffeinemc.mods.sodium.client.gui.SodiumOptionsGUI")
+            || name.equals("me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI");
     }
     public boolean renderMenu(class_332 context, int width, int height, net.minecraft.class_437 screen) {
         boolean decorated = decoratesMenu(screen);
@@ -60,35 +72,51 @@ public final class VideoBackground {
         return true;
     }
     public synchronized void setMenuVisible(boolean visible) {
-        if (menuVisible == visible) return;
+        if (menuVisible == visible) {
+            if (visible && decoder != null && config != null) {
+                var window = class_310.method_1551().method_22683();
+                int width = window.method_4489(), height = window.method_4506();
+                if (decoder.viewportChanged(width, height, config.fillScreen)) {
+                    long now = System.nanoTime();
+                    if (pendingWidth != width || pendingHeight != height) {
+                        pendingWidth = width; pendingHeight = height; viewportChangedAt = now;
+                    } else if (now - viewportChangedAt >= 750_000_000L) restart();
+                } else { pendingWidth = pendingHeight = 0; viewportChangedAt = 0; }
+            }
+            return;
+        }
         menuVisible = visible;
         restart();
     }
     public synchronized void reload(VideoMenuConfig value) {
         VideoMenuConfig next = value.copy();
         boolean restart = config == null || !Objects.equals(config.videoPath, next.videoPath)
-            || config.hardwareAcceleration != next.hardwareAcceleration || config.maxDecodeHeight != next.maxDecodeHeight || config.scale != next.scale || config.fps != next.fps || config.enabled != next.enabled;
+            || config.hardwareAcceleration != next.hardwareAcceleration || config.maxDecodeHeight != next.maxDecodeHeight || config.scale != next.scale || config.fps != next.fps || config.enabled != next.enabled
+            || config.fillScreen != next.fillScreen && System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).startsWith("windows");
         config = next;
         if (restart) restart();
         else if (decoder != null) {decoder.setAudioEnabled(next.audioEnabled);decoder.setAudioVolume(next.audioVolume);}
     }
     private void restart() {
         long session = ++generation;
+        pendingWidth = pendingHeight = 0; viewportChangedAt = 0;
         if (decoder != null) { decoder.close(); decoder = null; }
-        latest = null; staging = null;
+        synchronized (frameLock) { latest = null; staging = null; }
         releaseTexture();
         status = "idle";
         if (!menuVisible || config == null || !config.enabled || config.videoPath.isBlank()) return;
         status = "loading";
+        var window = class_310.method_1551().method_22683();
         VideoDecoder next = new VideoDecoder(config, (data, w, h) -> {
-            synchronized (this) {
+            synchronized (frameLock) {
                 if (session == generation) {
                     if (staging == null || staging.length != data.length) staging = new int[data.length];
                     System.arraycopy(data, 0, staging, 0, data.length);
                     latest = new Frame(staging, w, h); status = "playing";
                 }
             }
-        }, () -> { synchronized (this) { if (session == generation) { latest = null; staging = null; status = "error"; } } }, true);
+        }, () -> { synchronized (frameLock) { if (session == generation) { latest = null; staging = null; status = "error"; } } }, true,
+            window.method_4489(), window.method_4506());
         decoder = next;
         worker.execute(() -> {
             boolean started = next.start();
@@ -121,7 +149,14 @@ public final class VideoBackground {
                 class_310.method_1551().method_1531().method_4616(TEXTURE_ID, texture);
             }
             if (uploaded != frame) {
-                pixels.clear(); pixels.put(frame.pixels); texture.method_4524(); uploaded = frame;
+                synchronized (frameLock) {
+                    frame = latest;
+                    if (frame == null) return false;
+                    pixels.clear(); pixels.put(frame.pixels); uploaded = frame;
+                }
+                // A stalled/minimized OpenGL window must not hold the decoder's
+                // publication lock and stop the shared video/audio input timeline.
+                texture.method_4524();
             }
             return true;
         } catch (RuntimeException e) { fail(e); return false; }

@@ -35,6 +35,8 @@ def sources(root,version):
     if version in LEGACY and version.startswith('1.21'):
         edit('video/VideoBackground.java','new class_2960("evatexbackgroundvideo", "video")','class_2960.method_60655("evatexbackgroundvideo", "video")')
     if version in ('1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
+        file=folder/'com/videomenu/mixin/ServerBackgroundMixin.java'
+        content=file.read_text();start=content.index('    @Inject(method = "method_25434"');file.write_text(content[:start]+'}\n')
         mixins['client'].remove('WorldSelectionBackgroundMixin')
         (folder/'com/videomenu/mixin/WorldSelectionBackgroundMixin.java').unlink()
         mixins['client'].append('MenuListBackgroundMixin')
@@ -78,6 +80,7 @@ def sources(root,version):
             if version.startswith('26.'):
                 content=content.replace('drawCenteredString','centeredText').replace('drawString','text')
                 content=content.replace('net.minecraft.util.Util.getPlatform().openFile(VideoFiles.directory().toFile());','java.awt.Desktop.getDesktop().open(VideoFiles.directory().toFile());')
+                content=content.replace('EditGameRulesScreen','WorldCreationGameRulesScreen')
                 content=content.replace('GuiGraphics','GuiGraphicsExtractor').replace('renderBackground','extractBackground').replace('renderContents','extractContents').replace('renderListBackground','extractListBackground').replace('renderListSeparators','extractListSeparators')
                 if file.name=='AstralVolumeSlider.java':content=content.replace('renderWidget','extractWidgetRenderState')
                 if file.name in ('VideoSelectScreen.java','TitleScreenMixin.java'):

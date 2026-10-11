@@ -25,6 +25,7 @@ public abstract class SmokeMixin {
     @Unique private int evatexqa$waiting;
     @Unique private class_437 evatexqa$title;
     @Unique private Object evatexqa$decoder;
+    @Unique private long evatexqa$minimizedFrames;
     @Inject(method="method_1574", at=@At("TAIL"))
     private void evatexqa$scenes(CallbackInfo ci) {
         class_310 client=(class_310)(Object)this;
@@ -54,6 +55,7 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if (Boolean.getBoolean("evatex.qa.reportedMenus")) { evatexqa$reportedMenus(client); return; }
         if (Boolean.getBoolean("evatex.qa.extendedMenus")) { evatexqa$menus(client); return; }
         if (Boolean.getBoolean("evatex.qa.shortcutOnly") && evatexqa$stage==1) {
             System.out.println("EVATEX_QA COMPLETE shortcut layout");client.method_1592();return;
@@ -129,6 +131,61 @@ public abstract class SmokeMixin {
                 System.out.println("EVATEX_QA COMPLETE"); client.method_1592();
             }
         }
+    }
+    @Unique private void evatexqa$reportedMenus(class_310 client) {
+        try {
+            var background=VideoBackground.INSTANCE;
+            var field=VideoBackground.class.getDeclaredField("decoder");field.setAccessible(true);
+            var decoder=(com.videomenu.video.VideoDecoder)field.get(background);
+            if(!background.status().equals("playing"))throw new AssertionError("Reported menu not playing: "+client.field_1755.getClass());
+            if(evatexqa$stage==0)evatexqa$decoder=decoder;
+            if(decoder!=evatexqa$decoder)throw new AssertionError("Reported menu transition restarted decoder");
+            if(background.supportsMenu(client.field_1755,true))throw new AssertionError("In-world wallpaper exclusion lost");
+            var cfg=VideoMenuConfig.load();if(cfg.audioEnabled || cfg.audioVolume!=.1)throw new AssertionError("QA must be muted at 10%");
+            System.out.println("EVATEX_QA REPORTED stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" frames="+decoder.publishedFrames());
+            if(evatexqa$stage!=7)evatexqa$capture(client,"reported-"+evatexqa$stage);
+            switch(evatexqa$stage++) {
+                case 0 -> {evatexqa$title=client.field_1755;client.method_1507(new net.minecraft.class_5375(client.method_1520(),packs->{},client.method_1479(),net.minecraft.class_2561.method_43471("resourcePack.title")));}
+                case 1 -> client.method_1507(new net.minecraft.class_8219(evatexqa$title));
+                case 2 -> {
+                    net.minecraft.class_1928 rules;
+                    try {rules=net.minecraft.class_1928.class.getConstructor().newInstance();}
+                    catch(NoSuchMethodException e) {rules=net.minecraft.class_1928.class.getConstructor(net.minecraft.class_7699.class).newInstance(net.minecraft.class_7701.field_40183);}
+                    client.method_1507(new net.minecraft.class_5235(rules,result->{}));
+                }
+                case 3 -> {
+                    class_437 videoScreen;
+                    try {videoScreen=(class_437)net.minecraft.class_446.class.getConstructor(class_437.class,class_310.class,net.minecraft.class_315.class).newInstance(evatexqa$title,client,client.field_1690);}
+                    catch(NoSuchMethodException e) {videoScreen=(class_437)net.minecraft.class_446.class.getConstructor(class_437.class,net.minecraft.class_315.class).newInstance(evatexqa$title,client.field_1690);}
+                    client.method_1507(videoScreen);
+                }
+                case 4 -> {
+                    if(FabricLoader.getInstance().isModLoaded("sodium")) {
+                        var type=Class.forName("net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen");
+                        client.method_1507((class_437)type.getMethod("createScreen",class_437.class).invoke(null,evatexqa$title));
+                    } else client.method_1507(new net.minecraft.class_443(evatexqa$title,client.field_1690));
+                }
+                case 5 -> {
+                    long before=decoder.publishedFrames();
+                    // A render/upload may stall while holding the background object.
+                    // Frame publication must use a separate lock and keep progressing.
+                    synchronized(background) {Thread.sleep(350);}
+                    if(decoder.publishedFrames()<=before)throw new AssertionError("Render lock blocked decoder publication");
+                    evatexqa$minimizedFrames=decoder.publishedFrames();
+                    org.lwjgl.glfw.GLFW.glfwIconifyWindow(client.method_22683().method_4490());
+                }
+                case 6 -> {
+                    if(org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(client.method_22683().method_4490(),org.lwjgl.glfw.GLFW.GLFW_ICONIFIED)==0)throw new AssertionError("Window did not minimize");
+                    if(decoder.publishedFrames()<=evatexqa$minimizedFrames)throw new AssertionError("Minimization stopped frame publication");
+                    org.lwjgl.glfw.GLFW.glfwRestoreWindow(client.method_22683().method_4490());
+                }
+                case 7 -> {
+                    if(org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(client.method_22683().method_4490(),org.lwjgl.glfw.GLFW.GLFW_ICONIFIED)!=0)throw new AssertionError("Window did not restore");
+                    client.method_1507(evatexqa$title);
+                }
+                case 8 -> {System.out.println("EVATEX_QA COMPLETE reported menus, render-lock independence, minimize/restore, loaded-world exclusion");client.method_1592();}
+            }
+        }catch(Exception e){throw new RuntimeException(e);}
     }
     @Unique private void evatexqa$menus(class_310 client) {
         try {

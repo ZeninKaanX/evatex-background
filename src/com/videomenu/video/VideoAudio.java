@@ -19,15 +19,24 @@ public final class VideoAudio implements AutoCloseable {
     private volatile long receivedBytes, writtenBytes, underruns;
     private boolean playbackStarted;
     private int primedBytes;
-    private volatile boolean deviceFailed;
+    private volatile boolean deviceFailed, streamEnded;
+    private long nextDeviceRetryAt;
+    private final LineFactory lineFactory;
     private volatile double volume;
     private final Thread thread;
+    @FunctionalInterface interface LineFactory {
+        SourceDataLine create(AudioFormat format) throws javax.sound.sampled.LineUnavailableException;
+    }
     public VideoAudio(boolean enabled,double volume) throws java.io.IOException {
+        this(enabled, volume, VideoAudio::defaultOutput);
+    }
+    VideoAudio(boolean enabled, double volume, LineFactory factory) throws java.io.IOException {
+        lineFactory = factory;
         this.volume=volume;
         this.enabled = enabled;
         server = new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"));
         server.setReceiveBufferSize(8192);
-        server.setSoTimeout(15000);
+        server.setSoTimeout(1000);
         thread = new Thread(this::read, "EVATEX-Audio"); thread.setDaemon(true); thread.start();
     }
     public String outputUrl() { return "tcp://127.0.0.1:"+server.getLocalPort()+"?tcp_nodelay=1&send_buffer_size=8192"; }
@@ -35,6 +44,7 @@ public final class VideoAudio implements AutoCloseable {
     public long receivedBytes() { return receivedBytes; }
     public long writtenBytes() { return writtenBytes; }
     public long underruns() { return underruns; }
+    public boolean streamEnded() { return streamEnded; }
     public void volume(double value) {volume=Double.isFinite(value) ? Math.max(0,Math.min(1,value)) : 1;}
     private static void applyVolume(byte[] pcm,int count,double gain) {
         if(gain==1)return;
@@ -53,7 +63,12 @@ public final class VideoAudio implements AutoCloseable {
     }
     private void read() {
         try {
-            socket = server.accept(); socket.setReceiveBufferSize(8192); server.close();
+            while (!closed && socket == null) {
+                try { socket = server.accept(); }
+                catch (java.net.SocketTimeoutException ignored) {}
+            }
+            if (closed) return;
+            socket.setReceiveBufferSize(8192); server.close();
             byte[] pcm = new byte[4096];
             try (InputStream input = socket.getInputStream()) {
                 int count;
@@ -62,10 +77,11 @@ public final class VideoAudio implements AutoCloseable {
                     if (!enabled || count == 0) continue;
                     applyVolume(pcm,count,volume);
                     SourceDataLine sink = line;
-                    if (sink == null && !deviceFailed) {
+                    if (sink == null && (!deviceFailed || System.nanoTime() >= nextDeviceRetryAt)) {
                         try {
                             AudioFormat format = new AudioFormat(48000,16,2,true,false);
-                            sink = defaultOutput(format); sink.open(format,32768);
+                            sink = lineFactory.create(format); sink.open(format,32768);
+                            deviceFailed = false;
                             playbackStarted=false;primedBytes=0;
                             if (closed || !enabled) { sink.close(); continue; }
                             synchronized (this) {
@@ -74,33 +90,38 @@ public final class VideoAudio implements AutoCloseable {
                             }
                         } catch (Exception e) {
                             if (sink != null) { try { sink.close(); } catch (RuntimeException ignored) {} sink=null; }
-                            deviceFailed = true; status = "unavailable";
+                            deviceFailed = true; nextDeviceRetryAt = System.nanoTime() + 2_000_000_000L; status = "unavailable";
                             VideoMenuClient.LOGGER.warn("Video audio device unavailable; video will continue", e);
                         }
                     }
                     if (sink != null && enabled && !closed) {
                         if (playbackStarted && sink.available() >= sink.getBufferSize()) underruns++;
+                        // Some JavaSound drivers grant a smaller buffer than requested.
+                        // Never fill a stopped line beyond its real capacity before starting.
+                        int primeTarget = Math.max(4, Math.min(16384, sink.getBufferSize() / 2) & ~3);
                         int offset = 0;
                         while (offset < count && enabled && !closed && sink.isOpen()) {
-                            int bytes;
-                            try { bytes = sink.write(pcm, offset, count-offset); }
-                            catch (RuntimeException e) {
-                                if (enabled && !closed) { deviceFailed = true; status = "unavailable"; VideoMenuClient.LOGGER.warn("Video audio device stopped; video will continue", e); }
+                            try {
+                                if (playbackStarted && !sink.isRunning()) sink.start();
+                                int bytes = sink.write(pcm, offset, playbackStarted ? count-offset : Math.min(count-offset, primeTarget-primedBytes));
+                                if (bytes <= 0) break;
+                                offset += bytes; writtenBytes += bytes;
+                                if (!playbackStarted) {
+                                    primedBytes += bytes;
+                                    if (primedBytes >= primeTarget && enabled && !closed && sink.isOpen()) { sink.start(); playbackStarted=true; }
+                                }
+                            } catch (RuntimeException e) {
+                                if (enabled && !closed) { deviceFailed = true; nextDeviceRetryAt = System.nanoTime() + 2_000_000_000L; status = "unavailable"; VideoMenuClient.LOGGER.warn("Video audio device stopped; video will continue", e); }
                                 closeLine(); break;
-                            }
-                            if (bytes <= 0) break;
-                            offset += bytes; writtenBytes += bytes;
-                            if (!playbackStarted) {
-                                primedBytes += bytes;
-                                if (primedBytes >= 16384 && enabled && !closed && sink.isOpen()) { sink.start(); playbackStarted=true; }
                             }
                         }
                         if (enabled && sink.isOpen()) status = "playing";
                     }
                 }
             }
+            if (!closed) { streamEnded = true; status = enabled ? "ended" : "muted"; }
         } catch (Exception e) {
-            if (!closed) { status = "unavailable"; VideoMenuClient.LOGGER.warn("Video audio stream ended", e); }
+            if (!closed) { streamEnded = true; status = "unavailable"; VideoMenuClient.LOGGER.warn("Video audio stream ended", e); }
         } finally { close(); }
     }
     private static SourceDataLine defaultOutput(AudioFormat format) throws javax.sound.sampled.LineUnavailableException {
@@ -115,7 +136,11 @@ public final class VideoAudio implements AutoCloseable {
     }
     private void closeLine() {
         SourceDataLine sink; synchronized (this) { sink = line; line = null; }
-        if (sink != null) { sink.stop(); sink.flush(); sink.close(); }
+        if (sink != null) {
+            try { sink.stop(); } catch (RuntimeException ignored) {}
+            try { sink.flush(); } catch (RuntimeException ignored) {}
+            try { sink.close(); } catch (RuntimeException ignored) {}
+        }
     }
     @Override public void close() {
         closed = true; closeLine();

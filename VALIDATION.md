@@ -1,3 +1,13 @@
+# 1.8.5-beta.2 validation
+
+The physical Windows report review is in [docs/WINDOWS_2026_10_12.md](docs/WINDOWS_2026_10_12.md). The report's experimental framebuffer patch raised average native game FPS from 42.07 to 58.25, and Atlas from 35.21 to 59.09 on the measured i5-3570/RX 580 machine. Raw frame rows independently reproduce those averages. These measurements apply to that patch and fixed window, not all additional beta.2 changes.
+
+Local verification covers real-FFmpeg decoding/looping, Windows fill/fit geometry without 4K/8K playback, bounded audio priming against small granted device buffers, temporary device recovery, mute/volume state and PCM EOF. Targeted real Minecraft menu tests use the supplied actual 1080p Reze clip and secondary display. Audio starts muted at 10%; enabled sound tests stay at or below 10%. Linux menu/minimize and audio checks do not substitute for native Windows confirmation of the integrated beta.2 build.
+
+The supplied clip produced 10,473,472 written PCM bytes during 55 seconds of enabled audio at 10%, covering multiple complete 16.6-second loops with zero measured buffer underruns. Injected premature PCM EOF recovered both transports and preserved the muted state. Actual Linux GUI checks passed on 1.20.1, 1.21.11 with Sodium 0.8.15-beta.1, and 1.21.11 with Atlas 3.0.3; all ran on the secondary display. Minimize/restore and publication progress while the render monitor is held were asserted. Native Windows audio behavior remains unverified.
+
+Publication locking now protects only staging/pixel transfer, and is released before OpenGL upload. Historical statements below describe their original releases.
+
 # Background media and frame transport 1.8.4
 
 Real-FFmpeg regression now covers PNG/JPEG/BMP single-frame loading, literal percent and Unicode paths, successful still-image process exit without clearing the background, GIF changes/looping with paced timing, forced local TCP playback on every test host, bounded reusable pixel arrays, immutable public callbacks, GPU-failure fallback over TCP, and socket cleanup. Production callbacks borrow pooled arrays only during their synchronous call; VideoBackground copies into persistent staging storage while holding the same monitor used for texture uploads.

@@ -26,6 +26,8 @@ for extension in ['png','jpg','bmp']:
 classpath=os.pathsep.join([str(classes),cp.read_text()])
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/DecoderRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'DecoderRegression',str(video)],check=True)
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/AudioRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.AudioRegression'],check=True)
 # Check resource namespace and parity; Minecraft supplies built-in gui/options labels.
 keys=set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/en_us.json').read_text()))
 assert keys==set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/tr_tr.json').read_text()))

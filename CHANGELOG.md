@@ -1,3 +1,11 @@
+# 1.8.5-beta.2
+
+- Reduce moving Windows wallpapers to the framebuffer detail actually visible, preserving fit/fill cropping and configured resolution limits. Recalculate after settled window resizing and fill-mode changes.
+- Separate frame publication from OpenGL upload so stalled background windows do not hold the shared playback worker's lock.
+- Add wallpaper, Astral dimming and meteors to resource packs, credits, game rules and recognized Sodium video settings. Preserve independent menu switches and loaded-world exclusion.
+- Prime audio using the actual device buffer size; retry temporary device failures and recover prematurely ended PCM streams with the shared timeline.
+- Incorporate and document the physical Windows 1.21.11/Atlas experiment; retain its rare-frame and untested audio/resize limitations.
+
 # 1.8.5-beta.1 — Menu wallpapers and Windows playback candidate
 
 - Continue the selected video, GIF or photo into world selection and main-menu options, including options submenus.

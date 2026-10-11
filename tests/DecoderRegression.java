@@ -75,6 +75,24 @@ public class DecoderRegression {
         check(size[0] == 608 && size[1] == 1080,"portrait aspect ratio within safe height");
         size=(int[])target.invoke(sizing,3840,2160);
         check(size[0]==1920&&size[1]==1080,"4K dimension-only policy");
+        String originalOs=System.getProperty("os.name");
+        try {
+            System.setProperty("os.name","Windows 11");
+            int[][] cases={{1920,1080,1280,720,1,1280,720},{1920,1080,640,480,1,852,480},
+                {1920,1080,640,480,0,640,360},{1080,1920,1280,720,1,608,1080},
+                {1080,1920,1280,720,0,404,720},{1920,1080,0,0,1,1920,1080}};
+            for(int[] c:cases) {
+                config.fillScreen=c[4]==1;
+                var viewport=new VideoDecoder(config,(frame,w,h)->{},()->{},true,c[2],c[3]);
+                size=(int[])target.invoke(viewport,c[0],c[1]);
+                check(size[0]==c[5] && size[1]==c[6],"Windows viewport fill/fit sizing "+Arrays.toString(c));
+            }
+            config.fillScreen=true;
+            var photoSizing=new VideoDecoder(config,(frame,w,h)->{},()->{},true,1280,720);
+            var imageField=VideoDecoder.class.getDeclaredField("stillImage");imageField.setAccessible(true);imageField.setBoolean(photoSizing,true);
+            size=(int[])target.invoke(photoSizing,1920,1080);check(size[0]==1920 && size[1]==1080,"still image keeps configured detail");
+        } finally {System.setProperty("os.name",originalOs);}
+        System.out.println("PASS Windows framebuffer sizing, portrait/crop detail, headless and still-image exclusions");
         for(int w:new int[]{280,320,427,640,1920})for(int h:new int[]{200,240,270,360,720}) {
             var layout=com.videomenu.AstralLayout.of(w,h);
             check(layout.left()>=0 && layout.right()+layout.colWidth()<=w,"layout stays within width");

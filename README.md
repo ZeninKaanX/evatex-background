@@ -1,6 +1,6 @@
-# EVATEX-Background — Astral 1.8.5-beta.1
+# EVATEX-Background — Astral 1.8.5-beta.2
 
-Replace Minecraft's title screen, multiplayer server selection, world selection and main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
+Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
 
