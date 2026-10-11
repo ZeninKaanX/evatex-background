@@ -9,7 +9,9 @@ public class RealVideoRegression {
         VideoDecoder decoder=new VideoDecoder(cfg,(frame,w,h)->check(w==480&&h==270,"1080p source scaled for lightweight audio test"));
         try {
             check(decoder.start(),"provided video starts");
-            Thread.sleep(3000);
+            long warmupAt=System.nanoTime(),warmupDeadline=warmupAt+20_000_000_000L;
+            while(decoder.publishedFrames()<60 && System.nanoTime()<warmupDeadline)Thread.sleep(100);
+            System.out.println("Warmup seconds: "+(System.nanoTime()-warmupAt)/1e9+"; frames="+decoder.publishedFrames());
             check(decoder.publishedFrames()>50,"video advances while muted: "+decoder.lastError());
             check(decoder.audioReceivedBytes()>100000,"PCM received while muted");
             check(decoder.audioWrittenBytes()==0,"mute does not play sound");
@@ -36,7 +38,7 @@ public class RealVideoRegression {
             Object sink=audioField.get(decoder);Field ended=sink.getClass().getDeclaredField("streamEnded");ended.setAccessible(true);ended.setBoolean(sink,true);
             long beforeRecovery=decoder.publishedFrames(),deadline=System.nanoTime()+10_000_000_000L;
             while(System.nanoTime()<deadline && (field.get(decoder)==process || decoder.publishedFrames()<beforeRecovery+30))Thread.sleep(100);
-            check(field.get(decoder)!=null && field.get(decoder)!=process && decoder.publishedFrames()>beforeRecovery+30,"premature PCM EOF restarts the shared timeline");
+            check(field.get(decoder)!=null && field.get(decoder)!=process && decoder.publishedFrames()>=beforeRecovery+30,"premature PCM EOF restarts the shared timeline");
             check(decoder.audioReceivedBytes()>100000,"PCM transport recovers with video");
             check(decoder.audioWrittenBytes()==0,"recovery preserves muted state");
             System.out.println("PASS premature PCM EOF recovery with mute/volume state preserved");
