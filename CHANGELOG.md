@@ -1,4 +1,4 @@
-# 1.8.5-beta.2
+# 1.8.5
 
 - Reduce moving Windows wallpapers to the framebuffer detail actually visible, preserving fit/fill cropping and configured resolution limits. Recalculate after settled window resizing and fill-mode changes.
 - Separate frame publication from OpenGL upload so stalled background windows do not hold the shared playback worker's lock.

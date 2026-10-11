@@ -4,7 +4,7 @@ Use your own video, GIF or photo as the background of Minecraft's title screen, 
 
 Windows automatically attempts GPU video decoding and GPU downscaling. Unsupported drivers or video formats fall back to software decoding. Performance depends on the video, graphics card and driver.
 
-The 1.8.5 beta also covers credits, game rules and supported Sodium video settings. Windows moving wallpapers are sized to the visible framebuffer to reduce unnecessary processing. These menu backgrounds can be disabled separately in EVATEX settings.
+Version 1.8.5 also covers credits, game rules and supported Sodium video settings. Windows moving wallpapers are sized to the visible framebuffer to reduce unnecessary processing. These menu backgrounds can be disabled separately in EVATEX settings.
 
 ## Features
 
