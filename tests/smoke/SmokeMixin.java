@@ -24,6 +24,7 @@ public abstract class SmokeMixin {
     @Unique private int evatexqa$stage;
     @Unique private int evatexqa$waiting;
     @Unique private class_437 evatexqa$title;
+    @Unique private Object evatexqa$decoder;
     @Inject(method="method_1574", at=@At("TAIL"))
     private void evatexqa$scenes(CallbackInfo ci) {
         class_310 client=(class_310)(Object)this;
@@ -53,6 +54,7 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if (Boolean.getBoolean("evatex.qa.extendedMenus")) { evatexqa$menus(client); return; }
         if (Boolean.getBoolean("evatex.qa.shortcutOnly") && evatexqa$stage==1) {
             System.out.println("EVATEX_QA COMPLETE shortcut layout");client.method_1592();return;
         }
@@ -127,6 +129,40 @@ public abstract class SmokeMixin {
                 System.out.println("EVATEX_QA COMPLETE"); client.method_1592();
             }
         }
+    }
+    @Unique private void evatexqa$menus(class_310 client) {
+        try {
+            var background=VideoBackground.INSTANCE;
+            var decoder=VideoBackground.class.getDeclaredField("decoder"); decoder.setAccessible(true);
+            String expected=evatexqa$stage==4 || evatexqa$stage==6 ? "idle" : "playing";
+            if(!background.status().equals(expected))throw new AssertionError("Menu stage "+evatexqa$stage+" expected "+expected+" got "+background.status()+" screen="+client.field_1755.getClass().getName());
+            if(evatexqa$stage==0)evatexqa$decoder=decoder.get(background);
+            if(evatexqa$stage>0 && evatexqa$stage<4 && evatexqa$decoder!=decoder.get(background))throw new AssertionError("Decoder restarted during enabled menu transition");
+            if(background.supportsMenu(client.field_1755,true))throw new AssertionError("Wallpaper enabled with a world loaded");
+            var cfg=VideoMenuConfig.load();
+            if(cfg.audioEnabled || cfg.audioVolume!=.1)throw new AssertionError("QA audio must remain muted at 10%");
+            System.out.println("EVATEX_QA MENU stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+background.status());
+            evatexqa$capture(client,"menu-"+evatexqa$stage);
+            switch(evatexqa$stage++) {
+                case 0 -> {evatexqa$title=client.field_1755;client.method_1507(new net.minecraft.class_526(evatexqa$title));}
+                case 1 -> client.method_1507(new net.minecraft.class_429(evatexqa$title,client.field_1690));
+                case 2 -> client.method_1507(new net.minecraft.class_443(client.field_1755,client.field_1690));
+                case 3 -> {cfg.worldMenuBackground=false;cfg.save();background.reload(cfg);client.method_1507(new net.minecraft.class_526(evatexqa$title));}
+                case 4 -> {cfg.worldMenuBackground=true;cfg.menuMeteors=false;cfg.save();background.reload(cfg);client.method_1507(new net.minecraft.class_526(evatexqa$title));}
+                case 5 -> {cfg.optionsMenuBackground=false;cfg.save();background.reload(cfg);client.method_1507(new net.minecraft.class_429(evatexqa$title,client.field_1690));}
+                case 6 -> {cfg.optionsMenuBackground=true;cfg.menuMeteors=true;cfg.save();background.reload(cfg);client.method_1507(new VideoSelectScreen(evatexqa$title,0));var page=VideoSelectScreen.class.getDeclaredField("settingsPage");page.setAccessible(true);page.setInt(client.field_1755,1);evatexqa$invoke(client.field_1755,"rebuild",new Class<?>[]{});}
+                case 7 -> {
+                    // Exercise the same actions used by the three new UI buttons and verify persistence.
+                    for(int setting=10;setting<=12;setting++)evatexqa$invoke(client.field_1755,"changeSetting",new Class<?>[]{int.class},setting);
+                    evatexqa$invoke(client.field_1755,"apply",new Class<?>[]{});
+                    var saved=VideoMenuConfig.load();var copy=saved.copy();
+                    if(copy.worldMenuBackground || copy.optionsMenuBackground || copy.menuMeteors)throw new AssertionError("Menu switches not saved/copied");
+                    for(int setting=10;setting<=12;setting++)evatexqa$invoke(client.field_1755,"changeSetting",new Class<?>[]{int.class},setting);
+                    evatexqa$invoke(client.field_1755,"apply",new Class<?>[]{});
+                    System.out.println("EVATEX_QA COMPLETE menu continuity, independent toggles, persistence, loaded-world exclusion");client.method_1592();
+                }
+            }
+        }catch(Exception e){throw new RuntimeException(e);}
     }
     @Unique private static void evatexqa$invoke(Object target,String name,Class<?>[] types,Object... args) {
         try {var method=VideoSelectScreen.class.getDeclaredMethod(name,types);method.setAccessible(true);method.invoke(target,args);}

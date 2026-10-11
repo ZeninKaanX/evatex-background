@@ -1,5 +1,9 @@
-# Unreleased — Windows playback candidate
+# 1.8.5-beta.1 — Menu wallpapers and Windows playback candidate
 
+- Continue the selected video, GIF or photo into world selection and main-menu options, including options submenus.
+- Add independent world/options wallpaper switches and optional Astral menu meteors, with a light readability overlay.
+- Keep one decoder across enabled menus; restore vanilla backgrounds when disabled or a world is loaded.
+- Make world/options lists transparent only while their wallpaper has decoded frames.
 - Correct the native D3D11 scaler's width/height option names.
 - Use bicubic resampling for moving Windows backgrounds and hybrid GPU/CPU decoding; retain Lanczos for static images and other operating systems.
 - Validate the pinned Windows scaler's native option schema, not just the existence of the filter.

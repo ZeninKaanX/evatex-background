@@ -35,6 +35,10 @@ def sources(root,version):
     if version in LEGACY and version.startswith('1.21'):
         edit('video/VideoBackground.java','new class_2960("evatexbackgroundvideo", "video")','class_2960.method_60655("evatexbackgroundvideo", "video")')
     if version in ('1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
+        mixins['client'].remove('WorldSelectionBackgroundMixin')
+        (folder/'com/videomenu/mixin/WorldSelectionBackgroundMixin.java').unlink()
+        mixins['client'].append('MenuListBackgroundMixin')
+        shutil.copyfile(root/'src/com/videomenu/mixin/MenuListBackgroundMixin.java', folder/'com/videomenu/mixin/MenuListBackgroundMixin.java')
         mixins['client'].remove('ServerListBackgroundMixin')
         (folder/'com/videomenu/mixin/ServerListBackgroundMixin.java').unlink()
         file=folder/'com/videomenu/mixin/TitleScreenMixin.java'
@@ -74,7 +78,7 @@ def sources(root,version):
             if version.startswith('26.'):
                 content=content.replace('drawCenteredString','centeredText').replace('drawString','text')
                 content=content.replace('net.minecraft.util.Util.getPlatform().openFile(VideoFiles.directory().toFile());','java.awt.Desktop.getDesktop().open(VideoFiles.directory().toFile());')
-                content=content.replace('GuiGraphics','GuiGraphicsExtractor').replace('renderBackground','extractBackground').replace('renderContents','extractContents')
+                content=content.replace('GuiGraphics','GuiGraphicsExtractor').replace('renderBackground','extractBackground').replace('renderContents','extractContents').replace('renderListBackground','extractListBackground').replace('renderListSeparators','extractListSeparators')
                 if file.name=='AstralVolumeSlider.java':content=content.replace('renderWidget','extractWidgetRenderState')
                 if file.name in ('VideoSelectScreen.java','TitleScreenMixin.java'):
                     content=content.replace('public void render(', 'public void extractRenderState(').replace('super.render(', 'super.extractRenderState(').replace('method = "render"','method = "extractRenderState"').replace(';render(', ';extractRenderState(')

@@ -8,6 +8,7 @@
     "TitleScreenMixin",
     "MinecraftClientMixin",
     "ServerBackgroundMixin",
+    "MenuListBackgroundMixin",
     "atlas.AtlasBackdropMixin",
     "atlas.AtlasMainMenuMixin",
     "SplashManagerMixin"

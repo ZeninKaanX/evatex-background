@@ -20,6 +20,7 @@ parser.add_argument('--height',type=int,default=720)
 parser.add_argument('--language',default='tr_tr')
 parser.add_argument('--quick',action='store_true',help='Shorter per-stage dwell time for the version matrix')
 parser.add_argument('--bundled',action='store_true')
+parser.add_argument('--extended-menus',action='store_true',help='Verify wallpaper continuity and independent world/options/meteor switches with muted 10% audio')
 parser.add_argument('--shortcut-only',action='store_true',help='Check and capture the title shortcut without replaying audio/settings regression scenes')
 parser.add_argument('--atlas-dependencies',type=Path)
 parser.add_argument('--minecraft',default='1.21.11',choices=VERSIONS)
@@ -29,7 +30,8 @@ version=args.minecraft
 java=Path(os.environ['JAVA_HOME'])/'bin/java';javac=java.with_name('javac')
 run=ROOT/'build'/('smoke-'+version+('-atlas' if args.atlas else '-standalone'))
 mods=run/'mods';mods.mkdir(parents=True,exist_ok=True)
-for previous in run.glob('stage-*.png'): previous.unlink()
+for pattern in ('stage-*.png','menu-*.png'):
+    for previous in run.glob(pattern): previous.unlink()
 classes=ROOT/'build'/('classes-'+version)
 cp=(ROOT/'build'/('classpath-'+version+'.txt')).read_text()
 helper=ROOT/'build'/('qa-classes-'+version);helper.mkdir(parents=True,exist_ok=True)
@@ -109,12 +111,27 @@ if args.atlas:
             values=json.loads(atlas_config.read_text()); values['vanillaMode']=False
             atlas_config.write_text(json.dumps(values,indent=2))
 (config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'audioEnabled':False,'audioVolume':0.1,'scale':1.0,'darkening':.15,'showVignette':True}))
+if args.extended_menus:
+    # A real summary-only save prevents vanilla auto-forwarding an empty list to world creation.
+    # No world is entered/generated; all files live inside this isolated QA game directory.
+    import gzip, struct
+    def nbt_tag(kind,name,value):
+        label=name.encode('utf-8')
+        return bytes([kind])+struct.pack('>H',len(label))+label+value
+    def nbt_string(value):
+        data=value.encode('utf-8');return struct.pack('>H',len(data))+data
+    with zipfile.ZipFile(ROOT/'build/dependencies'/f'{version}-official.jar') as archive:
+        data_version=json.loads(archive.read('version.json'))['world_version']
+    version_tag=nbt_tag(8,'Name',nbt_string(version))+nbt_tag(3,'Id',struct.pack('>i',data_version))+nbt_tag(1,'Snapshot',b'\x00')+b'\x00'
+    data=nbt_tag(3,'version',struct.pack('>i',19133))+nbt_tag(8,'LevelName',nbt_string('EVATEX menu preview'))+nbt_tag(3,'DataVersion',struct.pack('>i',data_version))+nbt_tag(4,'LastPlayed',struct.pack('>q',0))+nbt_tag(3,'GameType',struct.pack('>i',1))+nbt_tag(1,'hardcore',b'\x00')+nbt_tag(1,'allowCommands',b'\x01')+nbt_tag(10,'Version',version_tag)+b'\x00'
+    save=run/'saves'/'evatex-menu-preview';save.mkdir(parents=True,exist_ok=True)
+    (save/'level.dat').write_bytes(gzip.compress(b'\x0a\x00\x00'+nbt_tag(10,'Data',data)+b'\x00'))
 (run/'options.txt').write_text(f'lang:{args.language}\nguiScale:{args.gui_scale}\nfullscreen:false\nmaxFps:60\nskipMultiplayerWarning:true\n')
 game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
 runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

@@ -28,5 +28,8 @@
   "evatex.audio_error": "Ses aygıtına erişilemiyor",
   "evatex.library_tab": "Kütüphane",
   "evatex.audio_no_track": "Bu arka planda ses parçası yok",
-  "evatex.volume": "Ses seviyesi: %s%%"
+  "evatex.volume": "Ses seviyesi: %s%%",
+  "evatex.world_background": "Dünya seçimi: %s",
+  "evatex.options_background": "Ayarlar menüleri: %s",
+  "evatex.menu_meteors": "Menü meteorları: %s"
 }

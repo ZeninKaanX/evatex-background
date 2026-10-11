@@ -14,8 +14,8 @@ public abstract class MinecraftClientMixin {
     @Inject(method = "method_1574", at = @At("HEAD"))
     private void evatex$menuLifecycle(CallbackInfo ci) {
         var screen = ((class_310)(Object)this).field_1755;
-        VideoBackground.INSTANCE.setMenuVisible(((class_310)(Object)this).field_1687 == null &&
-            (screen instanceof class_442 || screen instanceof net.minecraft.class_500 || screen instanceof VideoSelectScreen));
+        VideoBackground.INSTANCE.setMenuVisible(VideoBackground.INSTANCE.supportsMenu(screen,
+            ((class_310)(Object)this).field_1687 != null));
     }
     @Inject(method = "method_1490", at = @At("HEAD"))
     private void evatex$shutdown(CallbackInfo ci) { VideoBackground.INSTANCE.close(); }

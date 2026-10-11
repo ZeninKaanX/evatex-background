@@ -28,5 +28,8 @@
   "evatex.audio_error": "Audio device unavailable",
   "evatex.library_tab": "Library",
   "evatex.audio_no_track": "This background has no audio track",
-  "evatex.volume": "Volume: %s%%"
+  "evatex.volume": "Volume: %s%%",
+  "evatex.world_background": "World selection: %s",
+  "evatex.options_background": "Options menus: %s",
+  "evatex.menu_meteors": "Menu meteors: %s"
 }

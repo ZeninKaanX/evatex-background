@@ -39,6 +39,26 @@ public final class VideoBackground {
     public String status() { return status; }
     public synchronized String audioStatus() { return decoder == null ? "muted" : decoder.audioStatus(); }
     public boolean isActive() { return latest != null; }
+    /** One policy for decoder lifetime, screen backdrop and opaque list suppression. */
+    public boolean supportsMenu(net.minecraft.class_437 screen, boolean worldLoaded) {
+        if (worldLoaded || screen == null) return false;
+        return screen instanceof net.minecraft.class_442 || screen instanceof net.minecraft.class_500
+            || screen instanceof com.videomenu.VideoSelectScreen || decoratesMenu(screen);
+    }
+    public boolean decoratesMenu(net.minecraft.class_437 screen) {
+        VideoMenuConfig settings = config;
+        return settings != null && settings.enabled &&
+            (settings.worldMenuBackground && (screen instanceof net.minecraft.class_526 || screen instanceof net.minecraft.class_525 || screen instanceof net.minecraft.class_524)
+             || settings.optionsMenuBackground && (screen instanceof net.minecraft.class_429 || screen instanceof net.minecraft.class_4667));
+    }
+    public boolean renderMenu(class_332 context, int width, int height, net.minecraft.class_437 screen) {
+        boolean decorated = decoratesMenu(screen);
+        if (!(screen instanceof net.minecraft.class_500) && !decorated) return false;
+        if (!render(context,width,height)) return false;
+        VideoMenuConfig settings = config;
+        if (decorated) com.videomenu.AstralBackdrop.renderMenu(context,width,height,settings.menuMeteors && settings.themeTransitions);
+        return true;
+    }
     public synchronized void setMenuVisible(boolean visible) {
         if (menuVisible == visible) return;
         menuVisible = visible;

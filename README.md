@@ -1,6 +1,6 @@
-# EVATEX-Background — Astral 1.8.4
+# EVATEX-Background — Astral 1.8.5-beta.1
 
-Replace Minecraft's title screen and multiplayer server selection backgrounds with a video, looping GIF or photo. Made by EverVerity.
+Replace Minecraft's title screen, multiplayer server selection, world selection and main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
 
@@ -14,7 +14,7 @@ EVATEX 1.8.4 requests D3D11 hardware video decoding and GPU downscaling on Windo
 
 The log records `EVATEX video decoder active: D3D11_SCALE`, `D3D11` or `SOFTWARE` after actual frames arrive. GPU work appears in Windows Task Manager's **Video Decode** graph; the **3D** graph alone does not measure video decoding. If a driver causes trouble, set `hardwareAcceleration` to `false` in `config/evatexbackgroundvideo.json` while the game is closed.
 
-Physical Windows GPU smoothness and CPU use have not yet been measured. GPU decoding still involves CPU colour conversion, frame copies, audio and Minecraft rendering; this release does not promise zero CPU use.
+A returned physical Windows capture confirms D3D11 decoding on an RX 580. Full Minecraft/Atlas rendering smoothness and before/after gains remain unverified; the latest returned archive repeats the original capture. GPU decoding still involves CPU colour conversion, frame copies, audio and Minecraft rendering; this release does not promise zero CPU use.
 
 ## Installation
 
@@ -38,7 +38,7 @@ Fabric API is not required by EVATEX; its resource-loading modules are embedded.
 
 The Astral interface uses dark panels and black/white accents, with keyboard focus and native narration support. Text follows Minecraft's selected language. Turkish and English are included; other languages use the English fallback.
 
-New configurations use 100% scale with a safe 1920×1080 output limit, preserving aspect ratio. Higher-resolution sources are downscaled before Java-side frame storage. The decode-size control offers 720p through 4320p; an additional memory bound limits frame allocations. Decoding large source files still requires sufficient hardware. Existing settings are preserved. Resolution controls decoded pixel size, not framing. Lanczos downscaling and linear texture sampling improve clarity. FPS conversion preserves playback speed. Playback continues between the title screen, multiplayer server selection and video settings, and stops outside these screens.
+New configurations use 100% scale with a safe 1920×1080 output limit, preserving aspect ratio. Higher-resolution sources are downscaled before Java-side frame storage. The decode-size control offers 720p through 4320p; an additional memory bound limits frame allocations. Decoding large source files still requires sufficient hardware. Existing settings are preserved. Resolution controls decoded pixel size, not framing. Linear texture sampling improves clarity. Moving Windows backgrounds use bicubic resampling; static photos and other operating systems retain Lanczos. FPS conversion preserves playback speed. Playback continues between the title screen, multiplayer server selection, world selection, main-menu options/submenus and background settings. In EVATEX settings, **World selection**, **Options menus** and **Menu meteors** are separate switches. These menus add a light dark overlay and optional Astral stars/meteors. Disabling a menu restores its vanilla background. Options opened with a world loaded keep the normal in-game background, and decoding stops outside enabled menu screens.
 
 If a clip fails, the vanilla panorama remains available. Check `logs/latest.log` for FFmpeg or file errors. Sound is muted by default and can be toggled live without restarting the video. The Astral slider adjusts video volume from 0–100% independently of the system/game volume. Files without an audio track remain silent. Audio-device failures allow video playback to continue.
 

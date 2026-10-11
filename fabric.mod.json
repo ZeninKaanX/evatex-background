@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "evatexbackgroundvideo",
-  "version": "1.8.4",
+  "version": "1.8.5-beta.1",
   "name": "EVATEX-Background",
-  "description": "Video, GIF and photo backgrounds with an original black-and-white Astral interface for the title screen and multiplayer menu.",
+  "description": "Video, GIF and photo backgrounds with an original black-and-white Astral interface and configurable menu wallpapers.",
   "authors": [
     "EverVerity"
   ],

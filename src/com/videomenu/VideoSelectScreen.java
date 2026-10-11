@@ -13,7 +13,7 @@ public final class VideoSelectScreen extends class_437 {
     private static final int[] FPS = {15, 24, 30, 45, 60, 90, 120};
     private static final int[] LIMITS = {720,1080,1440,2160,4320};
     private static final double[] DARK = {0, 0.15, 0.25, 0.4, 0.6, 0.8};
-    private static final int SETTINGS = 10;
+    private static final int SETTINGS = 13;
     private final class_437 parent;
     private VideoMenuConfig config;
     private List<Path> videos = List.of();
@@ -58,7 +58,7 @@ public final class VideoSelectScreen extends class_437 {
                 final int setting=i;
                 if(i==2) {method_37063(new AstralVolumeSlider(right,layout.top()+(i-settingsPage*rows)*layout.step(),width,layout.step()-2,config.audioVolume,value->{config.audioVolume=value;volumeDirty=true;volumeChangedAt=System.nanoTime();VideoBackground.INSTANCE.reload(config);}));continue;}
                 add(right,layout.top()+(i-settingsPage*rows)*layout.step(),width,layout.step()-2,
-                    settingLabel(i),b->{changeSetting(setting);apply();},i==0&&config.enabled || i==1&&config.audioEnabled);
+                    settingLabel(i),b->{changeSetting(setting);apply();},i==0&&config.enabled || i==1&&config.audioEnabled || i==10&&config.worldMenuBackground || i==11&&config.optionsMenuBackground || i==12&&config.menuMeteors);
             }
             if (settingPages>1) pagination(right,settingPages,true);
         }
@@ -85,6 +85,9 @@ public final class VideoSelectScreen extends class_437 {
             case 7 -> text("darkening",Math.round(config.darkening*100));
             case 8 -> text("vignette",onOff(config.showVignette));
             case 9 -> text("transitions",onOff(config.themeTransitions));
+            case 10 -> text("world_background",onOff(config.worldMenuBackground));
+            case 11 -> text("options_background",onOff(config.optionsMenuBackground));
+            case 12 -> text("menu_meteors",onOff(config.menuMeteors));
             default -> text("volume",Math.round(config.audioVolume*100));
         };
     }
@@ -98,7 +101,10 @@ public final class VideoSelectScreen extends class_437 {
             case 6 -> config.fillScreen=!config.fillScreen;
             case 7 -> config.darkening=cycle(DARK,config.darkening);
             case 8 -> config.showVignette=!config.showVignette;
-            default -> config.themeTransitions=!config.themeTransitions;
+            case 9 -> config.themeTransitions=!config.themeTransitions;
+            case 10 -> config.worldMenuBackground=!config.worldMenuBackground;
+            case 11 -> config.optionsMenuBackground=!config.optionsMenuBackground;
+            case 12 -> config.menuMeteors=!config.menuMeteors;
         }
     }
     private AstralButton add(int x,int y,int w,int h,class_2561 label,class_4185.class_4241 action,boolean selected) {
@@ -139,7 +145,7 @@ public final class VideoSelectScreen extends class_437 {
         int center=layout.singleColumn() ? left+width/2 : right+width/2;
         ctx.method_25300(field_22793,field_22793.method_27523(text(key).getString(),width),center,layout.statusY(),palette.muted());
         super.method_25394(ctx,mx,my,delta);
-        ctx.method_25300(field_22793,"EverVerity • EVATEX 1.8.4",field_22789/2,field_22790-9,palette.muted());
+        ctx.method_25300(field_22793,"EverVerity • EVATEX "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("evatexbackgroundvideo").orElseThrow().getMetadata().getVersion().getFriendlyString(),field_22789/2,field_22790-9,palette.muted());
         if(config.themeTransitions) {
             double fade=Math.max(0,1-(System.nanoTime()-openedAt)/280_000_000.0);
             if(fade>0)ctx.method_25294(0,0,field_22789,field_22790,(int)(fade*fade*180)<<24);

@@ -1,13 +1,19 @@
 package com.videomenu;
 import net.minecraft.class_332;
 
-/** Bounded decorative animation, active only while the video settings screen is visible. */
+/** Bounded decorative animation, shared by the video settings and optional vanilla menu backdrops. */
 public final class AstralBackdrop {
     private static final int STARS = 48;
     private AstralBackdrop() {}
     public static void render(class_332 ctx, int width, int height, boolean videoVisible, boolean motion) {
+        paint(ctx,width,height,videoVisible,motion,0x78000000);
+    }
+    public static void renderMenu(class_332 ctx, int width, int height, boolean motion) {
+        paint(ctx,width,height,true,motion,0x30000000);
+    }
+    private static void paint(class_332 ctx, int width, int height, boolean videoVisible, boolean motion, int overlay) {
         if (!videoVisible) ctx.method_25296(0,0,width,height,0xFF050505,0xFF181818);
-        ctx.method_25294(0,0,width,height,0x78000000);
+        ctx.method_25294(0,0,width,height,overlay);
         double seconds = System.nanoTime()/1e9;
         for (int i=0; i<STARS; i++) {
             int x=(int)(((i*733+137)%997)/997.0*width);

@@ -23,6 +23,9 @@ public final class VideoMenuConfig {
     public int maxDecodeHeight = 1080;
     public boolean fillScreen = true;
     public boolean themeTransitions = true;
+    public boolean worldMenuBackground = true;
+    public boolean optionsMenuBackground = true;
+    public boolean menuMeteors = true;
     public double darkening = 0.25;
     public boolean showVignette = true;
 
@@ -35,6 +38,9 @@ public final class VideoMenuConfig {
         }
         try {
             JsonObject obj = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
+            config.worldMenuBackground = getBoolean(obj, "worldMenuBackground", true);
+            config.optionsMenuBackground = getBoolean(obj, "optionsMenuBackground", true);
+            config.menuMeteors = getBoolean(obj, "menuMeteors", true);
             config.themeTransitions = getBoolean(obj, "themeTransitions", true);
             config.audioEnabled = getBoolean(obj, "audioEnabled", false);
             config.hardwareAcceleration = getBoolean(obj, "hardwareAcceleration", true);
@@ -58,6 +64,9 @@ public final class VideoMenuConfig {
         VideoMenuConfig copy = new VideoMenuConfig();
         copy.videoPath = videoPath; copy.fps = fps; copy.scale = scale;
         copy.darkening = darkening; copy.showVignette = showVignette;
+        copy.worldMenuBackground = worldMenuBackground;
+        copy.optionsMenuBackground = optionsMenuBackground;
+        copy.menuMeteors = menuMeteors;
         copy.themeTransitions = themeTransitions;
         copy.audioEnabled = audioEnabled; copy.audioVolume=audioVolume; copy.maxDecodeHeight = maxDecodeHeight;
         copy.hardwareAcceleration = hardwareAcceleration;
@@ -97,6 +106,9 @@ public final class VideoMenuConfig {
     private String toJson() {
         JsonObject obj = new JsonObject();
         obj.addProperty("_HELP", "EVATEX-Background ayarları. Arka Plan menüsünden video, GIF veya fotoğraf seçebilirsiniz. Dosyaları oyun klasöründeki videos, videolar veya backgrounds klasörüne ekleyin. videoPath seçili arka planın yoludur; eski ayarlar korunur. FFmpeg modla birlikte gelir.");
+        obj.addProperty("worldMenuBackground", worldMenuBackground);
+        obj.addProperty("optionsMenuBackground", optionsMenuBackground);
+        obj.addProperty("menuMeteors", menuMeteors);
         obj.addProperty("themeTransitions", themeTransitions);
         obj.addProperty("enabled", enabled);
         obj.addProperty("audioEnabled", audioEnabled);

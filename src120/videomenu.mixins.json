@@ -9,7 +9,8 @@
     "MinecraftClientMixin",
     "ServerBackgroundMixin",
     "ServerListBackgroundMixin",
-    "SplashManagerMixin"
+    "SplashManagerMixin",
+    "WorldSelectionBackgroundMixin"
   ],
   "injectors": {
     "defaultRequire": 1
