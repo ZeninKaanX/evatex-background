@@ -108,7 +108,7 @@ if args.atlas:
         if atlas_config.exists():
             values=json.loads(atlas_config.read_text()); values['vanillaMode']=False
             atlas_config.write_text(json.dumps(values,indent=2))
-(config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'scale':1.0,'darkening':.15,'showVignette':True}))
+(config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'audioEnabled':False,'audioVolume':0.1,'scale':1.0,'darkening':.15,'showVignette':True}))
 (run/'options.txt').write_text(f'lang:{args.language}\nguiScale:{args.gui_scale}\nfullscreen:false\nmaxFps:60\nskipMultiplayerWarning:true\n')
 game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']

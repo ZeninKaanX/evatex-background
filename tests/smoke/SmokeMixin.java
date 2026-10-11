@@ -89,10 +89,10 @@ public abstract class SmokeMixin {
             case 2 -> {
                 try {
                     Object slider=client.field_1755.method_25396().stream().filter(child->child instanceof com.videomenu.AstralVolumeSlider).findFirst().orElseThrow();
-                    var method=net.minecraft.class_357.class.getDeclaredMethod("method_25347",double.class);method.setAccessible(true);method.invoke(slider,.35);
+                    var method=net.minecraft.class_357.class.getDeclaredMethod("method_25347",double.class);method.setAccessible(true);method.invoke(slider,.05);
                     var volume=VideoSelectScreen.class.getDeclaredField("config");volume.setAccessible(true);
-                    if(((VideoMenuConfig)volume.get(client.field_1755)).audioVolume!=.35)throw new AssertionError("Volume slider did not apply");
-                    method.invoke(slider,1.0);
+                    if(((VideoMenuConfig)volume.get(client.field_1755)).audioVolume!=.05)throw new AssertionError("Volume slider did not apply");
+                    method.invoke(slider,.1);
                 }catch(Exception e){throw new RuntimeException(e);}
                 if (!VideoBackground.INSTANCE.audioStatus().equals("playing")) throw new AssertionError("Audio unavailable: "+VideoBackground.INSTANCE.audioStatus());
                 evatexqa$invoke(client.field_1755,"changeSetting",new Class<?>[]{int.class},1);

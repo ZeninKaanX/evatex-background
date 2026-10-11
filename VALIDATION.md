@@ -4,6 +4,8 @@ Real-FFmpeg regression now covers PNG/JPEG/BMP single-frame loading, literal per
 
 Windows uses a buffered loopback video connection; other systems retain stdout transport. Still photos leave no continuously running decoder. GPU selection retains the 1.8.3 D3D11 paths. The visible name and translated media labels change without migrating the mod ID, config filename or saved videoPath.
 
+All 27 jobs passed for the 1.8.4 product source in [GitHub Actions run 38098007354](https://github.com/ZeninKaanX/evatex-background-video-1.8.2/actions/runs/38098007354): 24 exact-version compile/decoder jobs and native Linux, Windows and macOS decoder jobs. Local Minecraft 1.21.11 playback uses the supplied 1080p clip on the secondary display. Test sound starts muted at 10% and live slider checks stay at or below 10%. Static-photo title rendering and a looping GIF behind Atlas Client 3.0.3 pass targeted secondary-display checks; actual screenshots are retained for the project gallery.
+
 This validates frame ownership and media behavior, not a guaranteed Windows FPS or CPU reduction. Actual performance on the user's affected Windows machine remains unmeasured. No 4K/8K playback and no full per-version GUI matrix are performed for this patch.
 
 # Windows GPU optimization 1.8.3
