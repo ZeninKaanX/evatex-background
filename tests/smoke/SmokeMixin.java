@@ -26,6 +26,8 @@ public abstract class SmokeMixin {
     @Unique private class_437 evatexqa$title;
     @Unique private Object evatexqa$decoder;
     @Unique private long evatexqa$minimizedFrames;
+    @Unique private net.minecraft.class_4185 evatexqa$competitor;
+    @Unique private com.videomenu.ShortcutLayout.Rect evatexqa$anchor;
     @Inject(method="method_1574", at=@At("TAIL"))
     private void evatexqa$scenes(CallbackInfo ci) {
         class_310 client=(class_310)(Object)this;
@@ -55,6 +57,7 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if (Boolean.getBoolean("evatex.qa.collisionLayout")) { evatexqa$collision(client); return; }
         if (Boolean.getBoolean("evatex.qa.reportedMenus")) { evatexqa$reportedMenus(client); return; }
         if (Boolean.getBoolean("evatex.qa.extendedMenus")) { evatexqa$menus(client); return; }
         if (Boolean.getBoolean("evatex.qa.shortcutOnly") && evatexqa$stage==1) {
@@ -65,8 +68,10 @@ public abstract class SmokeMixin {
         if (client.field_1755 instanceof class_442) {
             for (var child : client.field_1755.method_25396()) {
                 if (child instanceof com.videomenu.AstralButton button && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("evatex.title").getString())) {
-                    if (Math.abs(button.method_46426()+button.method_25368()/2-client.field_1755.field_22789/2)>1 || button.method_46427()!=(client.field_1755.field_22790>=220 ? client.field_1755.field_22790-26 : 6))
-                        throw new AssertionError("Video Menu shortcut is not lower-centred");
+                    if (button.field_22764 && !com.videomenu.ShortcutLayout.clear(
+                        new com.videomenu.ShortcutLayout.Rect(button.method_46426(),button.method_46427(),button.method_25368(),button.method_25364()),
+                        client.field_1755.field_22789,client.field_1755.field_22790,com.videomenu.MenuShortcut.occupied(client.field_1755,button),2))
+                        throw new AssertionError("Background shortcut overlaps a visible menu control");
                 }
             }
         }
@@ -132,6 +137,51 @@ public abstract class SmokeMixin {
             }
         }
     }
+    @Unique private void evatexqa$collision(class_310 client) {
+        if (evatexqa$stage==5 || evatexqa$stage==7) {
+            if (!(client.field_1755 instanceof VideoSelectScreen)) throw new AssertionError("Shortcut action failed");
+            evatexqa$capture(client,"layout-settings-"+evatexqa$stage);
+            if (evatexqa$stage++==5) {client.method_1507(new evatextest.MainMenuScreen());return;}
+            System.out.println("EVATEX_QA COMPLETE adaptive layout: late controls, visibility, resize, uniqueness, custom main menu and actions");
+            client.method_1592();return;
+        }
+        var screen=client.field_1755;
+        com.videomenu.AstralButton shortcut=null;int count=0;
+        for(var child:screen.method_25396()) if(child instanceof com.videomenu.AstralButton button && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("evatex.title").getString())) {shortcut=button;count++;}
+        if(count!=1 || shortcut==null || !shortcut.field_22764) throw new AssertionError("Missing/duplicated shortcut");
+        var rect=new com.videomenu.ShortcutLayout.Rect(shortcut.method_46426(),shortcut.method_46427(),shortcut.method_25368(),shortcut.method_25364());
+        if(!com.videomenu.ShortcutLayout.clear(rect,screen.field_22789,screen.field_22790,com.videomenu.MenuShortcut.occupied(screen,shortcut),2))
+            throw new AssertionError("Actual title shortcut collision");
+        if(evatexqa$stage==6 && rect.height()<=rect.width()) throw new AssertionError("Dense custom menu did not choose a vertical rail");
+        System.out.println("EVATEX_QA layout stage="+evatexqa$stage+" size="+screen.field_22789+"x"+screen.field_22790+" position="+rect);
+        evatexqa$capture(client,"layout-"+evatexqa$stage);
+        try {
+            switch(evatexqa$stage++) {
+                case 0 -> {
+                    evatexqa$title=screen;evatexqa$anchor=rect;
+                    System.out.println("EVATEX_QA occupied="+com.videomenu.MenuShortcut.occupied(screen,shortcut));
+                    evatexqa$competitor=new com.videomenu.AstralButton(rect.x(),rect.y(),rect.width(),rect.height(),net.minecraft.class_2561.method_43470("Client control"),button->{},false);
+                    var add=class_437.class.getDeclaredMethod("method_37063",net.minecraft.class_364.class);add.setAccessible(true);add.invoke(screen,evatexqa$competitor);
+                }
+                case 1 -> {
+                    if(rect.equals(evatexqa$anchor)) throw new AssertionError("Shortcut failed to move around late-added button");
+                    evatexqa$competitor.field_22764=false;
+                }
+                case 2 -> {
+                    if(!rect.equals(evatexqa$anchor)) throw new AssertionError("Shortcut failed to restore freed preferred anchor");
+                    org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),960,540);
+                }
+                case 3 -> org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),1280,720);
+                case 4,6 -> {
+                    for(var method:shortcut.getClass().getMethods()) if(method.getName().equals("method_25306")) {
+                        if(method.getParameterCount()==0) method.invoke(shortcut);else if(method.getParameterCount()==1) method.invoke(shortcut,new Object[]{null});
+                        break;
+                    }
+                }
+            }
+        } catch(ReflectiveOperationException e) {throw new RuntimeException(e);}
+    }
+
     @Unique private void evatexqa$reportedMenus(class_310 client) {
         try {
             var background=VideoBackground.INSTANCE;

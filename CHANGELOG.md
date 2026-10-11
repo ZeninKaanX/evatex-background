@@ -1,3 +1,11 @@
+# 1.8.6 — Adaptive menu shortcut
+
+- Place the Backgrounds shortcut around visible menu controls instead of fixed coordinates. Keep the lower-centre preference when clear, and preserve the Atlas lower-right bridge.
+- Use a slim vertical side shortcut with rotated text when horizontal placement has no suitable space. Preserve native hover, focus, keyboard and narration behavior.
+- Re-evaluate late-added controls, widget visibility, window resizing and GUI scaling. Cache unchanged geometry and compact the shortcut for narrow gaps.
+- Attach through the shared screen lifecycle so title subclasses and recognized custom main menu screens receive the shortcut. Do not place an overlapping hitbox when no safe area exists.
+- Read nested native widget bounds and public custom-widget bounds without client-specific dependencies. Fully custom, opaque renderers still need a compatible native overlay.
+
 # 1.8.5
 
 - Reduce moving Windows wallpapers to the framebuffer detail actually visible, preserving fit/fill cropping and configured resolution limits. Recalculate after settled window resizing and fill-mode changes.

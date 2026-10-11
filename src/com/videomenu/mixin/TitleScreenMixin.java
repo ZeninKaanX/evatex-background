@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = {class_442.class})
 public abstract class TitleScreenMixin extends class_437 {
-    @org.spongepowered.asm.mixin.Unique private com.videomenu.AstralButton evatex$button;
     protected TitleScreenMixin() {
         super(class_2561.method_43473());
     }
@@ -33,11 +32,6 @@ public abstract class TitleScreenMixin extends class_437 {
                 this.method_37063(compact);
             }
         }
-        this.evatex$button = this.method_37063(new com.videomenu.AstralButton(Math.max(4, (this.field_22789 - 100) / 2), this.field_22790 >= 220 ? this.field_22790 - 26 : 6, 100, 14, class_2561.method_43471("evatex.title"), button -> this.field_22787.method_1507(new VideoSelectScreen(this, 0)), false));
     }
 
-    @Inject(method = "method_25394", at = @At(value = "INVOKE", target = "Lnet/minecraft/class_437;method_25394(Lnet/minecraft/class_332;IIF)V"))
-    private void evatex$keepShortcutVisible(net.minecraft.class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        if (evatex$button != null) evatex$button.field_22764 = !com.videomenu.AtlasCompatibility.isCustomUi();
-    }
 }

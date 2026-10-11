@@ -10,7 +10,8 @@
     "ServerBackgroundMixin",
     "ServerListBackgroundMixin",
     "SplashManagerMixin",
-    "WorldSelectionBackgroundMixin"
+    "WorldSelectionBackgroundMixin",
+    "MenuShortcutMixin"
   ],
   "injectors": {
     "defaultRequire": 1

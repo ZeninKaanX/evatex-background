@@ -95,7 +95,16 @@ public final class AtlasCompatibility {
             float fontSize = ((Number)Api.FONT_SIZE.invoke(null)).floatValue();
             float buttonHeight = Math.max(fontSize + 10f, 28f);
             float height = mc.method_22683().method_4507();
-            Api.POS.invoke(null, Math.max(8f,width-buttonWidth-24f), Math.max(8f,height-buttonHeight-24f));
+            java.util.List<ShortcutLayout.Rect> occupied=new java.util.ArrayList<>();
+            float verticalScale=height/Math.max(1,mc.field_1755.field_22790);
+            for (var rect : MenuShortcut.widgets(mc.field_1755,null)) {
+                occupied.add(new ShortcutLayout.Rect((int)Math.floor(rect.x()*scale),(int)Math.floor(rect.y()*verticalScale),
+                    (int)Math.ceil(rect.width()*scale),(int)Math.ceil(rect.height()*verticalScale)));
+            }
+            var position=ShortcutLayout.choose((int)width,(int)height,(int)Math.ceil(buttonWidth),
+                (int)Math.ceil(buttonHeight),24,true,occupied,null);
+            if(position==null) return;
+            Api.POS.invoke(null, (float)position.x(), (float)position.y());
             Api.SIZE.invoke(null, buttonWidth, buttonHeight);
             // No title bar, resize, move, scrollbar, saved layout or window background.
             int pushed = 0, variables = 0;

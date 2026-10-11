@@ -47,7 +47,7 @@ Full Fabric API is not required by EVATEX; the necessary resource-loading module
 
 EVATEX includes a dedicated integration for **Atlas Client 3.0.3 on Minecraft 1.21.11**. Your background appears behind Atlas’s custom title menu and multiplayer server selection. A compact Astral **Backgrounds** button sits at the lower right, with centred text and its own black-and-white styling.
 
-Atlas’s menu layout and settings are preserved. EVATEX remains a separate mod with its own background controls; the two mods are not combined. Atlas’s vanilla menu mode also works. In the normal Minecraft title screen, the EVATEX shortcut is centred near the bottom.
+Atlas’s menu layout and settings are preserved. EVATEX remains a separate mod with its own background controls; the two mods are not combined. Atlas’s vanilla menu mode also works. The EVATEX shortcut prefers the lower centre and automatically avoids visible menu widgets, following changes in window size and menu controls. Dense layouts can use a slim vertical side shortcut. Atlas keeps its matching lower-right shortcut. Fully custom clients may require their native/vanilla overlay.
 
 Install Atlas and its required dependencies separately. This integration targets the version listed above; compatibility with every custom menu or launcher has not been verified.
 

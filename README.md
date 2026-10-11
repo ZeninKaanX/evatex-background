@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.5
+# EVATEX-Background — Astral 1.8.6
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -76,4 +76,4 @@ Regression checks cover corrupt config values, pixel channel ordering, frame own
 
 Mod code: MIT (see `LICENSE`). Bundled FFmpeg executables: GPL v3, with `COPYING.GPLv3` included in the jar. The fetch script records binary origins and upstream build/source links in `assets/videomenu/ffmpeg/PROVENANCE.json`. FFmpeg is developed by the [FFmpeg project](https://ffmpeg.org/).
 
-The Backgrounds shortcut is centred near the bottom of the title screen. Its position follows the game window and GUI scale, independently of launcher paths. Atlas Client 3.0.3 has a separate matching shortcut; unrelated custom menu replacements are not universally supported.
+The Backgrounds shortcut prefers the lower centre and automatically avoids visible native widgets and custom widgets exposing public bounds, including controls added after menu initialization. It recalculates when controls, window dimensions or GUI scale change. A slim vertical side shortcut with rotated text is available when horizontal placement would be cramped. Atlas Client 3.0.3 keeps its separate matching lower-right shortcut. Clients that draw menus without exposed widget bounds or bypass native widget rendering still require a compatible overlay; universal third-party menu support is not claimed. Lunar provides a [Vanilla Overlay](https://support.lunarclient.com/solutions/enabling-vanilla-overlay) for external mod menu buttons.

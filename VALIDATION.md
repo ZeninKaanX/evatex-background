@@ -1,3 +1,7 @@
+# 1.8.6 adaptive shortcut validation
+
+Layout checks cover occupied preferred anchors, narrow/short windows, entirely full menus, deterministic placement, resize and hidden controls. Targeted real-client checks inject a competing button after initialization, remove it, resize the GUI and confirm the shortcut action. A replacement MainMenuScreen with filled central controls checks the rotated vertical edge rail and its action. Lunar is not installed on this host; no Lunar runtime test is claimed.
+
 # 1.8.5 validation
 
 The physical Windows report review is in [docs/WINDOWS_2026_10_12.md](docs/WINDOWS_2026_10_12.md). The report's experimental framebuffer patch raised average native game FPS from 42.07 to 58.25, and Atlas from 35.21 to 59.09 on the measured i5-3570/RX 580 machine. Raw frame rows independently reproduce those averages. These measurements apply to that patch and fixed window, not all additional integrated 1.8.5 changes.

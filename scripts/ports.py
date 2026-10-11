@@ -50,6 +50,11 @@ def sources(root,version):
     if version in ('1.21.5','1.21.6','1.21.7','1.21.8'):
         edit('mixin/TitleScreenMixin.java','footer.method_25306(null)','footer.method_25306()')
     if version=='1.21.5':
+        edit('AstralButton.java','matrix.pushMatrix();','matrix.method_22903();')
+        edit('AstralButton.java','matrix.translate(x+w/2f,y+h/2f);','matrix.method_22904(x+w/2f,y+h/2f,0);')
+        edit('AstralButton.java','matrix.rotate(clockwise ? (float)Math.PI/2 : -(float)Math.PI/2);','matrix.method_22907(new org.joml.Quaternionf().rotateZ(clockwise ? (float)Math.PI/2 : -(float)Math.PI/2));')
+        edit('AstralButton.java','matrix.popMatrix();','matrix.method_22909();')
+    if version=='1.21.5':
         edit('mixin/RotatingCubeMapRendererMixin.java','IIZ)V','IIFF)V')
         edit('mixin/RotatingCubeMapRendererMixin.java','boolean rotate, CallbackInfo ci','float delta, float rotation, CallbackInfo ci')
     if version in ('1.21.2' ,'1.21.3','1.21.4'):
@@ -72,7 +77,7 @@ def sources(root,version):
         (folder/'com/videomenu/AtlasCompatibility.java').unlink()
         shutil.rmtree(folder/'com/videomenu/mixin/atlas')
         (folder/'com/videomenu/mixin/RotatingCubeMapRendererMixin.java').unlink()
-        edit('mixin/TitleScreenMixin.java','!com.videomenu.AtlasCompatibility.isCustomUi()','true')
+        edit('MenuShortcut.java','return AtlasCompatibility.isCustomUi();','return false;')
         file=folder/'com/videomenu/video/VideoBackground.java'
         content=file.read_text(); start=content.index('    public record AtlasFrame'); end=content.index('    public boolean render(',start); file.write_text(content[:start]+content[end:])
         for file in folder.rglob('*.java'):

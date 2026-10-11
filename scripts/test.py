@@ -32,3 +32,6 @@ subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.A
 keys=set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/en_us.json').read_text()))
 assert keys==set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/tr_tr.json').read_text()))
 print('PASS English/Turkish translation key parity')
+
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/ShortcutLayoutRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'ShortcutLayoutRegression'],check=True)
