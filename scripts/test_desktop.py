@@ -20,6 +20,9 @@ if system=='Windows':
     filters=subprocess.check_output(['ffmpeg','-hide_banner','-filters'],text=True,stderr=subprocess.STDOUT)
     accelerators=subprocess.check_output(['ffmpeg','-hide_banner','-hwaccels'],text=True,stderr=subprocess.STDOUT)
     assert 'scale_d3d11' in filters and 'd3d11va' in accelerators,'Pinned Windows engine must expose the GPU path'
+    scaler_help=subprocess.check_output(['ffmpeg','-hide_banner','-h','filter=scale_d3d11'],text=True,stderr=subprocess.STDOUT)
+    import re
+    assert all(re.search(r'^\s+'+option+r'\s+<',scaler_help,re.M) for option in ('width','height','format')),'Pinned D3D11 scaler option names must match the production command'
     print('PASS pinned Windows D3D11 decoder/scaler capabilities (physical GPU still required)',flush=True)
 
 result=subprocess.run([sys.executable,str(ROOT/'scripts/test.py'),'--minecraft','1.21.11'],capture_output=True,text=True)

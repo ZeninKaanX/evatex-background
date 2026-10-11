@@ -12,6 +12,8 @@ public final class WindowsPlaybackBenchmark {
     public static void main(String[] args) throws Exception {
         boolean hardware = Boolean.parseBoolean(args[1]);
         int height = Integer.parseInt(args[2]);
+        int measurementSeconds = args.length > 3 ? Integer.parseInt(args[3]) : 12;
+        if (measurementSeconds < 3 || measurementSeconds > 300) throw new IllegalArgumentException("Measurement must be 3..300 seconds");
         VideoMenuConfig config = new VideoMenuConfig();
         config.videoPath = Path.of(args[0]).toAbsolutePath().toString();
         config.fps = 30; config.maxDecodeHeight = height;
@@ -19,6 +21,8 @@ public final class WindowsPlaybackBenchmark {
         config.audioEnabled = false; config.audioVolume = .1;
         AtomicLong frames = new AtomicLong(), last = new AtomicLong(), maxGap = new AtomicLong();
         AtomicLong measuring = new AtomicLong();
+        long[] gaps = new long[measurementSeconds * 30 + 256];
+        AtomicLong gapCount = new AtomicLong();
         int[][] staging = new int[1][];
         IntBuffer[] nativePixels = new IntBuffer[1];
         VideoDecoder decoder = new VideoDecoder(config, (pixels,w,h) -> {
@@ -31,7 +35,12 @@ public final class WindowsPlaybackBenchmark {
             nativePixels[0].clear(); nativePixels[0].put(staging[0]);
             if (measuring.get() != 0) {
                 long now = System.nanoTime(), previous = last.getAndSet(now);
-                if (previous != 0) maxGap.accumulateAndGet(now-previous,Math::max);
+                if (previous != 0) {
+                    long gap = now-previous;
+                    maxGap.accumulateAndGet(gap,Math::max);
+                    long index = gapCount.get();
+                    if (index < gaps.length) { gaps[(int)index] = gap; gapCount.incrementAndGet(); }
+                }
                 frames.incrementAndGet();
             }
         }, () -> {}, true);
@@ -45,15 +54,19 @@ public final class WindowsPlaybackBenchmark {
                 .orElse("").toLowerCase().contains("ffmpeg")).findFirst().orElseThrow();
             long childBefore = child.info().totalCpuDuration().orElseThrow().toNanos();
             long javaBefore = bean.getProcessCpuTime(), start = System.nanoTime();
-            measuring.set(1); Thread.sleep(12000); measuring.set(0);
+            measuring.set(1); Thread.sleep(measurementSeconds * 1000L); measuring.set(0);
             double seconds = (System.nanoTime()-start)/1e9;
             double javaCores = (bean.getProcessCpuTime()-javaBefore)/1e9/seconds;
             double ffmpegCores = (child.info().totalCpuDuration().orElseThrow().toNanos()-childBefore)/1e9/seconds;
             double fps = frames.get()/seconds;
+            long[] sorted = java.util.Arrays.copyOf(gaps,(int)gapCount.get());
+            java.util.Arrays.sort(sorted);
+            double p95 = sorted.length == 0 ? 0 : sorted[(int)Math.ceil(sorted.length*.95)-1]/1e6;
+            double p99 = sorted.length == 0 ? 0 : sorted[(int)Math.ceil(sorted.length*.99)-1]/1e6;
             String report = String.format(java.util.Locale.ROOT,
-                "{\"hardware_requested\":%s,\"height\":%d,\"backend\":\"%s\",\"fps\":%.2f,\"java_cpu_cores\":%.3f,\"ffmpeg_cpu_cores\":%.3f,\"max_gap_ms\":%.1f,\"logical_cpus\":%d,\"includes_opengl\":false}",
+                "{\"hardware_requested\":%s,\"height\":%d,\"backend\":\"%s\",\"fps\":%.2f,\"java_cpu_cores\":%.3f,\"ffmpeg_cpu_cores\":%.3f,\"max_gap_ms\":%.1f,\"logical_cpus\":%d,\"includes_opengl\":false,\"measured_seconds\":%.2f,\"frames\":%d,\"p95_gap_ms\":%.1f,\"p99_gap_ms\":%.1f}",
                 hardware,height,decoder.decoderBackend(),fps,javaCores,ffmpegCores,maxGap.get()/1e6,
-                Runtime.getRuntime().availableProcessors());
+                Runtime.getRuntime().availableProcessors(),seconds,frames.get(),p95,p99);
             System.out.println("BENCHMARK_JSON "+report);
             System.out.println("::notice title=Windows playback measurement::"+report);
             if (fps<27) throw new AssertionError("30 FPS decoder cannot sustain playback: "+fps);

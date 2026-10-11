@@ -1,3 +1,11 @@
+# Unreleased — Windows playback candidate
+
+- Correct the native D3D11 scaler's width/height option names.
+- Use bicubic resampling for moving Windows backgrounds and hybrid GPU/CPU decoding; retain Lanczos for static images and other operating systems.
+- Validate the pinned Windows scaler's native option schema, not just the existence of the filter.
+- Add configurable benchmark duration/repeats, source hashes and p95/p99 frame gaps for repeatable physical Windows measurements.
+- Real Windows GPU decoding has been observed, but Minecraft/Atlas rendering and the complete before/after gain remain to be verified.
+
 # 1.8.4 — EVATEX-Background
 
 - Rename the visible mod to EVATEX-Background while retaining the existing mod ID and configuration.

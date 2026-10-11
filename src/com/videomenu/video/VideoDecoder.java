@@ -194,11 +194,14 @@ public final class VideoDecoder {
         String prefix = "fps=" + fps + ",";
         if (backend == Backend.D3D11_SCALE) {
             // Drop surplus frames and shrink on the GPU before transferring pixels.
-            return prefix + "scale_d3d11=w=" + width + ":h=" + height + ":format=nv12,"
+            return prefix + "scale_d3d11=width=" + width + ":height=" + height + ":format=nv12,"
                 + "hwdownload,format=nv12,setsar=1,format=rgba";
         }
         if (backend == Backend.D3D11) prefix += "hwdownload,format=" + format + ",";
-        return prefix + "scale=" + width + ":" + height + ":flags=lanczos,setsar=1,format=rgba";
+        // Use the lighter CPU resampler on Windows, including hybrid GPU decode.
+        String resampler = backend != Backend.SOFTWARE || System.getProperty("os.name", "")
+            .toLowerCase(Locale.ROOT).startsWith("windows") ? "bicubic" : "lanczos";
+        return prefix + "scale=" + width + ":" + height + ":flags=" + resampler + ",setsar=1,format=rgba";
     }
 
     private Process spawnFfmpeg(Path file, int dstW, int dstH, boolean streamLoop, Backend backend) throws IOException {
@@ -228,7 +231,8 @@ public final class VideoDecoder {
         cmd.add("-dn");
         cmd.add("-vf");
         String filter = videoFilter(backend, config.fps, dstW, dstH, downloadFormat);
-        if (stillImage) filter = filter.substring(filter.indexOf(',') + 1);
+        if (stillImage) filter = filter.substring(filter.indexOf(',') + 1)
+            .replace(":flags=bicubic,", ":flags=lanczos,");
         cmd.add(filter);
         if (stillImage) cmd.addAll(java.util.List.of("-frames:v", "1"));
         cmd.add("-f");

@@ -54,6 +54,16 @@ Linux x64 full game UI and audio are exercised on this host. Native decoder/conf
 
 ## Scope
 
+The October 11 physical Windows return package contains a matching 1080p source hash,
+an active D3D11 decoder, and FFmpeg Video Decode GPU samples. Its benchmark JSON
+explicitly excludes OpenGL; the included Java benchmark measures 12 seconds per
+case. The separate process/GPU sampling spans about 58 seconds but has no game
+renderer evidence. The report's normal Minecraft/Atlas labels and before/after
+percentage claims therefore do not establish a full game fix. The D3D11 scaler
+option correction is independently verified against FFmpeg's option schema;
+Windows CPU resampling is adjusted while other platform/static-image quality is
+preserved. A physical Windows Minecraft/Atlas rendering retest is still required.
+
 Support is limited to the 24 exact stable Java Edition/Fabric versions in `COMPATIBILITY.md`. Older releases, snapshots, future releases and other loaders are outside this matrix. Atlas support is restricted to 3.0.3 on 1.21.11. No guarantee is made for every other mod, hardware configuration or codec.
 
 Meteor counts are bounded, animations can be disabled, startup runs outside the render thread, texture uploads occur only for new frames, and leaving supported menus closes playback. The mod adds menu behavior rather than world/server features. Only Turkish and English translations are bundled; other game languages fall back to English.

@@ -5,12 +5,15 @@ import json
 import os
 from pathlib import Path
 import platform
+import hashlib
 import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser()
 parser.add_argument('--video', type=Path, help='Use the supplied 1080p-or-smaller video unchanged')
+parser.add_argument('--seconds', type=int, default=12, choices=range(3,301), metavar='3..300')
+parser.add_argument('--repeats', type=int, default=1, choices=range(1,6), metavar='1..5')
 args = parser.parse_args()
 work = ROOT / 'build/windows-performance'
 work.mkdir(parents=True, exist_ok=True)
@@ -40,6 +43,8 @@ else:
                     str(fixture)], check=True)
     fixture_description = 'synthetic H.264 1920x1080 60fps; muted'
 report = {'os': platform.platform(), 'fixture': fixture_description,
+          'source_sha256': hashlib.sha256(fixture.read_bytes()).hexdigest(),
+          'measurement_seconds': args.seconds, 'repeats': args.repeats,
           'audio_volume': 0.1, 'opengl_tested': False, 'measurements': []}
 if platform.system() == 'Windows':
     gpu = subprocess.run(['powershell', '-NoProfile', '-Command',
@@ -48,15 +53,15 @@ if platform.system() == 'Windows':
     report['display_adapters'] = json.loads(gpu.stdout) if gpu.stdout.strip() else []
     print('::notice title=Windows adapters::'+json.dumps(report['display_adapters']))
 failed = False
-for hardware, height in [(False,1080),(True,1080),(False,720)]:
+for hardware, height in [(False,1080),(True,1080),(False,720)] * args.repeats:
     result = subprocess.run([str(java), '-Xmx2G', '-cp', str(work)+os.pathsep+classpath,
-        'WindowsPlaybackBenchmark', str(fixture), str(hardware).lower(), str(height)],
-        capture_output=True, text=True, timeout=90)
+        'WindowsPlaybackBenchmark', str(fixture), str(hardware).lower(), str(height), str(args.seconds)],
+        capture_output=True, text=True, timeout=args.seconds+60)
     print(result.stdout+result.stderr, flush=True)
     for line in result.stdout.splitlines():
         if line.startswith('BENCHMARK_JSON '):
             report['measurements'].append(json.loads(line[len('BENCHMARK_JSON '):]))
     failed |= result.returncode != 0
 (work/'report.json').write_text(json.dumps(report,indent=2)+'\n')
-if failed or len(report['measurements']) != 3:
+if failed or len(report['measurements']) != 3 * args.repeats:
     raise SystemExit('One or more native playback measurements failed')
