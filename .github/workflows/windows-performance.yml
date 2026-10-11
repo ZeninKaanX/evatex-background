@@ -2,7 +2,7 @@ name: Windows playback performance
 on:
   workflow_dispatch:
   push:
-    paths: ['tooling/WindowsPlaybackBenchmark.java', 'tooling/windows_benchmark.py', '.github/workflows/windows-performance.yml']
+    paths: ['tooling/WindowsPlaybackBenchmark.java', 'tooling/windows_benchmark.py', 'tooling/windows-handoff/**', '.github/workflows/windows-performance.yml']
 permissions:
   contents: read
 jobs:
@@ -18,6 +18,13 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+      - name: Validate native Windows process and GPU collector
+        shell: pwsh
+        run: |
+          & ./tooling/windows-handoff/collect-performance.ps1 -GamePid $PID -Seconds 3 -OutputDirectory ./build/collector-check
+          if (!(Test-Path ./build/collector-check/hardware.json)) { throw 'Missing hardware report' }
+          $rows = @(Import-Csv ./build/collector-check/processes.csv)
+          if ($rows.Count -lt 2) { throw 'Missing process samples' }
       - name: Native Windows decoder and fallback regressions
         run: python scripts/test_desktop.py
       - name: Measure 1080p and 720p playback using the actual decoder and TCP transport

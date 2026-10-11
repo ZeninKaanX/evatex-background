@@ -1,0 +1,19 @@
+{
+  "project": "EVATEX-Background",
+  "mod_version": "1.8.4",
+  "minecraft": "1.21.11",
+  "fabric_loader_minimum": "0.19.5",
+  "java_major": 21,
+  "modrinth_version_id": "ejbvKjRw",
+  "filename": "evatex-background-video-1.8.4-mc1.21.11.jar",
+  "download_url": "https://cdn.modrinth.com/data/RWtUJXS3/versions/ejbvKjRw/evatex-background-video-1.8.4-mc1.21.11.jar",
+  "sha512": "651a491cea7ee23a5f9d17bb79a5d8e8e549e0a8a2c68773882f67146c5fa30921a165a58c5b948b046018c03ea45a4263fd7c17a01afb80e96455bc9cc48d37",
+  "source_repo": "https://github.com/ZeninKaanX/evatex-background-video-1.8.2",
+  "production_source_commit": "e9717dd",
+  "audio_enabled_during_baseline": false,
+  "audio_volume_before_any_unmute": 0.1,
+  "maximum_test_source_resolution": "1920x1080",
+  "gui_display": "secondary/non-primary only",
+  "baseline_video": "User copies the same original 1080p60 Reze clip; not included",
+  "atlas": "Optional Atlas Client 3.0.3 for Minecraft 1.21.11; not included"
+}
