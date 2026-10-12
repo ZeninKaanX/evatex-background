@@ -1,3 +1,12 @@
+## 1.8.11
+
+- Support Fabric Loader 0.18.4 and later; Minecraft 26.3 requires 0.19.3 and later. Embed the corrected Mixin Extras 0.5.5 library to avoid the startup failure with Loader 0.19.3's bundled revision.
+- Improve shortcut placement around public custom widgets, including hidden controls, fractional geometry and nested children. Keep native/client actions and private UI ownership intact.
+- Add optional Mod Menu settings access, useful when a client hides extra title-screen buttons. Lunar Client's Vanilla (Overlay) mode is recommended for displaying native mod buttons; a full proprietary Lunar runtime has not been tested here.
+- Read PNG, JPEG and BMP photos with Java's image reader, without launching FFmpeg. Keep decoding dimensions bounded.
+- Report blocked or missing playback engines accurately. Do not permanently select an unavailable system FFmpeg after a bundled-engine launch failure.
+- Diagnose the supplied Windows log: the bundled FFmpeg process is denied permission and no system FFmpeg is installed. This patch does not override operating-system execution policies.
+
 # 1.8.10 — Consistent wallpaper brightness
 
 - Remove the extra full-screen dimming from the optional EVATEX home. Switching between the client title screen and EVATEX now preserves the selected wallpaper brightness.

@@ -51,6 +51,11 @@ public class DecoderRegression {
         check(java.nio.ByteBuffer.wrap(pcm).order(java.nio.ByteOrder.LITTLE_ENDIAN).getShort()==16384,"positive PCM gain");
         check(java.nio.ByteBuffer.wrap(pcm).order(java.nio.ByteOrder.LITTLE_ENDIAN).getShort(2)==-16384,"negative PCM gain");
         gain.invoke(null,pcm,4,0.0);check(java.util.Arrays.equals(pcm,new byte[4]),"zero gain silences PCM");
+        Method engineFailure=VideoDecoder.class.getDeclaredMethod("engineFailure",Throwable.class);engineFailure.setAccessible(true);
+        var blocked=new java.io.IOException("CreateProcess error=5, Erişim engellendi");
+        var missing=new java.io.IOException("Cannot run program ffmpeg: CreateProcess error=2");missing.addSuppressed(blocked);
+        check(engineFailure.invoke(null,missing).equals("engine_blocked"),"permission denial remains visible after missing fallback");
+        check(engineFailure.invoke(null,new java.io.IOException("Cannot run program ffmpeg: CreateProcess error=2")).equals("engine_missing"),"missing executable status");
         Method backends = VideoDecoder.class.getDeclaredMethod("backends", String.class, boolean.class);
         backends.setAccessible(true);
         var windowsBackends = (java.util.List<?>) backends.invoke(null,"Windows 11",true);
@@ -168,6 +173,8 @@ public class DecoderRegression {
             VideoDecoder photo=new VideoDecoder(config,(frame,w,h)->{check(w==160&&h==90,"photo dimensions");imageCount.incrementAndGet();shown.countDown();},failed::incrementAndGet,true);
             transport.setBoolean(photo,true);
             check(photo.start() && shown.await(10,TimeUnit.SECONDS),"photo decodes " + extension);
+            var backend=VideoDecoder.class.getDeclaredField("decoderBackend");backend.setAccessible(true);
+            check(backend.get(photo).equals("IMAGE_IO"),"standard photo must not launch FFmpeg");
             Thread.sleep(500);
             check(photo.publishedFrames()==1 && imageCount.get()==1 && failed.get()==0,"photo stays visible without repeated decoding");
             var process=VideoDecoder.class.getDeclaredField("process");process.setAccessible(true);

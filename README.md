@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.10
+# EVATEX-Background — Astral 1.8.11
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -18,7 +18,7 @@ A returned physical Windows capture confirms D3D11 decoding on an RX 580. Full M
 
 ## Installation
 
-Install Fabric Loader **0.19.5 or later** and the jar matching your exact Minecraft version:
+Install Fabric Loader **0.18.4 or later** (Minecraft 26.3 requires **0.19.3 or later**) and the jar matching your exact Minecraft version:
 
 | Minecraft releases | Java |
 | --- | --- |

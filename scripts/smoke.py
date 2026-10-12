@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import zipfile
-from build import VERSIONS, MOD_VERSION
+from build import VERSIONS, MOD_VERSION, metadata, fetch
 from named_port import symbols, translate
 ROOT=Path(__file__).resolve().parent.parent
 parser=argparse.ArgumentParser()
@@ -33,6 +33,7 @@ parser.add_argument('--home-menu',action='store_true',help='Toggle optional Astr
 parser.add_argument('--collision-layout',action='store_true',help='Inject competing title controls, hide them, resize, and activate the shortcut')
 parser.add_argument('--shortcut-only',action='store_true',help='Check and capture the title shortcut without replaying audio/settings regression scenes')
 parser.add_argument('--atlas-dependencies',type=Path)
+parser.add_argument('--loader',help='Test this actual Fabric Loader and its matching ASM/Mixin libraries; lower only the isolated QA jar requirement')
 parser.add_argument('--minecraft',default='1.21.11',choices=VERSIONS)
 args=parser.parse_args()
 args.assets=args.assets.resolve()
@@ -40,6 +41,9 @@ version=args.minecraft
 java=Path(os.environ['JAVA_HOME'])/'bin/java';javac=java.with_name('javac')
 run=ROOT/'build'/('smoke-'+version+('-atlas' if args.atlas else '-standalone'))
 mods=run/'mods';mods.mkdir(parents=True,exist_ok=True)
+# Each run starts from the requested mod set; never inherit another QA profile.
+for previous in mods.glob('*.jar'):
+    previous.unlink()
 for pattern in ('stage-*.png','menu-*.png'):
     for previous in run.glob(pattern): previous.unlink()
 classes=ROOT/'build'/('classes-'+version)
@@ -141,6 +145,16 @@ with zipfile.ZipFile(mods/'evatex-qa.jar','w') as z:
             z.writestr(f'assets/evatexbackgroundvideo/font/ui/probe{density}.json',json.dumps({'providers':[{'type':'ttf','file':'evatexbackgroundvideo:ui.ttf','size':9,'oversample':density,'shift':[0,0]}]}))
 suffix='' if args.bundled else '-system-ffmpeg'
 shutil.copyfile(ROOT/'build/dist'/f'evatex-background-video-{MOD_VERSION}-mc{version}{suffix}.jar',mods/'evatex.jar')
+if args.loader:
+    fixture=mods/'evatex.jar';temporary=mods/'evatex-loader-fixture.tmp'
+    with zipfile.ZipFile(fixture) as src,zipfile.ZipFile(temporary,'w') as dest:
+        for item in src.infolist():
+            raw=src.read(item.filename)
+            if item.filename=='fabric.mod.json':
+                meta=json.loads(raw);meta['depends']['fabricloader']='>='+args.loader;raw=json.dumps(meta).encode()
+            dest.writestr(item,raw)
+    temporary.replace(fixture)
+
 if args.sodium: shutil.copyfile(args.sodium,mods/'sodium.jar')
 if args.atlas:
     shutil.copyfile(args.atlas,mods/'atlas-client.jar')
@@ -183,7 +197,17 @@ if args.extended_menus or args.reported_menus or args.home_menu:
 game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
-runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
+runtime_cp=os.pathsep.join(p for p in cp.split(os.pathsep) if not Path(p).name.startswith('modmenu-')).replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
+
+if args.loader:
+    profile=metadata(f'https://meta.fabricmc.net/v2/versions/loader/{version}/{args.loader}/profile/json',version+'-fabric-'+args.loader+'.json')
+    runtime_parts=[p for p in runtime_cp.split(os.pathsep) if not any(marker in p for marker in ('/org/ow2/asm/','/net/fabricmc/sponge-mixin/','/net/fabricmc/fabric-loader/','/net/fabricmc/intermediary/'))]
+    for lib in profile['libraries']:
+        group,artifact,revision=lib['name'].split(':')
+        path=group.replace('.','/')+'/'+artifact+'/'+revision+'/'+artifact+'-'+revision+'.jar'
+        runtime_parts.append(str(fetch(lib.get('url','https://maven.fabricmc.net/')+path,ROOT/'build/dependencies'/path)))
+    runtime_cp=os.pathsep.join(runtime_parts)
+    print('QA actual Fabric Loader:',args.loader,flush=True)
 command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.fontProbe='+str(args.font_probe).lower(),'-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)

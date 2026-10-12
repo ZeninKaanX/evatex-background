@@ -47,6 +47,8 @@ public final class VideoDecoder {
     private String downloadFormat = "nv12";
     private volatile String decoderBackend = "starting";
     private volatile String lastError = "";
+    private volatile String failureStatus="error";
+    public String failureStatus(){return failureStatus;}
 
     public VideoDecoder(VideoMenuConfig config, FrameListener listener) { this(config, listener, () -> {}); }
 
@@ -81,9 +83,10 @@ public final class VideoDecoder {
         }
         stillImage = VideoFiles.isStillImage(file);
         gif = VideoFiles.isGif(file);
+        if(stillImage && readStillImage(file))return true;
         int[] size = this.probeSize(file);
         if (size == null) {
-            VideoMenuClient.LOGGER.error("[VideoMenu] FFmpeg bulunamadı veya video okunamadı: '{}'. MP4 (H.264) bir dosya kullanın.", this.config.videoPath);
+            VideoMenuClient.LOGGER.error("[VideoMenu] FFmpeg bulunamadı veya video okunamadı: '{}'. Oynatma motoru ve dosya erişimini günlükten kontrol edin.", this.config.videoPath);
             return false;
         }
         if (closed) return false;
@@ -464,6 +467,47 @@ public final class VideoDecoder {
         }
     }
 
+    /** Standard photos do not need an external executable. Read a bounded image once. */
+    private boolean readStillImage(Path file) {
+        try(var input=javax.imageio.ImageIO.createImageInputStream(file.toFile())) {
+            if(input==null)return false;
+            var readers=javax.imageio.ImageIO.getImageReaders(input);
+            if(!readers.hasNext())return false;
+            var reader=readers.next();
+            try {
+                reader.setInput(input,true,true);
+                sourceWidth=reader.getWidth(0);sourceHeight=reader.getHeight(0);
+                if(sourceWidth<=0 || sourceHeight<=0)return false;
+                int[] target=computeTarget(sourceWidth,sourceHeight);
+                var param=reader.getDefaultReadParam();
+                int sample=Math.max(1,Math.min(sourceWidth/target[0],sourceHeight/target[1]));
+                param.setSourceSubsampling(sample,sample,0,0);
+                var source=reader.read(0,param);
+                var image=new java.awt.image.BufferedImage(target[0],target[1],java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                var graphics=image.createGraphics();
+                try {graphics.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);graphics.drawImage(source,0,0,target[0],target[1],null);}
+                finally {graphics.dispose();source.flush();}
+                int[] frame=image.getRGB(0,0,target[0],target[1],null,0,target[0]);image.flush();
+                for(int i=0;i<frame.length;i++){int argb=frame[i];frame[i]=(argb&0xFF00FF00)|((argb>>>16)&255)|((argb&255)<<16);}
+                if(closed)return false;
+                decodedWidth=target[0];decodedHeight=target[1];decoderBackend="IMAGE_IO";
+                listener.onFrame(frame,target[0],target[1]);++publishedFrames;
+                VideoMenuClient.LOGGER.info("EVATEX photo decoder active: IMAGE_IO ({}x{})",target[0],target[1]);
+                return true;
+            }finally{reader.dispose();}
+        }catch(IOException|RuntimeException e){VideoMenuClient.LOGGER.warn("Native photo reader unavailable; trying FFmpeg",e);return false;}
+    }
+    private static String engineFailure(Throwable error) {
+        return engineFailure(error,0);
+    }
+    private static String engineFailure(Throwable error,int depth) {
+        if(error==null || depth>8)return "error";
+        String message=String.valueOf(error.getMessage()).toLowerCase(Locale.ROOT);
+        if(message.contains("error=5") || error instanceof java.nio.file.AccessDeniedException || message.contains("permission denied"))return "engine_blocked";
+        for(Throwable suppressed:error.getSuppressed())if(engineFailure(suppressed,depth+1).equals("engine_blocked"))return "engine_blocked";
+        if(engineFailure(error.getCause(),depth+1).equals("engine_blocked"))return "engine_blocked";
+        return message.contains("cannot run program") || message.contains("error=2") ? "engine_missing" : "error";
+    }
     private int[] probeSize(Path file) {
         return this.probeWithFfmpeg(file);
     }
@@ -498,7 +542,8 @@ public final class VideoDecoder {
                 }
             }
         } catch (IOException | RuntimeException e) {
-            VideoMenuClient.LOGGER.warn("Cannot probe video {}", file, e);
+            failureStatus=engineFailure(e);
+            VideoMenuClient.LOGGER.warn("Cannot probe video {} ({} )", file, failureStatus, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } finally {
@@ -513,9 +558,10 @@ public final class VideoDecoder {
         try { return builder.start(); }
         catch (IOException e) {
             if (builder.command().get(0).equals("ffmpeg")) throw e;
-            systemOnly = true;
             VideoMenuClient.LOGGER.warn("Bundled FFmpeg cannot execute here; trying system FFmpeg", e);
-            builder.command().set(0,"ffmpeg"); return builder.start();
+            builder.command().set(0,"ffmpeg");
+            try {Process fallback=builder.start();systemOnly=true;return fallback;}
+            catch(IOException missing){missing.addSuppressed(e);throw missing;}
         }
     }
     private static synchronized String ffmpegPath() {

@@ -125,7 +125,7 @@ public final class VideoBackground {
         decoder = next;
         worker.execute(() -> {
             boolean started = next.start();
-            synchronized (this) { if (session == generation && !started) status = "error"; }
+            synchronized (this) { if (session == generation && !started) status = next.failureStatus(); }
         });
     }
     public synchronized void close() {

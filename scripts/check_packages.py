@@ -23,7 +23,8 @@ for version in ([args.minecraft] if args.minecraft else VERSIONS):
         assert meta['depends']['java']=='>='+str(VERSIONS[version][1])
         mixins=json.loads(archive.read('videomenu.mixins.json'))
         assert mixins['compatibilityLevel']=='JAVA_'+str(VERSIONS[version][1])
-        assert len(meta['jars'])==(3 if version in ('1.21.9','1.21.10') else 2)
+        assert len(meta['jars'])==(4 if version in ('1.21.9','1.21.10') else 3)
+        assert meta['depends']['fabricloader']==('>=0.19.3' if version=='26.3' else '>=0.18.4')
         assert not any('evatexqa' in name or name.startswith('net/minecraft/') or name.endswith('atlas-client.jar') for name in names)
         for nested in meta['jars']:
             assert nested['file'] in names

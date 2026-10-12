@@ -1,6 +1,5 @@
 package com.videomenu;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -26,12 +25,6 @@ public final class MenuShortcut {
         return name.endsWith("mainmenu") || name.endsWith("mainmenuscreen") || name.endsWith("titlescreen")
             || name.endsWith("titlemenuscreen") || name.endsWith("homescreen");
     }
-    private static final ClassValue<Method[]> CUSTOM_BOUNDS=new ClassValue<>() {
-        @Override protected Method[] computeValue(Class<?> type) {
-            try { return new Method[]{type.getMethod("getX"),type.getMethod("getY"),type.getMethod("getWidth"),type.getMethod("getHeight")}; }
-            catch (NoSuchMethodException | SecurityException ignored) { return new Method[0]; }
-        }
-    };
     public static List<ShortcutLayout.Rect> occupied(class_437 screen, Object shortcut) {
         List<ShortcutLayout.Rect> result=widgets(screen,shortcut);
         // Logos/splashes and text-only footer notices are not registered widgets.
@@ -56,18 +49,18 @@ public final class MenuShortcut {
             if (widget.method_25368()>0 && widget.method_25364()>0)
                 out.add(new ShortcutLayout.Rect(widget.method_46426(),widget.method_46427(),widget.method_25368(),widget.method_25364()));
         } else if (!(value instanceof class_437)) {
-            Method[] access=CUSTOM_BOUNDS.get(value.getClass());
-            if (access.length==4) try {
-                int x=((Number)access[0].invoke(value)).intValue(),y=((Number)access[1].invoke(value)).intValue();
-                int w=((Number)access[2].invoke(value)).intValue(),h=((Number)access[3].invoke(value)).intValue();
-                if (w>0 && h>0) out.add(new ShortcutLayout.Rect(x,y,w,h));
-            } catch (ReflectiveOperationException | RuntimeException ignored) {
-                // A known custom widget with unreadable bounds is not an empty area.
-                out.add(new ShortcutLayout.Rect(0,0,1<<27,1<<27));
-            }
+            if(!CustomWidgetBounds.visible(value))return;
+            var bounds=CustomWidgetBounds.bounds(value);
+            if(bounds!=null)out.add(bounds);
         }
-        if (value instanceof class_4069 parent)
-            for (Object child : parent.method_25396()) collect(child,shortcut,out,seen,depth+1);
+        if (value instanceof class_4069 parent) {
+            int count=0;
+            for (Object child : parent.method_25396()) {if(++count>512){out.add(CustomWidgetBounds.UNKNOWN);break;}collect(child,shortcut,out,seen,depth+1);if(seen.size()>512)break;}
+        }
+        else if (!(value instanceof class_437)) try {
+            int count=0;
+            for(Object child:CustomWidgetBounds.children(value)) {if(++count>512){out.add(CustomWidgetBounds.UNKNOWN);break;}collect(child,shortcut,out,seen,depth+1);if(seen.size()>512)break;}
+        }catch(ReflectiveOperationException|RuntimeException ignored){out.add(CustomWidgetBounds.UNKNOWN);}
     }
     public static final class State {
         private List<ShortcutLayout.Rect> last;

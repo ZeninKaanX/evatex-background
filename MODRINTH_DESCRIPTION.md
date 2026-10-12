@@ -31,7 +31,7 @@ The optional Astral style also presents native multiplayer, world selection and 
 
 ## Installation
 
-1. Install Fabric Loader **0.19.5 or newer**.
+1. Install Fabric Loader **0.18.4 or newer** (Minecraft 26.3 requires **0.19.3 or newer**).
 2. Download the EVATEX file matching your exact Minecraft version.
 3. Place it in your game directory's `mods` folder and remove any previous EVATEX jar.
 4. Add videos, GIFs or photos to `videos` or `backgrounds` in your game directory. Existing `videolar` folders also work.
@@ -70,3 +70,9 @@ EVATEX is developed by EverVerity and released under the MIT license. Bundled FF
 ## Development history
 
 EVATEX-Background 1.8.6 was shaped by EverVerity and Codex during the night of 12 October 2026: an adaptive shortcut that preserves menu aesthetics, and an optional Astral home that stays off by default. The [1.8.6 development note](https://github.com/ZeninKaanX/evatex-background-video-1.8.2/blob/main/CHANGELOG.md) records this small part of the mod's story.
+
+### Client menu access
+
+EVATEX settings are also available through Mod Menu. On Lunar Client, use its Fabric add-on and enable **Main Menu Style → Vanilla (Overlay)** to display native mod buttons. Shortcut placement accounts for exposed widget bounds; compatibility with private client menus still depends on their rendering behavior.
+
+Standard PNG/JPEG/BMP backgrounds use Java's image reader. Video and GIF playback need permission to run the bundled FFmpeg engine or an available compatible system FFmpeg. Blocked and missing engines are reported separately in the settings screen.

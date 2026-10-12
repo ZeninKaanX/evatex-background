@@ -234,6 +234,18 @@ public abstract class SmokeMixin {
             case 90 -> {
                 if(!VideoBackground.isModsScreen(screen) || !VideoBackground.INSTANCE.supportsMenu(screen,false) || !VideoBackground.INSTANCE.status().equals("playing"))throw new AssertionError("Mod Menu wallpaper did not play");
                 evatexqa$capture(client,"astral-mods");
+                if(Boolean.getBoolean("evatex.qa.modMenuBridge"))try {
+                    var api=Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
+                    Object bridge=FabricLoader.getInstance().getEntrypoints("modmenu",api).stream().filter(value->value.getClass().getName().equals("com.videomenu.ModMenuBridge")).findFirst().orElseThrow();
+                    Object factory=api.getMethod("getModConfigScreenFactory").invoke(bridge);
+                    var settings=(class_437)Class.forName("com.terraformersmc.modmenu.api.ConfigScreenFactory").getMethod("create",class_437.class).invoke(factory,screen);
+                    client.method_1507(settings);
+                    if(!(client.field_1755 instanceof VideoSelectScreen))throw new AssertionError("Mod Menu config did not open EVATEX");
+                    settings.method_25419();
+                    if(client.field_1755!=screen)throw new AssertionError("Mod Menu config return lost its parent");
+                    System.out.println("EVATEX_QA PASS optional Mod Menu settings entrypoint and return");
+                }catch(ReflectiveOperationException error){throw new RuntimeException(error);}
+
                 if(Boolean.getBoolean("evatex.qa.captureModsOnly")){System.out.println("EVATEX_QA COMPLETE embedded mod icon capture");client.method_1592();return;}
                 screen.method_25419();evatexqa$stage=91;
             }
@@ -270,12 +282,25 @@ public abstract class SmokeMixin {
             case 14 -> {client.method_15993();client.method_1507(new class_500(new class_442()));}
             case 15 -> {
                 System.out.println("EVATEX_QA compact screen="+screen.field_22789+"x"+screen.field_22790);
-                if(screen.field_22789>=360)throw new AssertionError("Compact fixture was not exercised");
+                if(screen.field_22789>=360)evatexqa$compact(client,screen);
                 if(com.videomenu.AstralMenus.active(screen))throw new AssertionError("Compact menus must retain native layout");
                 System.out.println("EVATEX_QA COMPLETE Astral native menus: geometry, native actions, return paths, opt-out, compact fallback and late foreign-control recovery");client.method_1592();
             }
         }
     }
+    @Unique private static void evatexqa$compact(class_310 client,class_437 screen) {
+        try {
+            for(var method:class_437.class.getMethods())if(method.getName().equals("method_25423")) {
+                if(method.getParameterCount()==2)method.invoke(screen,320,270);
+                else if(method.getParameterCount()==3)method.invoke(screen,client,320,270);
+                else continue;
+                if(screen.field_22789>=360)throw new AssertionError("Compact screen init failed");
+                System.out.println("EVATEX_QA compact screen geometry exercised directly; hidden framebuffer resize declined");return;
+            }
+            throw new AssertionError("Screen init API unavailable");
+        }catch(ReflectiveOperationException error){throw new RuntimeException(error);}
+    }
+
     @Unique private void evatexqa$home(class_310 client) {
         var screen=client.field_1755;
         System.out.println("EVATEX_QA home stage="+evatexqa$stage+" screen="+screen.getClass().getName()+" size="+screen.field_22789+"x"+screen.field_22790);
@@ -358,7 +383,7 @@ public abstract class SmokeMixin {
                     client.method_15993();
                     screen=client.field_1755;
                     if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Worlds did not return to Astral home");
-                    if(screen.field_22789>=360) throw new AssertionError("Compact layout was not exercised");
+                    if(screen.field_22789>=360)evatexqa$compact(client,screen);
                     evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-compact");
                     org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),Integer.getInteger("evatex.qa.width",1280),Integer.getInteger("evatex.qa.height",720));
                 }

@@ -67,6 +67,10 @@ def build(version, system_ffmpeg, prepare_only=False):
         mapped = CACHE/(version+'-intermediary.jar')
         if not mapped.exists():
             subprocess.run([java,'-jar',str(remapper),str(client),str(mapped),str(tiny),'official','intermediary',*map(str,libraries)], check=True)
+    # Compile-only API; Mod Menu is never bundled or required to start EVATEX.
+    menu_revision='18.0.2' if version.startswith('26.') else '17.0.1'
+    menu_api=fetch('https://maven.terraformersmc.com/releases/com/terraformersmc/modmenu/'+menu_revision+'/modmenu-'+menu_revision+'.jar',CACHE/('modmenu-'+menu_revision+'.jar'))
+    libraries.append(menu_api)
     cp = os.pathsep.join(map(str,[mapped,*libraries]))
     (ROOT/'build'/('classpath-'+version+'.txt')).write_text(cp)
     if prepare_only:
@@ -101,10 +105,16 @@ def build(version, system_ffmpeg, prepare_only=False):
             if name.startswith('META-INF/jars/') and (name.split('/')[-1].startswith('fabric-api-base-') or any(name.split('/')[-1].startswith(module+'-') for module in resource_modules)):
                 nested[name] = archive.read(name)
     if len(nested) != 1+len(resource_modules): raise RuntimeError('Missing Fabric resource modules')
+    # Loader 0.19.3 includes Mixin Extras 0.5.4, which fails with its ASM revision.
+    # A standard nested library lets Fabric choose the corrected compatible version.
+    loader_jar=CACHE/'net/fabricmc/fabric-loader/0.19.5/fabric-loader-0.19.5.jar'
+    with zipfile.ZipFile(loader_jar) as loader_archive:
+        extras='META-INF/jars/mixinextras-fabric-0.5.5.jar'
+        nested[extras]=loader_archive.read(extras)
     config=json.loads((ROOT/'fabric.mod.json').read_text())
     config['depends']['minecraft']=version
     config['depends']['java']='>='+str(release)
-    config['depends']['fabricloader']='>=0.19.5'
+    config['depends']['fabricloader']='>=0.19.3' if version=='26.3' else '>=0.18.4'
     config['depends'][resource_module]='*'
     config['jars']=[{'file':name} for name in nested]
     dist=ROOT/'build/dist'; dist.mkdir(parents=True,exist_ok=True)

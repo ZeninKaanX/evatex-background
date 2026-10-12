@@ -38,3 +38,6 @@ subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'ShortcutLayoutRegress
 
 subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/MenuOwnershipRegression.java")],check=True)
 subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"MenuOwnershipRegression"],check=True)
+
+subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/CustomWidgetBoundsRegression.java")],check=True)
+subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"CustomWidgetBoundsRegression"],check=True)

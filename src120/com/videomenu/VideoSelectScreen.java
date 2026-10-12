@@ -155,7 +155,8 @@ public final class VideoSelectScreen extends class_437 {
             AstralTypography.draw(ctx,text("category."+categoryKey()).getString(),right,header,palette.secondary());
             if(settingGroups().size()>3)AstralTypography.centered(ctx,text("category."+categoryKey()).getString()+"  "+(settingsPage+1)+" / "+settingGroups().size(),right+width/2,layout.pagerY()+5,palette.muted());
         }
-        String key=openingFolder ? "folder_opening" : folderError!=null ? "folder_error" : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("unavailable") ? "audio_error" : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("no_track") ? "audio_no_track" : "status."+VideoBackground.INSTANCE.status();
+        String playback=VideoBackground.INSTANCE.status();
+        String key=openingFolder ? "folder_opening" : folderError!=null ? "folder_error" : playback.equals("error") || playback.startsWith("engine_") ? "status."+playback : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("unavailable") ? "audio_error" : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("no_track") ? "audio_no_track" : "status."+playback;
         int center=layout.singleColumn() ? left+width/2 : right+width/2;
         AstralTypography.centered(ctx,AstralTypography.fit(text(key).getString(),width),center,layout.statusY(),palette.muted());
         super.method_25394(ctx,mx,my,delta);

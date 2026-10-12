@@ -45,5 +45,7 @@
   "evatex.menu.world_selected": "Dünya seçildi",
   "evatex.category.playback": "Oynatma",
   "evatex.category.appearance": "Görünüm",
-  "evatex.category.menus": "Menüler"
+  "evatex.category.menus": "Menüler",
+  "evatex.status.engine_blocked": "İşletim sistemi oynatma motorunu engelledi; günlüğü kontrol edin",
+  "evatex.status.engine_missing": "Oynatma motoru bulunamadı; günlüğü kontrol edin"
 }
