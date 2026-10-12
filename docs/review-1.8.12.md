@@ -16,6 +16,7 @@
 - All 24 new 1.8.12 builds compile and pass package checks for exact Minecraft metadata, bytecode, embedded dependencies, engine hashes, archive integrity, FFmpeg licenses and provenance.
 - Real FFmpeg playback exercises explicit hardwareAcceleration=false, native hardware initialization failure followed by software fallback, MP4/GIF loops, static photos, frame timing, borrowed buffers, pause/resume and shutdown. Physical Windows drivers are not simulated by the Linux test.
 - Wrong-secret and partial-handshake clients are rejected before a valid sender succeeds. Exact chunk payload, single-connection listener closure and pending-connection shutdown pass.
+- Both supplied 1080p media files additionally passed 540 authenticated software-decoded frames with live PCM reception, muted at 10%; the short Reze source loops during this check. This host-native check uses system FFmpeg.
 - A real Minecraft 1.21.11 session on the secondary display verifies diagnostic copy to the actual clipboard, feedback translation, privacy fields and software playback. The original clipboard is restored. Sound stays muted at 10%.
 - Existing 24-build coverage is compile/package coverage; this review does not claim 24 individual Minecraft runtime sessions.
 

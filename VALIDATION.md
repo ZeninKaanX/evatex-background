@@ -1,6 +1,8 @@
-# EVATEX 1.8.11 validation
+# EVATEX validation — 1.8.12
 
 All 24 exact-version builds were compiled and their metadata, Java bytecode targets, embedded libraries, bundled engines, archive CRC and SHA-256 sidecars checked. Decoder/audio regression tests include real MP4/GIF playback, native PNG/JPEG/BMP decoding, error classification, bounded buffers, focus behavior, custom-widget bounds and menu ownership.
+
+## Historical 1.8.11 runtime coverage
 
 Actual Linux Minecraft 1.21.11 with Fabric Loader 0.18.4 completed native home actions, settings return, compact layouts, foreign-menu ownership and focus pause/resume using the supplied Lost Soul 1080p60 video. Loader 0.19.3's original bundled Mixin Extras 0.5.4 reproduced a startup failure; the corrected 0.5.5 library allowed the real GUI to run.
 
@@ -21,3 +23,5 @@ Physical macOS execution has not been performed. Bundling Intel/Apple Silicon en
 The archive verifier checks FFmpeg license/provenance files and engine hashes. This is a packaging verification, not a legal assessment of redistribution obligations.
 
 Minecraft 1.21.11 on the secondary display passed the real diagnostic button/clipboard action, English translated feedback, report privacy checks and software playback. The previous clipboard contents were restored. A 1920×1080 vanilla title-menu framebuffer was captured for the gallery.
+
+Both supplied 1080p media files passed 540 software-decoded frames over authenticated video/PCM streams using host system FFmpeg, with hardwareAcceleration=false and audio muted at 10%. Reze playback crossed its 16.6-second source duration.
