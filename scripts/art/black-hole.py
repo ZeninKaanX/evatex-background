@@ -16,5 +16,5 @@ for frame in range(64):
 svg='<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">'+''.join(f'<g transform="translate({(i%8)*32} {(i//8)*32})">{s}</g>' for i,s in enumerate(frames))+'</svg>\n'
 source=ROOT/'scripts/art/black-hole-atlas.svg';source.write_text(svg)
 subprocess.run(['rsvg-convert',str(source),'-o',str(ROOT/'assets/evatexbackgroundvideo/textures/font/black_hole.png')],check=True)
-font={'providers':[{'type':'bitmap','file':'evatexbackgroundvideo:font/black_hole.png','height':14,'ascent':14,'chars':[''.join(chr(0xe100+y*8+x) for x in range(8)) for y in range(8)]}]}
+font={'providers':[{'type':'bitmap','file':'evatexbackgroundvideo:font/black_hole.png','height':14,'ascent':7,'chars':[''.join(chr(0xe100+y*8+x) for x in range(8)) for y in range(8)]}]}
 (ROOT/'assets/evatexbackgroundvideo/font/brand.json').write_text(json.dumps(font,indent=2)+'\n')
