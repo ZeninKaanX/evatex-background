@@ -1,6 +1,6 @@
 # EVATEX 1.8.9 validation
 
-Status: EverVerity approved the interface and animated black-hole emblem. Minecraft 1.21.11 stable release is listed on Modrinth as 7DX4Ug4f; publication of the remaining exact-version jars is in progress.
+Status: EverVerity approved the interface and animated black-hole emblem. All 24 exact-version stable releases are listed and their primary file hashes verified. Minecraft 1.21.11 was published first as 7DX4Ug4f.
 
 Minecraft options use a centred, bounded two-column layout with Done in a separate footer. EVATEX settings have direct Playback, Appearance and Menus tabs; small windows retain paged categories. Existing settings and automatic saving remain available.
 
