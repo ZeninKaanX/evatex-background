@@ -67,9 +67,6 @@ Install Atlas and its required dependencies separately. This integration targets
 
 EVATEX is developed by EverVerity and released under the MIT license. Bundled FFmpeg binaries use GPLv3; license and provenance files are included in the jar. [FFmpeg source](https://ffmpeg.org/download.html) and build information are available from [BtbN](https://github.com/BtbN/FFmpeg-Builds) [Gyan](https://www.gyan.dev/ffmpeg/builds/) and [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static).
 
-## Development history
-
-EVATEX-Background 1.8.6 was shaped by EverVerity and Codex during the night of 12 October 2026: an adaptive shortcut that preserves menu aesthetics, and an optional Astral home that stays off by default. The [1.8.6 development note](https://github.com/ZeninKaanX/evatex-background-video-1.8.2/blob/main/CHANGELOG.md) records this small part of the mod's story.
 
 ### Client menu access
 

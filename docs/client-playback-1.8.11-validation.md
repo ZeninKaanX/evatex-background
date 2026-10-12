@@ -40,3 +40,9 @@ Primary references:
 - https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
 - https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/overview
 - https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/operations/event-id-explanations
+
+## Publication and promotional exports
+
+All 24 Minecraft targets were published as stable 1.8.11 releases and verified against their exact game versions and local SHA-512 hashes. Minecraft 1.21.11 was published first: https://modrinth.com/mod/evatex-background/version/GTA49txb . The supplied friend's Minecraft 26.1.2 target followed: https://modrinth.com/mod/evatex-background/version/PIB7tnF9 . The existing ten English full-screen gallery images were retained. The requested Development history paragraph was removed from the live project description and the release description source.
+
+Turkish and English promotional exports use actual Minecraft 1.21.11 footage, 1080 × 1920 H.264/AAC at 30 FPS, with a 20-second duration. Each language uses its own localized game menus. Export metadata, five-frame visual reviews and soundtrack peak checks passed. These promotional captures do not extend the Windows or Lunar runtime coverage described above.

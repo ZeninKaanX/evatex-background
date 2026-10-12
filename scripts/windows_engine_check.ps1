@@ -28,9 +28,9 @@ try {
     foreach ($logName in @('Microsoft-Windows-CodeIntegrity/Operational', 'Microsoft-Windows-Windows Defender/Operational', 'Microsoft-Windows-Security-Mitigations/KernelMode', 'Microsoft-Windows-Security-Mitigations/UserMode')) {
         Write-Output "Matching engine events: $logName"
         try {
-            Get-WinEvent -FilterHashtable @{ LogName=$logName; StartTime=(Get-Date).AddHours(-1) } -MaxEvents 200 -ErrorAction Stop |
-                Where-Object { $_.Message -match 'ffmpeg' } |
-                Select-Object -First 10 TimeCreated, Id, Message | Format-List
+            Get-WinEvent -FilterHashtable @{ LogName=$logName; StartTime=(Get-Date).AddHours(-24) } -MaxEvents 500 -ErrorAction Stop |
+                Where-Object { $_.Message -match 'ffmpeg|javaw?\.exe|ModrinthApp' } |
+                Select-Object -First 20 TimeCreated, Id, Message | Format-List
         } catch { Write-Output "Event log unavailable or no recent events: $($_.Exception.Message)" }
     }
     Write-Output "For the settings exit, include the game's latest.log and latest crash-report file separately."
