@@ -9,3 +9,5 @@ Small local backdrops behind native Astral headings improve contrast on bright w
 Publication order: finish 1.8.9, then publish 1.8.10 for Minecraft 1.21.11 first and the other exact-version files afterwards.
 
 Publication progress: Minecraft 1.21.11 is listed as stable release KTVTckt1, published first after all 24 1.8.9 files were verified. The gallery contains ten current English 1920 x 1080 captures, with remote image hashes checked. Remaining exact-version uploads are in progress.
+
+User-requested icon revision: replace assets/videomenu/icon.png with the supplied 500 x 500 monochrome artwork. All 24 revised archives passed CRC checks; every other entry is byte-identical to its verified original. Actual 1.21.11 Mod Menu capture shows the revised icon in both the list and selected EVATEX detail card. Updated primary downloads are being uploaded with 1.21.11 first.

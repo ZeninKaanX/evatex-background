@@ -233,7 +233,9 @@ public abstract class SmokeMixin {
             }
             case 90 -> {
                 if(!VideoBackground.isModsScreen(screen) || !VideoBackground.INSTANCE.supportsMenu(screen,false) || !VideoBackground.INSTANCE.status().equals("playing"))throw new AssertionError("Mod Menu wallpaper did not play");
-                evatexqa$capture(client,"astral-mods");screen.method_25419();evatexqa$stage=91;
+                evatexqa$capture(client,"astral-mods");
+                if(Boolean.getBoolean("evatex.qa.captureModsOnly")){System.out.println("EVATEX_QA COMPLETE embedded mod icon capture");client.method_1592();return;}
+                screen.method_25419();evatexqa$stage=91;
             }
             case 91 -> {client.method_1507(new VideoSelectScreen(screen,0));evatexqa$stage=10;}
 
