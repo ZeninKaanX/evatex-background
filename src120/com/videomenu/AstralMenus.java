@@ -159,7 +159,7 @@ public final class AstralMenus {
         if(background)screen.method_25420(ctx);
         // Also works when wallpaper playback is disabled: a quiet, readable surface.
         if(!com.videomenu.video.VideoBackground.INSTANCE.status().equals("playing"))ctx.method_25294(0,0,screen.field_22789,screen.field_22790,0x44000000);
-        AstralDraw.displayText(ctx,"EVATEX / ASTRAL",s.margin,14,.8f,0xFFC2C2C2);
+        AstralDraw.displayText(ctx,"EVATEX / ASTRAL",s.margin,14,1f,0xFFC2C2C2);
         AstralDraw.displayText(ctx,screen.method_25440().getString(),s.margin,32,2.1f,0xFFF3F3F3);
         if(s.list!=null) {
             panel(ctx,s.margin-3,s.top-3,s.listWidth+6,s.bottom-s.top+6);
@@ -173,7 +173,7 @@ public final class AstralMenus {
         AstralTypography.beginNativeText();nativeText=true;
         try {for(var child:screen.method_25396())if(child instanceof class_4068 drawable && !(child instanceof class_7842 label && label.method_25369().getString().equals(screen.method_25440().getString())))drawable.method_25394(ctx,mx,my,delta);}
         finally {nativeText=false;}
-        AstralDraw.displayText(ctx,"EVATEX",s.margin,screen.field_22790-12,.65f,0xFF999999);
+        AstralDraw.displayText(ctx,"EVATEX",s.margin,screen.field_22790-12,1f,0xFF999999);
         return true;
     }
     public static void panel(class_332 ctx,int x,int y,int width,int height) {
@@ -191,19 +191,19 @@ public final class AstralMenus {
     private static void details(class_332 ctx,State s) {
         int x=s.detailX+12,y=s.top+14,width=s.detailWidth-24;
         Object entry=s.list.method_25334();
-        line(ctx,text(s.screen instanceof class_500 ? "evatex.menu.server_details" : "evatex.menu.world_details"),x,y,width,.8f,0xFF999999);
+        line(ctx,text(s.screen instanceof class_500 ? "evatex.menu.server_details" : "evatex.menu.world_details"),x,y,width,1f,0xFF999999);
         if(entry instanceof class_4267.class_4270 server) {
             var info=server.method_20133();
             line(ctx,info.field_3752,x,y+24,width,1.3f,0xFFFFFFFF);
-            line(ctx,info.field_3761,x,y+43,width,.85f,0xFFAAAAAA);
+            line(ctx,info.field_3761,x,y+43,width,1f,0xFFAAAAAA);
             ctx.method_25294(x,y+66,x+width,y+67,0x33FFFFFF);
-            line(ctx,text("evatex.menu.players"),x,y+82,width,.8f,0xFF999999);
+            line(ctx,text("evatex.menu.players"),x,y+82,width,1f,0xFF999999);
             String players=info.field_3753==null ? "" : info.field_3753.getString();
             boolean unavailable=players.isEmpty() || players.equals(text("multiplayer.status.cannot_connect")) || players.equals(text("multiplayer.status.cannot_resolve")) || players.equals(text("multiplayer.status.pinging"));
             line(ctx,unavailable ? "—" : players,x,y+99,width,1f,0xFFF0F0F0);
-            line(ctx,text("evatex.menu.latency"),x,y+122,width,.8f,0xFF999999);
+            line(ctx,text("evatex.menu.latency"),x,y+122,width,1f,0xFF999999);
             line(ctx,unavailable || info.field_3758<0 ? "—" : info.field_3758+" ms",x,y+139,width,1f,0xFFF0F0F0);
-            if(s.bottom-y>185)line(ctx,info.field_3757==null ? "" : info.field_3757.getString(),x,y+172,width,.85f,0xFFCCCCCC);
+            if(s.bottom-y>185)line(ctx,info.field_3757==null ? "" : info.field_3757.getString(),x,y+172,width,1f,0xFFCCCCCC);
         } else if(entry!=null && s.screen instanceof class_526) {
             try {
                 class_34 info;
@@ -212,12 +212,12 @@ public final class AstralMenus {
                     var field=entry.getClass().getDeclaredField("field_19138");field.setAccessible(true);info=(class_34)field.get(entry);
                 }
                 line(ctx,info.method_252(),x,y+24,width,1.3f,0xFFFFFFFF);
-                line(ctx,info.method_248(),x,y+44,width,.85f,0xFFAAAAAA);
+                line(ctx,info.method_248(),x,y+44,width,1f,0xFFAAAAAA);
                 ctx.method_25294(x,y+66,x+width,y+67,0x33FFFFFF);
-                line(ctx,info.method_27429().getString(),x,y+86,width,.9f,0xFFCCCCCC);
+                line(ctx,info.method_27429().getString(),x,y+86,width,1f,0xFFCCCCCC);
             } catch(ReflectiveOperationException ignored) {line(ctx,text("evatex.menu.world_selected"),x,y+34,width,1f,0xFFEAEAEA);}
         } else {
-            line(ctx,text(s.screen instanceof class_500 ? "evatex.menu.select_server" : "evatex.menu.select_world"),x,y+35,width,.9f,0xFFDDDDDD);
+            line(ctx,text(s.screen instanceof class_500 ? "evatex.menu.select_server" : "evatex.menu.select_world"),x,y+35,width,1f,0xFFDDDDDD);
         }
     }
     public static void button(class_332 ctx,class_339 widget,int mx,int my) {
@@ -226,7 +226,7 @@ public final class AstralMenus {
         ctx.method_25294(x,y,x+w,y+h,focus ? 0xC83C3C3C : 0xA01A1A1A);
         ctx.method_25294(x,y+h-1,x+w,y+h,focus ? 0xCCFFFFFF : 0x44FFFFFF);
         String label=widget.method_25369().getString();
-        float scale=.9f;
+        float scale=1f;
         while(label.length()>1 && AstralTypography.width(label)*scale>w-16)label=label.substring(0,label.offsetByCodePoints(label.length(),-1));
         AstralDraw.displayText(ctx,label,x+8,y+(h-8)/2,scale,widget.field_22763 ? 0xFFF2F2F2 : 0xFF777777);
     }

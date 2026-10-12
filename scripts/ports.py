@@ -25,6 +25,7 @@ def sources(root,version):
     if base=='src' and version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
         mixins['client'].remove('AstralGlyphSamplingMixin')
         (folder/'com/videomenu/mixin/AstralGlyphSamplingMixin.java').unlink()
+        (folder/'com/videomenu/FontCoverage.java').unlink()
     if version in LEGACY and version not in ('1.20','1.20.1'):
         edit('EvatexTitleScreen.java','method_25420(class_332 ctx)','method_25420(class_332 ctx,int mx,int my,float delta)')
         edit('VideoSelectScreen.java','method_25420(class_332 context)','method_25420(class_332 context, int mouseX, int mouseY, float delta)')
@@ -95,8 +96,30 @@ def sources(root,version):
         for file in folder.rglob('*.java'):
             content=translate(file.read_text(),mapping)
             if version.startswith('26.'):
+                if file.name=='FontCoverage.java':
+                    start=content.index('            var snippet=');end=content.index('            return RenderPipeline.builder',start)
+                    if version=='26.3':
+                        snippet="""            var snippet=new RenderPipeline.Snippet(source.getShaders(),Optional.of(source.getShaderDefines()),Optional.of(source.getBindGroupLayouts()),
+                source.getColorTargetStates().toArray(new com.mojang.renderpearl.api.pipeline.ColorTargetState[0]),source.getColorTargetStates().size(),
+                Optional.ofNullable(source.getDepthStencilState()),Optional.of(source.getPolygonMode()),Optional.of(source.isCull()),
+                source.getVertexFormatBindings().toArray(new com.mojang.renderpearl.api.vertex.VertexFormat[0]),Optional.of(source.getPrimitiveTopology()),source.pushConstantSize());
+"""
+                    elif version=='26.2':
+                        snippet="""            var snippet=new RenderPipeline.Snippet(Optional.of(source.getVertexShader()),Optional.of(source.getFragmentShader()),
+                Optional.of(source.getShaderDefines()),Optional.of(source.getBindGroupLayouts()),source.getColorTargetStates(),source.getColorTargetStates().length,
+                Optional.ofNullable(source.getDepthStencilState()),Optional.of(source.getPolygonMode()),Optional.of(source.isCull()),
+                source.getVertexFormatBindings(),Optional.of(source.getPrimitiveTopology()));
+"""
+                    else:
+                        snippet="""            var snippet=new RenderPipeline.Snippet(Optional.of(source.getVertexShader()),Optional.of(source.getFragmentShader()),
+                Optional.of(source.getShaderDefines()),Optional.of(source.getSamplers()),Optional.of(source.getUniforms()),Optional.of(source.getColorTargetState()),
+                Optional.ofNullable(source.getDepthStencilState()),Optional.of(source.getPolygonMode()),Optional.of(source.isCull()),
+                Optional.of(source.getVertexFormat()),Optional.of(source.getVertexFormatMode()));
+"""
+                    content=content[:start]+snippet+content[end:]
+                    content=content.replace('.withDepthBias(source.getDepthBiasScaleFactor(),source.getDepthBiasConstant())','')
                 if file.name=='AstralGlyphSamplingMixin.java':
-                    content=content.replace('net.minecraft.client.gui.render.state.GlyphRenderState','net.minecraft.client.renderer.state.gui.GlyphRenderState').replace('comp_4637','renderable').replace('comp_4629','textureView').replace('comp_4056','textureSetup')
+                    content=content.replace('net.minecraft.client.gui.render.state.GlyphRenderState','net.minecraft.client.renderer.state.gui.GlyphRenderState').replace('comp_4637','renderable').replace('comp_4629','textureView').replace('comp_4056','textureSetup').replace('comp_4055','pipeline').replace('method_73400','guiPipeline')
                 content=content.replace('drawCenteredString','centeredText').replace('drawString','text')
                 if file.name=='AstralMenuTextMixin.java':
                     ordered='text(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;IIIZ)V'
@@ -117,8 +140,13 @@ def sources(root,version):
                 if version in ('26.2','26.3'):
                     content=content.replace('method = "destroy"','method = "close"')
                     content=content.replace('.setScreen(','.gui.setScreen(').replace('.screen;', '.gui.screen();').replace('getInstance().screen)', 'getInstance().gui.screen())')
+                if version=='26.2':
+                    if file.name=='FontCoverage.java':content=content.replace('\"core/ui_text\"','\"core/ui_text_262\"')
+                    content=content.replace('com.mojang.blaze3d.textures.TextureFormat.RED8','com.mojang.blaze3d.GpuFormat.R8_UNORM')
                 if version=='26.3':
                     content=content.replace('com.mojang.blaze3d.textures.FilterMode','com.mojang.renderpearl.api.textures.FilterMode')
+                    if file.name=='FontCoverage.java':content=content.replace('\"core/ui_text\"','\"core/ui_text_26\"')
+                    content=content.replace('com.mojang.blaze3d.pipeline.RenderPipeline','com.mojang.renderpearl.api.pipeline.RenderPipeline').replace('com.mojang.blaze3d.textures.TextureFormat.RED8','com.mojang.renderpearl.api.GpuFormat.R8_UNORM')
             file.write_text(content)
         file=folder/'com/videomenu/mixin/TitleScreenMixin.java'
         content=file.read_text(); i=content.rfind('}')

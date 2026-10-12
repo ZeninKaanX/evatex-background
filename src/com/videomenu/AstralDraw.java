@@ -18,8 +18,8 @@ public final class AstralDraw {
         var matrix=ctx.method_51448();matrix.pushMatrix();
         try {
             matrix.translate((float)x,(float)y);matrix.scale(scale,scale);
-            // Large lettering gets its own dense glyph atlas instead of magnifying label glyphs.
-            AstralTypography.draw(ctx,text,0,0,color,scale>=2f);
+            // Match raster density to physical lettering size; avoid undersampling dense small glyphs.
+            AstralTypography.drawScaled(ctx,text,0,0,color,scale);
         } finally {matrix.popMatrix();}
     }
 }

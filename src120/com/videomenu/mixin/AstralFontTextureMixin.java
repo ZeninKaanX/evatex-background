@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class AstralFontTextureMixin {
     @Inject(method="method_4616",at=@At("TAIL"))
     private void evatex$font(class_2960 id,class_1044 texture,CallbackInfo ci){
-        if(id.toString().startsWith("evatexbackgroundvideo:ui/") || id.toString().startsWith("evatexbackgroundvideo:ui_display/") || id.toString().startsWith("evatexbackgroundvideo:home_icons/") || id.toString().startsWith("evatexbackgroundvideo:meteor/"))com.videomenu.FontSmoothing.apply(texture);
+        if(id.toString().startsWith("evatexbackgroundvideo:ui/") || id.toString().startsWith("evatexbackgroundvideo:ui_medium/") || id.toString().startsWith("evatexbackgroundvideo:ui_large/") || id.toString().startsWith("evatexbackgroundvideo:ui_display/") || id.toString().startsWith("evatexbackgroundvideo:home_icons/") || id.toString().startsWith("evatexbackgroundvideo:meteor/"))com.videomenu.FontSmoothing.apply(texture);
     }
 }

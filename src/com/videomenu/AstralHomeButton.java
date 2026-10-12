@@ -32,12 +32,14 @@ public final class AstralHomeButton extends class_4185 {
             if(icon==2)label=class_2561.method_43471("evatex.home.quit").getString();
             if(label.endsWith("..."))label=label.substring(0,label.length()-3);
         }
-        float scale=compact ? .8f : 1f;
-        int inset=icon<0 ? 8 : 17;
-        while(AstralTypography.width(label)*scale>Math.max(0,w-inset-(compact ? 4 : 22)) && label.length()>1)label=label.substring(0,label.length()-1);
+        float scale=1f;
+        int inset=icon<0 ? 8 : 16;
+        int available=Math.max(0,w-inset-(compact ? 4 : 22));
+        if(compact && AstralTypography.width(label)>available)scale=Math.max(.9f,(float)available/Math.max(1,AstralTypography.width(label)));
+        while(AstralTypography.width(label)*scale>available && label.length()>1)label=label.substring(0,label.length()-1);
         int textY=y+(h-(int)(9*scale))/2;
-        if(icon>=0)AstralDraw.homeIcon(ctx,icon,x+5,y+(h-7)/2,0xFFCCCCCC);
+        if(icon>=0)AstralDraw.homeIcon(ctx,icon,x+5,y+(h-9)/2,0xFFCCCCCC);
         AstralDraw.displayText(ctx,label,x+inset,textY,scale,color);
-        if(!compact)AstralDraw.displayText(ctx,"→",x+w-14,textY,.8f,color);
+        if(!compact)AstralDraw.displayText(ctx,"→",x+w-14,textY,1f,color);
     }
 }

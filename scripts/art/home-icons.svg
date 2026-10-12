@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="192" height="64" viewBox="0 0 72 24">
+<svg xmlns="http://www.w3.org/2000/svg" width="54" height="18" viewBox="0 0 72 24">
 <!-- Original EVATEX line icons. Regenerate: rsvg-convert scripts/art/home-icons.svg -o assets/evatexbackgroundvideo/textures/font/home_icons.png -->
 <g fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
 <path d="M3 7V5h6l2 3h10v12H3V7Z"/>

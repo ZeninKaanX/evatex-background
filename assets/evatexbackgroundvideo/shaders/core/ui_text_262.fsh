@@ -1,0 +1,12 @@
+#version 330
+#moj_import <minecraft:dynamictransforms.glsl>
+uniform sampler2D Sampler0;
+in vec4 vertexColor;
+in vec2 texCoord0;
+out vec4 fragColor;
+void main() {
+    vec4 color = vertexColor * ColorModulator;
+    color.a *= texture(Sampler0, texCoord0).r;
+    if (color.a < 1.0 / 255.0) discard;
+    fragColor = color;
+}

@@ -13,3 +13,17 @@ Minecraft 1.21.11 with Mod Menu and Sodium: native menu geometry/actions, dialog
 Captures are actual 1920 × 1080 game framebuffers from a hidden OpenGL window positioned on the secondary eDP-1 display. The locked desktop prevents mapped OS-fullscreen captures. Tests use the supplied 1080p60 video, audio muted at 10%, and zero dimming without vignette. No 4K/8K stress or physical Windows GPU test was performed.
 
 Decoder, image/GIF, audio, responsive shortcut layout, cooperative menu ownership and English/Turkish translation parity regressions passed. Final package verification is recorded in the release-candidate folder.
+
+## Follow-up pixel investigation
+
+A fixed-background font comparison at 1.21.11 showed the small-label 8× atlas was excessively minified. Font density now follows physical glyph size (2×/4×/8×/16×), and very small secondary labels are enlarged. Compact labels can fit down to 90% before truncation.
+
+OpenGL GPU texture debug labels were numeric, so the earlier name-based sampler predicate did not match. Font atlases are now tracked by weak texture ownership. The diagnostic captured owned samplers as LINEAR and unowned native samplers as NEAREST.
+
+The native intensity fragment multiplied coverage into both RGB and alpha, producing dark fringes on bright backgrounds under straight-alpha blending. EVATEX-owned RED8 GUI glyphs on 1.21.11 and 26.x now use coverage in alpha only. Source pipeline vertex format, uniforms, shader defines, blend and depth state are preserved. Other fonts and colored glyphs retain their source pipeline. Older Minecraft renderers retain their native intensity shader.
+
+The new home and native-menu captures use the supplied 1080p60 video, muted at 10%, on the secondary display. No higher wallpaper resolution or decoder frame rate is forced by this font change.
+
+Decorative star dots have been removed from both source families. The shared bounded meteor animation and its motion switch remain in place. All 24 exact-version builds compiled after this change; 26.2 and 26.3 retain their respective pipeline and shader interfaces.
+
+Final checks: the starless 1.21.11 native-menu test with Sodium and Mod Menu passed, including settings tabs, native actions, opt-out and fallback. Its home capture passed separately. The 26.3 SDL startup/shortcut test passed on the secondary display with no EVATEX shader or filtering errors; missing local vanilla asset-index data limits that run to startup/render-hook verification. All 24 bundled packages passed metadata, bytecode, embedded-module, engine checksum and archive checks. Decoder/audio/layout/ownership/translation regressions passed.

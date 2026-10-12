@@ -21,6 +21,7 @@ parser.add_argument('--language',default='tr_tr')
 parser.add_argument('--username',default='EvatexQA',help='Offline display name for screenshots')
 parser.add_argument('--quick',action='store_true',help='Shorter per-stage dwell time for the version matrix')
 parser.add_argument('--bundled',action='store_true')
+parser.add_argument('--font-probe',action='store_true',help='Fixed-background glyph sampling comparison on Minecraft 1.21.11')
 parser.add_argument('--clear-background',action='store_true',help='Verify zero darkening without a vignette in the isolated test')
 parser.add_argument('--extra-mods',type=Path,help='Additional verified jars in the isolated test only')
 parser.add_argument('--sodium',type=Path,help='Optional installed Sodium jar for reported-menu QA')
@@ -70,8 +71,11 @@ if version.startswith('26.'):
     source.parent.mkdir(parents=True,exist_ok=True)
     text=translate((ROOT/'tests/smoke/SmokeMixin.java').read_text(),symbols(ROOT/'build/dependencies'))
     text=text.replace('client.getWindow().getWindow()', 'client.getWindow().handle()').replace('EditGameRulesScreen','WorldCreationGameRulesScreen')
-    text=text.replace('.OptionsScreen(screen,client.options)','.OptionsScreen(screen,client.options,false)').replace('.OptionsScreen(evatexqa$title,client.options)','.OptionsScreen(evatexqa$title,client.options,false)').replace('client.resizeDisplay()','client.resizeGui()')
+    if version in ('26.1','26.1.1','26.1.2','26.2'):
+        text=text.replace('.OptionsScreen(screen,client.options)','.OptionsScreen(screen,client.options,false)').replace('.OptionsScreen(evatexqa$title,client.options)','.OptionsScreen(evatexqa$title,client.options,false)')
+    text=text.replace('client.resizeDisplay()','client.resizeGui()')
     if version=='26.3':
+        text=text.replace('org.lwjgl.glfw.GLFW.glfwSetWindowSize','org.lwjgl.sdl.SDLVideo.SDL_SetWindowSize')
         text=text.replace('org.lwjgl.glfw.GLFW.glfwIconifyWindow','org.lwjgl.sdl.SDLVideo.SDL_MinimizeWindow').replace('org.lwjgl.glfw.GLFW.glfwRestoreWindow','org.lwjgl.sdl.SDLVideo.SDL_RestoreWindow')
         text=text.replace('org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(client.getWindow().handle(),org.lwjgl.glfw.GLFW.GLFW_ICONIFIED)', '(org.lwjgl.sdl.SDLVideo.SDL_GetWindowFlags(client.getWindow().handle()) & org.lwjgl.sdl.SDLVideo.SDL_WINDOW_MINIMIZED)')
         start=text.index('        if (!evatexqa$positioned) {')
@@ -108,12 +112,32 @@ if version.startswith('26.'):
     hidden_source=ROOT/'build'/('qa-custom-'+version)/'HiddenWindowMixin.java'
     hidden_source.parent.mkdir(parents=True,exist_ok=True)
     hidden_source.write_text(translate((ROOT/'tests/smoke/HiddenWindowMixin.java').read_text(),symbols(ROOT/'build/dependencies')))
+    if version=='26.3':
+        hidden_source.write_text("""package evatexqa;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+@Mixin(com.mojang.blaze3d.platform.Window.class)
+public abstract class HiddenWindowMixin {
+    @ModifyArg(method="createWindow",at=@At(value="INVOKE",target="Lcom/mojang/renderpearl/api/device/GpuBackend;createWindow(Ljava/lang/String;IIJ)J"),index=3)
+    private long evatexqa$hidden(long flags) {
+        return Boolean.getBoolean("evatex.qa.hiddenWindow") ? flags | org.lwjgl.sdl.SDLVideo.SDL_WINDOW_HIDDEN : flags;
+    }
+}
+""")
 for previous in helper.rglob('*.class'): previous.unlink()
-subprocess.run([str(javac),'-proc:none','--release',str(VERSIONS[version][1]),'-cp',str(classes)+os.pathsep+cp,'-d',str(helper),str(source),str(custom_source),str(hidden_source)],check=True)
+probe_sources=[]
+if args.font_probe:
+    if version!='1.21.11':raise SystemExit('Font probe targets 1.21.11')
+    probe_sources=[str(ROOT/'tests/smoke/FontProbeScreen.java'),str(ROOT/'tests/smoke/FontProbeMixin.java')]
+subprocess.run([str(javac),'-proc:none','--release',str(VERSIONS[version][1]),'-cp',str(classes)+os.pathsep+cp,'-d',str(helper),str(source),str(custom_source),str(hidden_source),*probe_sources],check=True)
 with zipfile.ZipFile(mods/'evatex-qa.jar','w') as z:
     z.writestr('fabric.mod.json',json.dumps({'schemaVersion':1,'id':'evatex-qa','version':'1.0','name':'EVATEX QA','environment':'client','mixins':['evatex-qa.mixins.json']}))
-    z.writestr('evatex-qa.mixins.json',json.dumps({'required':True,'package':'evatexqa','compatibilityLevel':'JAVA_'+str(VERSIONS[version][1]),'client':['SmokeMixin','HiddenWindowMixin'],'injectors':{'defaultRequire':1}}))
+    z.writestr('evatex-qa.mixins.json',json.dumps({'required':True,'package':'evatexqa','compatibilityLevel':'JAVA_'+str(VERSIONS[version][1]),'client':['SmokeMixin','HiddenWindowMixin']+(['FontProbeMixin'] if args.font_probe else []),'injectors':{'defaultRequire':1}}))
     for file in helper.rglob('*.class'): z.write(file,file.relative_to(helper))
+    if args.font_probe:
+        for density in (1,2,3,4,8,16):
+            z.writestr(f'assets/evatexbackgroundvideo/font/ui/probe{density}.json',json.dumps({'providers':[{'type':'ttf','file':'evatexbackgroundvideo:ui.ttf','size':9,'oversample':density,'shift':[0,0]}]}))
 suffix='' if args.bundled else '-system-ffmpeg'
 shutil.copyfile(ROOT/'build/dist'/f'evatex-background-video-{MOD_VERSION}-mc{version}{suffix}.jar',mods/'evatex.jar')
 if args.sodium: shutil.copyfile(args.sodium,mods/'sodium.jar')
@@ -159,7 +183,7 @@ game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
 runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.fontProbe='+str(args.font_probe).lower(),'-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:
@@ -171,3 +195,7 @@ with log.open('w') as output:
 print('Game exited:',code,'log:',log)
 print('\n'.join(line for line in log.read_text(errors='replace').splitlines() if 'EVATEX_QA' in line or 'Mixin apply' in line or 'Cannot render video' in line or 'bridge disabled' in line))
 if code!=0 or 'EVATEX_QA COMPLETE' not in log.read_text(errors='replace'): raise SystemExit(1)
+
+if args.font_probe:
+    text=log.read_text(errors="replace")
+    if "owned=true min=LINEAR mag=LINEAR" not in text or "owned=false min=NEAREST mag=NEAREST" not in text:raise SystemExit("Font sampler ownership assertion not exercised")

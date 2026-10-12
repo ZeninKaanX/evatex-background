@@ -3,8 +3,8 @@
     {
       "type": "bitmap",
       "file": "evatexbackgroundvideo:font/home_icons.png",
-      "height": 7,
-      "ascent": 7,
+      "height": 9,
+      "ascent": 9,
       "chars": [
         "\ue000\ue001\ue002"
       ]

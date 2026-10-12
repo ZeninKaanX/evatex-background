@@ -64,6 +64,11 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if(Boolean.getBoolean("evatex.qa.fontProbe")) {
+            if(evatexqa$stage++==0)try {client.method_1507((class_437)Class.forName("evatextest.FontProbeScreen").getConstructor().newInstance());}catch(Exception e){throw new RuntimeException(e);}
+            else {evatexqa$capture(client,"font-probe");System.out.println("EVATEX_QA COMPLETE font probe");client.method_1592();}
+            return;
+        }
         if (Boolean.getBoolean("evatex.qa.astralMenus")) { evatexqa$astralMenus(client); return; }
         if (Boolean.getBoolean("evatex.qa.homeMenu")) { evatexqa$home(client); return; }
         if (Boolean.getBoolean("evatex.qa.collisionLayout")) { evatexqa$collision(client); return; }
