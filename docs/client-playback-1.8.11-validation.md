@@ -27,3 +27,16 @@ Lunar's official documentation says custom themes can hide native mod buttons an
 ## Build checks
 
 All 24 exact-version targets compile with the matching Minecraft API and Java bytecode level. Archive checks verify metadata, embedded module bytecode, Mixin Extras, FFmpeg hashes, archive CRC and checksum sidecars. Decoder/audio regression tests and English/Turkish translation parity pass.
+
+## Windows 11 execution-policy investigation
+
+The supplied message.txt identifies Windows 11 and confirms successful extraction immediately before CreateProcess error 5. Microsoft defines error 5 as ERROR_ACCESS_DENIED; that code does not identify a particular security product or policy. The bundled PE's certificate-table offset and size are both zero: no embedded Authenticode signature is present. This does not check possible catalog trust or Microsoft's cloud reputation.
+
+Smart App Control is a plausible cause because it can block unknown unsigned binaries. The friend's Smart App Control state and CodeIntegrity events were not supplied, so this remains a hypothesis alongside file permissions and other application-control or antivirus rules. Successful extraction makes protected-folder write denial a weaker explanation for this specific process-start failure. No security protections were disabled.
+
+A separate read-only diagnostic script checks the known engine checksum before a version-only launch, reports Authenticode status and file ACLs, and reads recent matching CodeIntegrity, Defender and Security-Mitigations events. Event 3077 identifies an enforced App Control block; 3089 provides associated signature information. The script has not been executed on the friend's Windows system. A real event report is required to distinguish these causes.
+
+Primary references:
+- https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
+- https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/overview
+- https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/operations/event-id-explanations
