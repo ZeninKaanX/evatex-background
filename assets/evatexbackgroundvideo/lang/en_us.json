@@ -32,5 +32,8 @@
   "evatex.world_background": "World selection: %s",
   "evatex.options_background": "Options menus: %s",
   "evatex.menu_meteors": "Menu meteors: %s",
-  "evatex.custom_main_menu": "EVATEX main menu: %s"
+  "evatex.custom_main_menu": "EVATEX main menu: %s",
+  "evatex.home.more": "EVATEX Settings",
+  "evatex.home.quit": "Quit",
+  "evatex.status.paused": "Paused while Minecraft is in the background"
 }

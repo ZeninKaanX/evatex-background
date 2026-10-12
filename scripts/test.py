@@ -35,3 +35,6 @@ print('PASS English/Turkish translation key parity')
 
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/ShortcutLayoutRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'ShortcutLayoutRegression'],check=True)
+
+subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/MenuOwnershipRegression.java")],check=True)
+subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"MenuOwnershipRegression"],check=True)

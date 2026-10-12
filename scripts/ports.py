@@ -34,6 +34,7 @@ def sources(root,version):
     if version in ('1.20.3','1.20.4'):
         edit('mixin/ServerListBackgroundMixin.java','method="method_25394"','method="method_48579"')
     if version in LEGACY and version.startswith('1.21'):
+        edit('AstralTypography.java','new net.minecraft.class_2960("evatexbackgroundvideo","ui")','net.minecraft.class_2960.method_60655("evatexbackgroundvideo","ui")')
         edit('video/VideoBackground.java','new class_2960("evatexbackgroundvideo", "video")','class_2960.method_60655("evatexbackgroundvideo", "video")')
     if version in ('1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
         file=folder/'com/videomenu/mixin/ServerBackgroundMixin.java'

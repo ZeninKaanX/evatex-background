@@ -60,6 +60,12 @@ public final class AudioRegression {
                 for(int i=0;i<12;i++)socket.getOutputStream().write(pcm());
                 await(()->audio.writtenBytes()==12*4096,"PCM progresses with buffer "+capacity);
                 check(starts.get()==1,"output primed and started once");check(samples.get()==1000,"10% PCM gain");
+                audio.paused(true);Thread.sleep(30);long pausedBytes=audio.writtenBytes();
+                socket.getOutputStream().write(pcm());Thread.sleep(150);
+                check(audio.writtenBytes()==pausedBytes,"paused audio preserves queued PCM without playback");
+                int beforeResume=starts.get();audio.paused(false);
+                await(()->audio.writtenBytes()>pausedBytes,"audio resumes existing stream");
+                check(starts.get()==beforeResume+1,"existing audio device resumes once");
                 audio.enabled(false);Thread.sleep(20);long written=audio.writtenBytes();
                 socket.getOutputStream().write(pcm());Thread.sleep(30);check(audio.writtenBytes()==written,"mute stops writes");
                 audio.enabled(true);socket.getOutputStream().write(pcm());
@@ -73,7 +79,8 @@ public final class AudioRegression {
             if(attempts.incrementAndGet()==1)throw new javax.sound.sampled.LineUnavailableException("temporary device loss");
             return line(8192,starts,samples);
         });Socket socket=connect(audio)) {
-            for(int i=0;i<26;i++) {socket.getOutputStream().write(pcm());Thread.sleep(100);}
+            long retryDeadline=System.nanoTime()+8_000_000_000L;
+            while(audio.writtenBytes()==0 && System.nanoTime()<retryDeadline) {socket.getOutputStream().write(pcm());Thread.sleep(100);}
             await(()->audio.writtenBytes()>0,"temporary audio device failure recovers without toggle");
             check(attempts.get()==2 && starts.get()==1,"bounded device retry");
         }

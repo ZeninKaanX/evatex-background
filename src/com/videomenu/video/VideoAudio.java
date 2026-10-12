@@ -14,7 +14,7 @@ public final class VideoAudio implements AutoCloseable {
     private final ServerSocket server;
     private volatile Socket socket;
     private volatile SourceDataLine line;
-    private volatile boolean closed, enabled;
+    private volatile boolean closed, enabled, paused;
     private volatile String status = "muted";
     private volatile long receivedBytes, writtenBytes, underruns;
     private boolean playbackStarted;
@@ -61,6 +61,18 @@ public final class VideoAudio implements AutoCloseable {
         if (value) deviceFailed = false;
         if (!value) { status = "muted"; closeLine(); }
     }
+    public synchronized void paused(boolean value) {
+        paused=value;
+        try {
+            if(line!=null && line.isOpen()) {
+                if(value)line.stop();
+                else if(enabled && playbackStarted){line.start();status="playing";}
+            }
+        } catch(RuntimeException e) {closeLine();playbackStarted=false;status="unavailable";VideoMenuClient.LOGGER.warn("Cannot change audio pause state; retrying output",e);}
+        if(value && enabled)status="paused";
+        notifyAll();
+    }
+    private synchronized void awaitResume() throws InterruptedException {while(paused && !closed)wait();}
     private void read() {
         try {
             while (!closed && socket == null) {
@@ -72,7 +84,10 @@ public final class VideoAudio implements AutoCloseable {
             byte[] pcm = new byte[4096];
             try (InputStream input = socket.getInputStream()) {
                 int count;
-                while (!closed && (count = input.readNBytes(pcm,0,pcm.length)) > 0) {
+                while (!closed) {
+                    awaitResume();if(closed)break;
+                    count=input.readNBytes(pcm,0,pcm.length);if(count<=0)break;
+                    awaitResume();if(closed)break;
                     receivedBytes += count;
                     if (!enabled || count == 0) continue;
                     applyVolume(pcm,count,volume);
@@ -102,20 +117,21 @@ public final class VideoAudio implements AutoCloseable {
                         int offset = 0;
                         while (offset < count && enabled && !closed && sink.isOpen()) {
                             try {
-                                if (playbackStarted && !sink.isRunning()) sink.start();
+                                awaitResume();if(closed || !enabled)break;
+                                synchronized(this){if(!paused && playbackStarted && !sink.isRunning())sink.start();}
                                 int bytes = sink.write(pcm, offset, playbackStarted ? count-offset : Math.min(count-offset, primeTarget-primedBytes));
                                 if (bytes <= 0) break;
                                 offset += bytes; writtenBytes += bytes;
                                 if (!playbackStarted) {
                                     primedBytes += bytes;
-                                    if (primedBytes >= primeTarget && enabled && !closed && sink.isOpen()) { sink.start(); playbackStarted=true; }
+                                    synchronized(this){if (primedBytes >= primeTarget && enabled && !closed && !paused && sink.isOpen()) { sink.start(); playbackStarted=true; }}
                                 }
                             } catch (RuntimeException e) {
                                 if (enabled && !closed) { deviceFailed = true; nextDeviceRetryAt = System.nanoTime() + 2_000_000_000L; status = "unavailable"; VideoMenuClient.LOGGER.warn("Video audio device stopped; video will continue", e); }
                                 closeLine(); break;
                             }
                         }
-                        if (enabled && sink.isOpen()) status = "playing";
+                        if (enabled && sink.isOpen()) status = paused ? "paused" : "playing";
                     }
                 }
             }
@@ -143,7 +159,7 @@ public final class VideoAudio implements AutoCloseable {
         }
     }
     @Override public void close() {
-        closed = true; closeLine();
+        closed = true; synchronized(this){notifyAll();} closeLine();
         try { server.close(); } catch (Exception ignored) {}
         try { if (socket != null) socket.close(); } catch (Exception ignored) {}
         thread.interrupt();

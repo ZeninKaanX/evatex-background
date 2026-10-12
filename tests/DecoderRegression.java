@@ -132,6 +132,30 @@ public class DecoderRegression {
             check(closedCount==decoder.publishedFrames(),"close stops publishing");
             System.out.printf("PASS %d FPS: %.3fs, loop, immutable frames, shutdown%n",fps,elapsed);
         }
+
+        for(boolean tcp:new boolean[]{false,true}) {
+            config.videoPath=Path.of(args[0]).toAbsolutePath().toString();config.fps=30;
+            VideoDecoder pausedDecoder=new VideoDecoder(config,(frame,w,h)->{});
+            var socketField=VideoDecoder.class.getDeclaredField("socketTransport");socketField.setAccessible(true);socketField.setBoolean(pausedDecoder,tcp);
+            check(pausedDecoder.start(),"pause fixture starts");
+            long until=System.nanoTime()+5_000_000_000L;
+            while(pausedDecoder.publishedFrames()<5 && System.nanoTime()<until)Thread.sleep(20);
+            check(pausedDecoder.publishedFrames()>=5,"pause fixture plays");
+            var processField=VideoDecoder.class.getDeclaredField("process");processField.setAccessible(true);
+            Process process=(Process)processField.get(pausedDecoder);
+            pausedDecoder.setPaused(true);Thread.sleep(300);
+            long settled=pausedDecoder.publishedFrames();
+            var cpuBefore=process.info().totalCpuDuration();Thread.sleep(800);
+            check(pausedDecoder.isPaused() && settled==pausedDecoder.publishedFrames(),"no frames produced while unfocused");
+            var cpuAfter=process.info().totalCpuDuration();
+            if(cpuBefore.isPresent() && cpuAfter.isPresent())System.out.println("PAUSE ffmpeg CPU ms/800ms="+cpuAfter.get().minus(cpuBefore.get()).toMillis()+" TCP="+tcp);
+            pausedDecoder.setPaused(false);until=System.nanoTime()+3_000_000_000L;
+            while(pausedDecoder.publishedFrames()<=settled+3 && System.nanoTime()<until)Thread.sleep(20);
+            check(pausedDecoder.publishedFrames()>settled+3 && processField.get(pausedDecoder)==process,"resume without restarting decoder");
+            pausedDecoder.setPaused(true);pausedDecoder.close();Thread.sleep(250);
+            check(!process.isAlive(),"close wakes paused decoder and terminates ffmpeg");
+            System.out.println("PASS focus pause/resume, same process and paused shutdown; TCP="+tcp);
+        }
         var transport=VideoDecoder.class.getDeclaredField("socketTransport");transport.setAccessible(true);
         // Still images upload once, leave no ongoing decoder process, and do not
         // switch back to the panorama when a successful single-frame stream ends.

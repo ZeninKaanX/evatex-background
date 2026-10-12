@@ -10,18 +10,19 @@ Menu backgrounds also cover credits, game rules and supported Sodium video setti
 
 - Video, animated GIF and photo backgrounds.
 - Custom black-and-white Astral interface with optional transitions, stars and falling meteors.
-- Continuous playback across the title screen, server selection, world selection, resource packs, credits, game rules, supported options menus and background settings.
+- Playback across the title screen, server selection, world selection, resource packs, credits, game rules, supported options menus and background settings.
 - Separate world/options wallpaper switches, light menu darkening and optional Astral meteors. In-game options retain their normal background.
 - Resolution and frame-rate controls, fill/fit framing, darkening and vignette.
 - Safe 1080p decoded output by default, with adjustable scale and decode-size limits.
 - Turkish and English translations following Minecraft's selected language, with English fallback.
 - Live sound on/off and volume controls, muted by default.
+- Automatic video and audio pause while Minecraft is unfocused, with continuation when returning.
 - Responsive library and settings pages, with tabs on narrow screens.
 - Automatic saving and an option to disable backgrounds or interface animations.
 
 ## Optional Astral home
 
-EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, profile information, EVATEX background controls and native game settings. Other native/mod title actions are retained in the footer, with pagination when needed. The selected background and optional meteors continue behind the menu.
+EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, EVATEX background controls and native game settings. Other native/mod title actions are retained in a separate EVATEX Settings page, with pagination when needed. The selected background and optional meteors continue behind the menu.
 
 Enable **EVATEX main menu** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
 
@@ -54,7 +55,7 @@ Full Fabric API is not required by EVATEX; the necessary resource-loading module
 
 EVATEX includes a dedicated integration for **Atlas Client 3.0.3 on Minecraft 1.21.11**. Your background appears behind Atlas’s custom title menu and multiplayer server selection. A compact Astral **Backgrounds** button sits at the lower right, with centred text and its own black-and-white styling.
 
-Atlas’s menu layout and settings are preserved. EVATEX remains a separate mod with its own background controls; the two mods are not combined. Atlas’s vanilla menu mode also works. The EVATEX shortcut prefers the lower centre and automatically avoids visible menu widgets, following changes in window size and menu controls. Dense layouts can use a slim vertical side shortcut. Atlas keeps its matching lower-right shortcut. Fully custom clients may require their native/vanilla overlay.
+Atlas’s menu layout and settings are preserved. EVATEX remains a separate mod with its own background controls; the two mods are not combined. Atlas’s vanilla menu mode also works. The EVATEX shortcut prefers the lower centre and automatically avoids visible menu widgets, following changes in window size and menu controls. Dense layouts can use a slim vertical side shortcut. Atlas keeps its matching lower-right shortcut. EVATEX yields to other custom menu owners and follows native button visibility. Fully custom clients may require their native/vanilla overlay.
 
 Install Atlas and its required dependencies separately. This integration targets the version listed above; compatibility with every custom menu or launcher has not been verified.
 

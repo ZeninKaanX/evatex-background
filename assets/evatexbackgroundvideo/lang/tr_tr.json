@@ -32,5 +32,8 @@
   "evatex.world_background": "Dünya seçimi: %s",
   "evatex.options_background": "Ayarlar menüleri: %s",
   "evatex.menu_meteors": "Menü meteorları: %s",
-  "evatex.custom_main_menu": "EVATEX ana menüsü: %s"
+  "evatex.custom_main_menu": "EVATEX ana menüsü: %s",
+  "evatex.home.more": "EVATEX Ayarları",
+  "evatex.home.quit": "Çıkış",
+  "evatex.status.paused": "Minecraft arka plandayken duraklatıldı"
 }

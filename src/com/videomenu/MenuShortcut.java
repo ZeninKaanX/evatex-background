@@ -19,7 +19,7 @@ public final class MenuShortcut {
     private MenuShortcut() {}
     public static boolean customUi() { return AtlasCompatibility.isCustomUi(); }
     public static boolean titleMenu(class_437 screen) {
-        if (class_310.method_1551().field_1687 != null) return false;
+        if (screen==null || class_310.method_1551().field_1687 != null) return false;
         if (screen instanceof EvatexTitleScreen) return false;
         if (screen instanceof class_442) return true;
         String name=screen.getClass().getSimpleName().toLowerCase(Locale.ROOT);
@@ -61,7 +61,10 @@ public final class MenuShortcut {
                 int x=((Number)access[0].invoke(value)).intValue(),y=((Number)access[1].invoke(value)).intValue();
                 int w=((Number)access[2].invoke(value)).intValue(),h=((Number)access[3].invoke(value)).intValue();
                 if (w>0 && h>0) out.add(new ShortcutLayout.Rect(x,y,w,h));
-            } catch (ReflectiveOperationException | RuntimeException ignored) { /* No reliable public bounds. */ }
+            } catch (ReflectiveOperationException | RuntimeException ignored) {
+                // A known custom widget with unreadable bounds is not an empty area.
+                out.add(new ShortcutLayout.Rect(0,0,1<<27,1<<27));
+            }
         }
         if (value instanceof class_4069 parent)
             for (Object child : parent.method_25396()) collect(child,shortcut,out,seen,depth+1);

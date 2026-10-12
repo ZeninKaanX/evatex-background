@@ -40,7 +40,9 @@ public final class VideoBackground {
     private VideoBackground() {}
     public boolean customMainMenu() {var value=config;return value!=null && value.customMainMenu;}
     public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
-    public String status() { return status; }
+    private volatile boolean foreground=true;
+    public String status() { return !foreground && decoder!=null ? "paused" : status; }
+    public synchronized void setForeground(boolean value) {if(foreground!=value){foreground=value;if(decoder!=null)decoder.setPaused(!value);}}
     public synchronized String audioStatus() { return decoder == null ? "muted" : decoder.audioStatus(); }
     public boolean isActive() { return latest != null; }
     /** One policy for decoder lifetime, screen backdrop and opaque list suppression. */
@@ -118,6 +120,7 @@ public final class VideoBackground {
             }
         }, () -> { synchronized (frameLock) { if (session == generation) { latest = null; staging = null; status = "error"; } } }, true,
             window.method_4489(), window.method_4506());
+        next.setPaused(!foreground);
         decoder = next;
         worker.execute(() -> {
             boolean started = next.start();

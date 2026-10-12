@@ -34,7 +34,8 @@ public final class VideoDecoder {
     private volatile java.net.Socket videoSocket;
     private final boolean socketTransport = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
     private final java.util.List<Backend> backendCandidates;
-    private volatile boolean closed;
+    private volatile boolean closed, paused;
+    private final Object pauseLock=new Object();
     private volatile Process process;
     private volatile long publishedFrames;
     private Thread thread;
@@ -95,8 +96,19 @@ public final class VideoDecoder {
         return true;
     }
 
+    public void setPaused(boolean value) {
+        synchronized(pauseLock){paused=value;if(audio!=null)audio.paused(value);pauseLock.notifyAll();}
+    }
+    private long awaitResume() throws InterruptedException {
+        if(!paused)return 0;
+        long since=System.nanoTime();
+        synchronized(pauseLock){while(paused && !closed)pauseLock.wait();}
+        return System.nanoTime()-since;
+    }
+    public boolean isPaused(){return paused;}
     public void close() {
         this.closed = true;
+        synchronized(pauseLock){pauseLock.notifyAll();}
         closeVideoTransport();
         VideoAudio sink = audio; if (sink != null) sink.close();
         Thread reader=frameReader;if(reader!=null)reader.interrupt();
@@ -153,6 +165,7 @@ public final class VideoDecoder {
                     try {
                         while (!closed && process == p && p.isAlive()) {
                             Thread.sleep(500);
+                            if(paused){deadline=System.nanoTime()+12_000_000_000L;continue;}
                             if (publishedFrames == framesBefore && System.nanoTime() >= deadline) {
                                 lastError = "Decoder did not produce its first frame within 12 seconds";
                                 p.destroyForcibly(); return;
@@ -291,7 +304,7 @@ public final class VideoDecoder {
             cmd.add("tcp://127.0.0.1:" + server.getLocalPort());
         } else cmd.add("pipe:1");
         if (hasAudio) {
-            try { audio = new VideoAudio(audioEnabled,audioVolume); }
+            try { synchronized(pauseLock){audio = new VideoAudio(audioEnabled,audioVolume);audio.paused(paused);} }
             catch (IOException e) { VideoMenuClient.LOGGER.warn("Cannot initialize video audio; continuing silently",e); }
             if (audio != null) cmd.addAll(java.util.List.of("-map", "0:a:0", "-vn", "-sn", "-dn", "-ac", "2", "-ar", "48000", "-af", "aresample=async=1:first_pts=0", "-c:a", "pcm_s16le", "-f", "s16le", audio.outputUrl()));
         }
@@ -377,6 +390,7 @@ public final class VideoDecoder {
             byte[] rgba=new byte[w*h*4];
             try {
                 while(!closed && !Thread.currentThread().isInterrupted()) {
+                    awaitResume();if(closed)break;
                     int[] pixels = available.take();
                     if (!readFully(in, rgba)) { available.offer(pixels); break; }
                     pack(rgba,w,h,pixels);frames.put(pixels);
@@ -390,7 +404,11 @@ public final class VideoDecoder {
         try {
             while(!closed) {
                 int[] frame;
-                try {frame=frames.poll(100,TimeUnit.MILLISECONDS);}
+                try {
+                    long waited=awaitResume();if(nextFrameAt!=0)nextFrameAt+=waited;
+                    if(closed)return;frame=frames.poll(100,TimeUnit.MILLISECONDS);
+                    waited=awaitResume();if(nextFrameAt!=0)nextFrameAt+=waited;
+                }
                 catch(InterruptedException e) {Thread.currentThread().interrupt();if(closed)return;throw new IOException("Video presentation interrupted",e);}
                 if(frame==null) {
                     if(finished.get()) {if(failure.get()!=null)throw new IOException("Video frame reader failed",failure.get());return;}

@@ -11,20 +11,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(class_310.class)
 public abstract class MinecraftClientMixin {
+    @org.spongepowered.asm.mixin.Unique private final com.videomenu.MenuOwnership evatex$ownership=new com.videomenu.MenuOwnership();
     @Inject(method = "method_1574", at = @At("HEAD"))
     private void evatex$menuLifecycle(CallbackInfo ci) {
         var client=(class_310)(Object)this;
         var screen = client.field_1755;
-        if (client.field_1687==null && (screen instanceof class_442 || com.videomenu.MenuShortcut.titleMenu(screen))) {
-            boolean custom=VideoBackground.INSTANCE.customMainMenu();
-            if (custom && !(screen instanceof com.videomenu.EvatexTitleScreen)) {
-                client.method_1507(new com.videomenu.EvatexTitleScreen());screen=client.field_1755;
-            } else if (!custom && screen instanceof com.videomenu.EvatexTitleScreen) {
-                client.method_1507(new class_442());screen=client.field_1755;
-            }
+        boolean custom=VideoBackground.INSTANCE.customMainMenu();
+        var kind=screen instanceof com.videomenu.EvatexTitleScreen ? com.videomenu.MenuOwnership.Kind.EVATEX
+            : screen!=null && screen.getClass()==class_442.class ? com.videomenu.MenuOwnership.Kind.VANILLA
+            : com.videomenu.MenuShortcut.titleMenu(screen) ? com.videomenu.MenuOwnership.Kind.FOREIGN
+            : com.videomenu.MenuOwnership.Kind.NONE;
+        if(evatex$ownership.shouldOpen(custom,client.field_1687!=null,kind)) {
+            client.method_1507(new com.videomenu.EvatexTitleScreen());screen=client.field_1755;
+        } else if(!custom && screen instanceof com.videomenu.EvatexTitleScreen && client.field_1687==null) {
+            client.method_1507(new class_442());screen=client.field_1755;
         }
         if (screen instanceof com.videomenu.EvatexTitleScreen home) home.captureLateButtons();
         if (screen instanceof com.videomenu.ShortcutHost host) host.evatex$refreshShortcut();
+        VideoBackground.INSTANCE.setForeground(client.method_1569());
         VideoBackground.INSTANCE.setMenuVisible(VideoBackground.INSTANCE.supportsMenu(screen,
             ((class_310)(Object)this).field_1687 != null));
     }

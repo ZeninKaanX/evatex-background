@@ -28,6 +28,10 @@ public abstract class SmokeMixin {
     @Unique private long evatexqa$minimizedFrames;
     @Unique private net.minecraft.class_4185 evatexqa$competitor;
     @Unique private com.videomenu.ShortcutLayout.Rect evatexqa$anchor;
+    @Inject(method="method_1569",at=@At("HEAD"),cancellable=true)
+    private void evatexqa$focus(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> ci) {
+        if(Boolean.getBoolean("evatex.qa.hiddenWindow"))ci.setReturnValue(!Boolean.getBoolean("evatex.qa.unfocused"));
+    }
     @Inject(method="method_1574", at=@At("TAIL"))
     private void evatexqa$scenes(CallbackInfo ci) {
         class_310 client=(class_310)(Object)this;
@@ -42,8 +46,11 @@ public abstract class SmokeMixin {
             }
             if(selected==0) throw new AssertionError("Secondary display required for QA");
             int[] x={0},y={0}; org.lwjgl.glfw.GLFW.glfwGetMonitorPos(selected,x,y);
-            org.lwjgl.glfw.GLFW.glfwSetWindowPos(window,x[0]+100,y[0]+100);
-            System.out.println("EVATEX_QA secondary display="+org.lwjgl.glfw.GLFW.glfwGetMonitorName(selected)+" position="+(x[0]+100)+","+(y[0]+100));
+            var mode=org.lwjgl.glfw.GLFW.glfwGetVideoMode(selected);
+            int offsetX=mode!=null && Integer.getInteger("evatex.qa.width",1280)>=mode.width() ? 0 : 100;
+            int offsetY=mode!=null && Integer.getInteger("evatex.qa.height",720)>=mode.height() ? 0 : 100;
+            org.lwjgl.glfw.GLFW.glfwSetWindowPos(window,x[0]+offsetX,y[0]+offsetY);
+            System.out.println("EVATEX_QA secondary display="+org.lwjgl.glfw.GLFW.glfwGetMonitorName(selected)+" position="+(x[0]+offsetX)+","+(y[0]+offsetY));
             evatexqa$positioned=true;
         }
         if (client.method_18506()!=null || client.field_1755==null) return;
@@ -188,7 +195,42 @@ public abstract class SmokeMixin {
                     if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Optional home did not open");
                     if(net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("atlas-client") && evatexqa$atlasCustom()) throw new AssertionError("Atlas must leave the standalone EVATEX home visible");
                     evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-wide");
+                    long visible=screen.method_25396().stream().filter(child->child instanceof net.minecraft.class_4185 button && !(child instanceof net.minecraft.class_7077) && button.field_22764).count();
+                    if(visible!=6)throw new AssertionError("Home should show only five primary actions and More: "+visible);
+                    evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.home.more")));
+                    evatexqa$stage=12;
+                }
+                case 12 -> {
+                    evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-more");
+                    var sourcesField=com.videomenu.EvatexTitleScreen.class.getDeclaredField("nativeSources");sourcesField.setAccessible(true);
+                    @SuppressWarnings("unchecked") var sources=(java.util.Map<net.minecraft.class_4185,net.minecraft.class_4185>)sourcesField.get(screen);
+                    var languageWrapper=evatexqa$button(screen,net.minecraft.class_2561.method_43471("options.language"));
+                    var languageSource=sources.get(languageWrapper);if(languageSource==null)throw new AssertionError("Missing preserved language action");
+                    languageSource.field_22763=false;((com.videomenu.EvatexTitleScreen)screen).captureLateButtons();
+                    if(languageWrapper.field_22763)throw new AssertionError("Disabled native control remained enabled");
+                    evatexqa$press(languageWrapper);if(client.field_1755!=screen)throw new AssertionError("Disabled native action was invoked");
+                    languageSource.field_22763=true;languageSource.field_22764=false;((com.videomenu.EvatexTitleScreen)screen).captureLateButtons();
+                    for(var child:screen.method_25396())if(child instanceof net.minecraft.class_4185 button && button.field_22764 && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("options.language").getString()))throw new AssertionError("Hidden external control remained visible");
+                    languageSource.field_22764=true;((com.videomenu.EvatexTitleScreen)screen).captureLateButtons();
+                    evatexqa$homeGeometry(screen);
+                    if(evatexqa$button(screen,net.minecraft.class_2561.method_43471("menu.singleplayer")).field_22764)throw new AssertionError("Secondary menu must hide play controls");
+                    evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("options.language")));
+                    evatexqa$stage=13;
+                }
+                case 13 -> {
+                    if(screen instanceof com.videomenu.EvatexTitleScreen)throw new AssertionError("Secondary language action failed");
+                    screen.method_25419();evatexqa$stage=15;
+                }
+                case 15 -> {
+                    evatexqa$homeGeometry(screen);
+                    if(!evatexqa$button(screen,net.minecraft.class_2561.method_43471("gui.back")).field_22764)throw new AssertionError("Secondary menu return path failed");
+                    screen.method_25419();evatexqa$homeGeometry(screen);
+                    if(!evatexqa$button(screen,net.minecraft.class_2561.method_43471("menu.singleplayer")).field_22764)throw new AssertionError("Closing secondary menu must restore play controls");
+                    evatexqa$stage=14;
+                }
+                case 14 -> {
                     evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("menu.options")));
+                    evatexqa$stage=4;
                 }
                 case 4 -> {
                     if(!(screen instanceof net.minecraft.class_429)) throw new AssertionError("Native options action failed");
@@ -207,15 +249,57 @@ public abstract class SmokeMixin {
                     if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Worlds did not return to Astral home");
                     if(screen.field_22789>=360) throw new AssertionError("Compact layout was not exercised");
                     evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-compact");
-                    org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),1280,720);
+                    org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),Integer.getInteger("evatex.qa.width",1280),Integer.getInteger("evatex.qa.height",720));
                 }
                 case 9 -> evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.title")));
                 case 11 -> {
                     if(!(screen instanceof class_442) || screen instanceof com.videomenu.EvatexTitleScreen || VideoMenuConfig.load().customMainMenu) throw new AssertionError("Home did not disable cleanly");
                     if(net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("atlas-client") && !evatexqa$atlasCustom()) throw new AssertionError("Atlas custom menu mode was not restored");
                     evatexqa$capture(client,"home-disabled");
-                    System.out.println("EVATEX_QA COMPLETE optional Astral home: default off, actual setting persistence, native options/world actions, return paths, compact geometry, disable");
-                    client.method_1592();
+                    if(com.videomenu.MenuShortcut.titleMenu(null))throw new AssertionError("Null screen must not be a title menu");
+                    var config=VideoMenuConfig.load();config.customMainMenu=true;config.save();VideoBackground.INSTANCE.reload(config);
+                    client.method_1507(new evatextest.MainMenuScreen());evatexqa$stage=20;
+                }
+                case 20 -> {
+                    if(!(screen instanceof evatextest.MainMenuScreen))throw new AssertionError("EVATEX replaced another mod's custom main menu");
+                    var unknown=new evatextest.MainMenuScreen.UnreadableWidget();
+                    @SuppressWarnings("unchecked") var children=(java.util.List<net.minecraft.class_364>)(java.util.List<?>)screen.method_25396();
+                    children.add(unknown);((com.videomenu.ShortcutHost)screen).evatex$refreshShortcut();
+                    for(var child:children)if(child instanceof com.videomenu.AstralButton button && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("evatex.title").getString()) && button.field_22764)throw new AssertionError("Unreadable custom bounds must hide the shortcut");
+                    children.remove(unknown);((com.videomenu.ShortcutHost)screen).evatex$refreshShortcut();
+                    evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.title"));
+                    client.method_1507(new class_442());evatexqa$stage=21;
+                }
+                case 21 -> {
+                    if(screen.getClass()!=class_442.class)throw new AssertionError("EVATEX fought the external menu owner");
+                    var config=VideoMenuConfig.load();config.customMainMenu=false;config.save();VideoBackground.INSTANCE.reload(config);evatexqa$stage=22;
+                }
+                case 22 -> {
+                    var config=VideoMenuConfig.load();config.customMainMenu=true;config.save();VideoBackground.INSTANCE.reload(config);evatexqa$stage=23;
+                }
+                case 23 -> {
+                    if(!(screen instanceof com.videomenu.EvatexTitleScreen))throw new AssertionError("Explicit user enable must restore own home");
+                    client.method_1507(new class_442());evatexqa$stage=24;
+                }
+                case 24 -> {
+                    if(screen.getClass()!=class_442.class)throw new AssertionError("External native-title replacement loop");
+                    var config=VideoMenuConfig.load();config.customMainMenu=false;config.save();VideoBackground.INSTANCE.reload(config);
+                    var field=VideoBackground.class.getDeclaredField("decoder");field.setAccessible(true);evatexqa$decoder=field.get(VideoBackground.INSTANCE);
+                    System.setProperty("evatex.qa.unfocused","true");VideoBackground.INSTANCE.setForeground(false);evatexqa$stage=30;
+                }
+                case 30 -> {
+                    var decoder=(com.videomenu.video.VideoDecoder)evatexqa$decoder;
+                    if(!decoder.isPaused() || !VideoBackground.INSTANCE.status().equals("paused"))throw new AssertionError("Focus loss did not pause playback");
+                    evatexqa$minimizedFrames=decoder.publishedFrames();evatexqa$stage=31;
+                }
+                case 31 -> {
+                    if(((com.videomenu.video.VideoDecoder)evatexqa$decoder).publishedFrames()!=evatexqa$minimizedFrames)throw new AssertionError("Hidden Minecraft kept producing video frames");
+                    System.clearProperty("evatex.qa.unfocused");VideoBackground.INSTANCE.setForeground(true);evatexqa$stage=32;
+                }
+                case 32 -> {
+                    var field=VideoBackground.class.getDeclaredField("decoder");field.setAccessible(true);
+                    if(field.get(VideoBackground.INSTANCE)!=evatexqa$decoder || ((com.videomenu.video.VideoDecoder)evatexqa$decoder).publishedFrames()<=evatexqa$minimizedFrames)throw new AssertionError("Focus return did not resume existing decoder");
+                    System.out.println("EVATEX_QA COMPLETE cooperative home ownership, unreadable bounds, dynamic native buttons, focus pause/resume without decoder restart");client.method_1592();
                 }
             }
         }catch(ReflectiveOperationException e){throw new RuntimeException(e);}
@@ -255,7 +339,7 @@ public abstract class SmokeMixin {
                     if(!rect.equals(evatexqa$anchor)) throw new AssertionError("Shortcut failed to restore freed preferred anchor");
                     org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),960,540);
                 }
-                case 3 -> org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),1280,720);
+                case 3 -> org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),Integer.getInteger("evatex.qa.width",1280),Integer.getInteger("evatex.qa.height",720));
                 case 4,6 -> {
                     for(var method:shortcut.getClass().getMethods()) if(method.getName().equals("method_25306")) {
                         if(method.getParameterCount()==0) method.invoke(shortcut);else if(method.getParameterCount()==1) method.invoke(shortcut,new Object[]{null});
@@ -271,7 +355,7 @@ public abstract class SmokeMixin {
             var background=VideoBackground.INSTANCE;
             var field=VideoBackground.class.getDeclaredField("decoder");field.setAccessible(true);
             var decoder=(com.videomenu.video.VideoDecoder)field.get(background);
-            if(!background.status().equals("playing"))throw new AssertionError("Reported menu not playing: "+client.field_1755.getClass());
+            if(!background.status().equals(evatexqa$stage==6 ? "paused" : "playing"))throw new AssertionError("Reported menu not playing: "+client.field_1755.getClass());
             if(evatexqa$stage==0)evatexqa$decoder=decoder;
             if(decoder!=evatexqa$decoder)throw new AssertionError("Reported menu transition restarted decoder");
             if(background.supportsMenu(client.field_1755,true))throw new AssertionError("In-world wallpaper exclusion lost");
@@ -305,12 +389,14 @@ public abstract class SmokeMixin {
                     // Frame publication must use a separate lock and keep progressing.
                     synchronized(background) {Thread.sleep(350);}
                     if(decoder.publishedFrames()<=before)throw new AssertionError("Render lock blocked decoder publication");
+                    System.setProperty("evatex.qa.unfocused","true");background.setForeground(false);Thread.sleep(200);
                     evatexqa$minimizedFrames=decoder.publishedFrames();
                     org.lwjgl.glfw.GLFW.glfwIconifyWindow(client.method_22683().method_4490());
                 }
                 case 6 -> {
                     if(org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(client.method_22683().method_4490(),org.lwjgl.glfw.GLFW.GLFW_ICONIFIED)==0)throw new AssertionError("Window did not minimize");
-                    if(decoder.publishedFrames()<=evatexqa$minimizedFrames)throw new AssertionError("Minimization stopped frame publication");
+                    if(decoder.publishedFrames()!=evatexqa$minimizedFrames)throw new AssertionError("Minimized Minecraft kept decoding video");
+                    System.clearProperty("evatex.qa.unfocused");background.setForeground(true);
                     org.lwjgl.glfw.GLFW.glfwRestoreWindow(client.method_22683().method_4490());
                 }
                 case 7 -> {

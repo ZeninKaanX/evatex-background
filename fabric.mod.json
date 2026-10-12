@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "evatexbackgroundvideo",
-  "version": "1.8.6",
+  "version": "1.8.7",
   "name": "EVATEX-Background",
   "description": "Video, GIF and photo backgrounds with an original black-and-white Astral interface and configurable menu wallpapers.",
   "authors": [
@@ -11,8 +11,8 @@
     "eververity"
   ],
   "contact": {
-    "sources": "https://github.com/ZeninKaanX/evatex-background-video-1.6.0",
-    "issues": "https://github.com/ZeninKaanX/evatex-background-video-1.6.0/issues"
+    "sources": "https://github.com/ZeninKaanX/evatex-background-video-1.8.2",
+    "issues": "https://github.com/ZeninKaanX/evatex-background-video-1.8.2/issues"
   },
   "license": "MIT",
   "icon": "assets/videomenu/icon.png",

@@ -18,8 +18,10 @@ parser.add_argument('--gui-scale',type=int,default=3)
 parser.add_argument('--width',type=int,default=1280)
 parser.add_argument('--height',type=int,default=720)
 parser.add_argument('--language',default='tr_tr')
+parser.add_argument('--username',default='EvatexQA',help='Offline display name for screenshots')
 parser.add_argument('--quick',action='store_true',help='Shorter per-stage dwell time for the version matrix')
 parser.add_argument('--bundled',action='store_true')
+parser.add_argument('--extra-mods',type=Path,help='Additional verified jars in the isolated test only')
 parser.add_argument('--sodium',type=Path,help='Optional installed Sodium jar for reported-menu QA')
 parser.add_argument('--reported-menus',action='store_true',help='Check packs, credits, rules, video settings and minimized-window playback')
 parser.add_argument('--extended-menus',action='store_true',help='Verify wallpaper continuity and independent world/options/meteor switches with muted 10% audio')
@@ -115,6 +117,9 @@ if args.atlas:
     shutil.copyfile(args.atlas,mods/'atlas-client.jar')
     for pattern in ('fabric-api-*.jar','PlayerAnimationLibFabric-*.jar'):
         file=next(args.atlas_dependencies.glob(pattern));shutil.copyfile(file,mods/file.name)
+if args.extra_mods:
+    for extra in args.extra_mods.glob('*.jar'):
+        if extra.resolve()!=(mods/extra.name).resolve():shutil.copyfile(extra,mods/extra.name)
 videos=run/'videos';videos.mkdir(exist_ok=True)
 if args.video:
     video=args.video.resolve()
@@ -150,7 +155,7 @@ game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.
 runtime_cp=cp.replace(str(ROOT/'build/dependencies'/f'{version}-intermediary.jar'),str(ROOT/'build/dependencies'/f'{version}-official.jar'))
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username','EvatexQA','--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

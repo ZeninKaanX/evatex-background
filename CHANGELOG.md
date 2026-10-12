@@ -1,3 +1,14 @@
+# EVATEX-Background 1.8.7
+
+- Pause video decoding and audio when Minecraft loses window focus. Preserve the last frame and resume the existing playback stream when returning.
+- Refine the optional Astral home with a cleaner tile layout, fewer visible controls and smoother typography. Extra native and mod actions remain available through EVATEX Settings. The custom home remains disabled by default.
+- Preserve other mods' custom main menus and yield when another menu owner replaces EVATEX. Avoid repeated menu replacement loops.
+- Follow the visibility and enabled state of native/mod buttons. Hide the shortcut when custom control bounds cannot be read safely.
+- Preserve the custom home when returning from older Minecraft options screens.
+- Retain the separate Atlas Client 3.0.3 integration for Minecraft 1.21.11.
+
+Separate Fabric jars are provided for each supported Minecraft version. Install only the matching jar. This is a stable release.
+
 # 1.8.6 — Adaptive shortcuts and optional Astral home
 
 - Add an optional original Astral home menu, disabled by default, with native game actions, profile card, background controls, responsive layout and menu meteors. Retain extra title actions with footer pagination and restore the installed title when disabled.
