@@ -26,12 +26,12 @@ public final class AstralButton extends class_4185 {
         double dt = hoverAt == 0 ? 0 : Math.min(.1, (now-hoverAt)/1e9); hoverAt = now;
         hoverAmount = AstralTheme.animated() ? hoverAmount + ((hover ? 1 : 0)-hoverAmount)*(1-Math.exp(-dt*18)) : (hover ? 1 : 0);
         var palette = AstralTheme.current();
-        int border = !field_22763 ? 0xFF333333 : AstralTheme.blend(selected ? palette.accent() : 0xFF454545, palette.secondary(), hoverAmount);
-        AstralDraw.rounded(context, x, y, w, h, border);
-        AstralDraw.rounded(context, x+1, y+1, w-2, h-2, AstralTheme.blend(palette.panel(), palette.accent(), selected ? .18 : hoverAmount*.16));
-        if (selected) context.method_25294(x+1, y+1, x+3, y+h-1, palette.accent());
+        int surface=AstralTheme.blend(0x9A181818,0xC83C3C3C,selected ? .65 : hoverAmount);
+        context.method_25294(x,y,x+w,y+h,surface);
+        context.method_25294(x,y+h-1,x+w,y+h,selected ? palette.accent() : AstralTheme.blend(0x44FFFFFF,0xCCFFFFFF,hoverAmount));
+        if(selected)context.method_25294(x,y,x+2,y+h,palette.accent());
         var font = class_310.method_1551().field_1772;
-        String label = font.method_27523(method_25369().getString(), Math.max(0, (vertical ? h : w)-14));
+        String label = AstralTypography.fit(method_25369().getString(), Math.max(0, (vertical ? h : w)-14));
         int textColor=!field_22763 ? 0xFF777777 : palette.text();
         if (vertical) {
             var matrix=context.method_51448();
@@ -39,8 +39,8 @@ public final class AstralButton extends class_4185 {
             try {
                 matrix.method_22904(x+w/2f,y+h/2f,0);
                 matrix.method_22907(new org.joml.Quaternionf().rotateZ(clockwise ? (float)Math.PI/2 : -(float)Math.PI/2));
-                context.method_25300(font,label,0,-font.field_2000/2,textColor);
+                AstralTypography.centered(context,label,0,-font.field_2000/2,textColor);
             } finally {matrix.method_22909();}
-        } else context.method_25300(font, label, x+w/2, y+(h-font.field_2000)/2, textColor);
+        } else AstralTypography.centered(context,label,x+w/2,y+(h-font.field_2000)/2,textColor);
     }
 }

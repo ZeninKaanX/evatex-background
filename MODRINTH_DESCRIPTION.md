@@ -27,6 +27,8 @@ EVATEX includes its own black-and-white home menu with large singleplayer and mu
 Enable **EVATEX main menu** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
 
 
+The optional Astral style also presents native multiplayer, world selection and main options with translucent monochrome panels, clear text and original Minecraft actions. Selected servers and worlds have a details card. Small windows keep the native layout; if another mod adds a control, EVATEX restores the original layout. Third-party custom screens retain their own presentation.
+
 ## Installation
 
 1. Install Fabric Loader **0.19.5 or newer**.

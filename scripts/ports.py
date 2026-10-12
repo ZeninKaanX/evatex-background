@@ -25,6 +25,7 @@ def sources(root,version):
     if version in LEGACY and version not in ('1.20','1.20.1'):
         edit('EvatexTitleScreen.java','method_25420(class_332 ctx)','method_25420(class_332 ctx,int mx,int my,float delta)')
         edit('VideoSelectScreen.java','method_25420(class_332 context)','method_25420(class_332 context, int mouseX, int mouseY, float delta)')
+        edit('AstralMenus.java','screen.method_25420(ctx)','screen.method_25420(ctx,mx,my,delta)')
         edit('mixin/ServerBackgroundMixin.java','evatex$serverVideo(class_332 context, CallbackInfo ci','evatex$serverVideo(class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci')
     if version in ('1.20.2','1.20.3','1.20.4'):
         edit('mixin/ServerListBackgroundMixin.java','    @Shadow private boolean field_26847;\n','')
@@ -34,7 +35,7 @@ def sources(root,version):
     if version in ('1.20.3','1.20.4'):
         edit('mixin/ServerListBackgroundMixin.java','method="method_25394"','method="method_48579"')
     if version in LEGACY and version.startswith('1.21'):
-        edit('AstralTypography.java','new net.minecraft.class_2960("evatexbackgroundvideo","ui")','net.minecraft.class_2960.method_60655("evatexbackgroundvideo","ui")')
+        edit('AstralTypography.java','new net.minecraft.class_2960("evatexbackgroundvideo",fontName)','net.minecraft.class_2960.method_60655("evatexbackgroundvideo",fontName)')
         edit('video/VideoBackground.java','new class_2960("evatexbackgroundvideo", "video")','class_2960.method_60655("evatexbackgroundvideo", "video")')
     if version in ('1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
         file=folder/'com/videomenu/mixin/ServerBackgroundMixin.java'
@@ -95,13 +96,16 @@ def sources(root,version):
                 content=content.replace('net.minecraft.util.Util.getPlatform().openFile(VideoFiles.directory().toFile());','java.awt.Desktop.getDesktop().open(VideoFiles.directory().toFile());')
                 content=content.replace('EditGameRulesScreen','WorldCreationGameRulesScreen')
                 content=content.replace('GuiGraphics','GuiGraphicsExtractor').replace('renderBackground','extractBackground').replace('renderContents','extractContents').replace('renderListBackground','extractListBackground').replace('renderListSeparators','extractListSeparators')
-                if file.name=='EvatexTitleScreen.java':content=content.replace('drawable.render(', 'drawable.extractRenderState(')
+                if file.name in ('EvatexTitleScreen.java','AstralMenus.java'):content=content.replace('drawable.render(', 'drawable.extractRenderState(')
+                if file.name in ('AstralMenusMixin.java','AstralLegacyMenusMixin.java'):
+                    content=content.replace('method="render"','method="extractRenderState"').replace('renderWithTooltipAndSubtitles','extractRenderStateWithTooltipAndSubtitles')
+                if file.name in ('AstralNativeButtonMixin.java','AstralNativeSliderMixin.java'):content=content.replace('renderWidget','extractWidgetRenderState')
                 if file.name=='AstralVolumeSlider.java':content=content.replace('renderWidget','extractWidgetRenderState')
                 if file.name in ('VideoSelectScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java'):
                     content=content.replace('public void render(', 'public void extractRenderState(').replace('super.render(', 'super.extractRenderState(').replace('method = "render"','method = "extractRenderState"').replace(';render(', ';extractRenderState(')
                 if version in ('26.2','26.3'):
                     content=content.replace('method = "destroy"','method = "close"')
-                    content=content.replace('.setScreen(','.gui.setScreen(').replace('.screen;', '.gui.screen();')
+                    content=content.replace('.setScreen(','.gui.setScreen(').replace('.screen;', '.gui.screen();').replace('getInstance().screen)', 'getInstance().gui.screen())')
                 if version=='26.3':
                     content=content.replace('com.mojang.blaze3d.textures.FilterMode','com.mojang.renderpearl.api.textures.FilterMode')
             file.write_text(content)

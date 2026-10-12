@@ -11,7 +11,15 @@
     "ServerListBackgroundMixin",
     "SplashManagerMixin",
     "WorldSelectionBackgroundMixin",
-    "MenuShortcutMixin"
+    "MenuShortcutMixin",
+    "AstralMenusMixin",
+    "AstralLegacyMenusMixin",
+    "AstralNativeButtonMixin",
+    "AstralListGeometryMixin",
+    "AstralMenuTextMixin",
+    "AstralNativeSliderMixin",
+    "AstralStringWidgetMixin",
+    "AstralFontRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

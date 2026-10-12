@@ -35,5 +35,12 @@
   "evatex.custom_main_menu": "EVATEX ana menüsü: %s",
   "evatex.home.more": "EVATEX Ayarları",
   "evatex.home.quit": "Çıkış",
-  "evatex.status.paused": "Minecraft arka plandayken duraklatıldı"
+  "evatex.status.paused": "Minecraft arka plandayken duraklatıldı",
+  "evatex.menu.server_details": "SUNUCU BİLGİLERİ",
+  "evatex.menu.world_details": "DÜNYA BİLGİLERİ",
+  "evatex.menu.players": "OYUNCULAR",
+  "evatex.menu.latency": "GECİKME",
+  "evatex.menu.select_server": "Bilgilerini görmek için bir sunucu seç.",
+  "evatex.menu.select_world": "Bilgilerini görmek için bir dünya seç.",
+  "evatex.menu.world_selected": "Dünya seçildi"
 }

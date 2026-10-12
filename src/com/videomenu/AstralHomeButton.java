@@ -32,7 +32,7 @@ public final class AstralHomeButton extends class_4185 {
             if(icon==2)label=class_2561.method_43471("evatex.home.quit").getString();
             if(label.endsWith("..."))label=label.substring(0,label.length()-3);
         }
-        float scale=compact ? .62f : .9f;
+        float scale=compact ? .8f : 1f;
         int inset=icon<0 ? 8 : 17;
         while(AstralTypography.width(label)*scale>Math.max(0,w-inset-(compact ? 4 : 22)) && label.length()>1)label=label.substring(0,label.length()-1);
         int textY=y+(h-(int)(9*scale))/2;

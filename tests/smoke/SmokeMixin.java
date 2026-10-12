@@ -64,6 +64,7 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if (Boolean.getBoolean("evatex.qa.astralMenus")) { evatexqa$astralMenus(client); return; }
         if (Boolean.getBoolean("evatex.qa.homeMenu")) { evatexqa$home(client); return; }
         if (Boolean.getBoolean("evatex.qa.collisionLayout")) { evatexqa$collision(client); return; }
         if (Boolean.getBoolean("evatex.qa.reportedMenus")) { evatexqa$reportedMenus(client); return; }
@@ -170,6 +171,72 @@ public abstract class SmokeMixin {
             bounds.add(rect);
         }
     }
+    @Unique private void evatexqa$astralMenus(class_310 client) {
+        var screen=client.field_1755;
+        System.out.println("EVATEX_QA Astral menus stage="+evatexqa$stage+" screen="+screen.getClass().getName());
+        switch(evatexqa$stage++) {
+            case 0 -> {
+                var config=VideoMenuConfig.load();config.customMainMenu=true;config.save();VideoBackground.INSTANCE.reload(config);
+                var servers=new class_500(screen);client.method_1507(servers);
+                var info=new net.minecraft.class_642("EVATEX Local Test",System.getProperty("evatex.qa.server","127.0.0.1:9"),net.minecraft.class_642.class_8678.field_45611);
+                servers.method_2529().method_2988(info,false);
+                for(var child:servers.method_25396())if(child instanceof net.minecraft.class_4267 list){
+                    list.method_20125(servers.method_2529());list.method_25313(list.method_25396().get(0));
+                }
+            }
+            case 1 -> {
+                if(!com.videomenu.AstralMenus.active(screen))throw new AssertionError("Server skin missing");
+                evatexqa$homeGeometry(screen);evatexqa$capture(client,"astral-servers");
+                evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("selectServer.add")));
+            }
+            case 2 -> {if(screen instanceof class_500)throw new AssertionError("Add server action failed");screen.method_25419();}
+            case 3 -> {if(!(screen instanceof class_500))throw new AssertionError("Server editor return failed");screen.method_25419();}
+            case 4 -> client.method_1507(new net.minecraft.class_526(screen));
+            case 5 -> {
+                if(!com.videomenu.AstralMenus.active(screen))throw new AssertionError("World skin missing");
+                evatexqa$homeGeometry(screen);
+                for(var child:screen.method_25396())if(child instanceof net.minecraft.class_528 list && !list.method_25396().isEmpty())list.method_25313(list.method_25396().get(0));
+                evatexqa$stage=50;
+            }
+            case 50 -> {evatexqa$capture(client,"astral-worlds");screen.method_25419();evatexqa$stage=6;
+            }
+            case 6 -> client.method_1507(new net.minecraft.class_429(screen,client.field_1690));
+            case 7 -> {
+                if(!com.videomenu.AstralMenus.active(screen))throw new AssertionError("Options skin missing");
+                evatexqa$homeGeometry(screen);evatexqa$capture(client,"astral-options");
+                evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("options.resourcepack")));
+            }
+            case 8 -> {if(screen instanceof net.minecraft.class_429)throw new AssertionError("Pack settings action failed");evatexqa$capture(client,"astral-packs");screen.method_25419();}
+            case 9 -> {if(!(screen instanceof net.minecraft.class_429))throw new AssertionError("Options return failed");client.method_1507(new VideoSelectScreen(screen,0));}
+            case 10 -> {
+                evatexqa$capture(client,"astral-backgrounds");
+                var config=VideoMenuConfig.load();config.customMainMenu=false;config.save();VideoBackground.INSTANCE.reload(config);
+                client.method_1507(new class_500(new class_442()));
+            }
+            case 11 -> {
+                if(com.videomenu.AstralMenus.active(screen))throw new AssertionError("Native menus not restored");
+                var config=VideoMenuConfig.load();config.customMainMenu=true;config.save();VideoBackground.INSTANCE.reload(config);
+                client.method_1507(new class_500(new class_442()));
+            }
+            case 12 -> {
+                if(!com.videomenu.AstralMenus.active(screen))throw new AssertionError("Re-enabled style missing");
+                @SuppressWarnings("unchecked") var children=(java.util.List<net.minecraft.class_364>)(java.util.List<?>)screen.method_25396();
+                children.add(new evatextest.MainMenuScreen.UnreadableWidget());
+            }
+            case 13 -> {
+                if(com.videomenu.AstralMenus.active(screen))throw new AssertionError("Late foreign control must restore native layout");
+                if(evatexqa$button(screen,net.minecraft.class_2561.method_43471("selectServer.select")).method_46427()==62)throw new AssertionError("Foreign-control fallback did not restore original bounds");
+                org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),640,720);
+            }
+            case 14 -> {client.method_15993();client.method_1507(new class_500(new class_442()));}
+            case 15 -> {
+                System.out.println("EVATEX_QA compact screen="+screen.field_22789+"x"+screen.field_22790);
+                if(screen.field_22789>=360)throw new AssertionError("Compact fixture was not exercised");
+                if(com.videomenu.AstralMenus.active(screen))throw new AssertionError("Compact menus must retain native layout");
+                System.out.println("EVATEX_QA COMPLETE Astral native menus: geometry, native actions, return paths, opt-out, compact fallback and late foreign-control recovery");client.method_1592();
+            }
+        }
+    }
     @Unique private void evatexqa$home(class_310 client) {
         var screen=client.field_1755;
         System.out.println("EVATEX_QA home stage="+evatexqa$stage+" screen="+screen.getClass().getName()+" size="+screen.field_22789+"x"+screen.field_22790);
@@ -195,6 +262,9 @@ public abstract class SmokeMixin {
                     if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Optional home did not open");
                     if(net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("atlas-client") && evatexqa$atlasCustom()) throw new AssertionError("Atlas must leave the standalone EVATEX home visible");
                     evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-wide");
+                    if(Boolean.getBoolean("evatex.qa.captureHomeOnly")) {
+                        System.out.println("EVATEX_QA COMPLETE home capture");client.method_1592();return;
+                    }
                     long visible=screen.method_25396().stream().filter(child->child instanceof net.minecraft.class_4185 button && !(child instanceof net.minecraft.class_7077) && button.field_22764).count();
                     if(visible!=6)throw new AssertionError("Home should show only five primary actions and More: "+visible);
                     evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.home.more")));
@@ -244,8 +314,10 @@ public abstract class SmokeMixin {
                     if(!(screen instanceof net.minecraft.class_526)) throw new AssertionError("Native singleplayer action failed");
                     evatexqa$capture(client,"home-worlds");screen.method_25419();
                 }
-                case 7 -> org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),960,720);
+                case 7 -> org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),640,720);
                 case 8 -> {
+                    client.method_15993();
+                    screen=client.field_1755;
                     if(!(screen instanceof com.videomenu.EvatexTitleScreen)) throw new AssertionError("Worlds did not return to Astral home");
                     if(screen.field_22789>=360) throw new AssertionError("Compact layout was not exercised");
                     evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-compact");

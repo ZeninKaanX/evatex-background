@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="64" viewBox="0 0 72 24">
+<!-- Original EVATEX line icons. Regenerate: rsvg-convert scripts/art/home-icons.svg -o assets/evatexbackgroundvideo/textures/font/home_icons.png -->
+<g fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+<path d="M3 7V5h6l2 3h10v12H3V7Z"/>
+<g transform="translate(24)"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2.5"/><path d="M18.000 12.000L21.000 12.000"/><path d="M16.243 16.243L18.364 18.364"/><path d="M12.000 18.000L12.000 21.000"/><path d="M7.757 16.243L5.636 18.364"/><path d="M6.000 12.000L3.000 12.000"/><path d="M7.757 7.757L5.636 5.636"/><path d="M12.000 6.000L12.000 3.000"/><path d="M16.243 7.757L18.364 5.636"/></g><g transform="translate(48)"><path d="M7 5.8a8 8 0 1 0 10 0M12 3v10"/></g></g></svg>

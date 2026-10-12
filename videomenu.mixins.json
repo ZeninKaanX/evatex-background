@@ -13,7 +13,15 @@
     "atlas.AtlasMainMenuMixin",
     "SplashManagerMixin",
     "MenuShortcutMixin",
-    "atlas.AtlasHomeModeMixin"
+    "atlas.AtlasHomeModeMixin",
+    "AstralMenusMixin",
+    "AstralLegacyMenusMixin",
+    "AstralNativeButtonMixin",
+    "AstralListGeometryMixin",
+    "AstralMenuTextMixin",
+    "AstralNativeSliderMixin",
+    "AstralStringWidgetMixin",
+    "AstralFontRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

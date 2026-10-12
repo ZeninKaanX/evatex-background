@@ -48,6 +48,8 @@ if version in ('1.20','1.20.1','1.20.2','1.20.3','1.20.4','1.20.5','1.20.6','1.2
     source.parent.mkdir(parents=True,exist_ok=True)
     # Legacy screenshot API is synchronous and returns the NativeImage.
     text=(ROOT/'tests/smoke/SmokeMixin.java').read_text()
+    if version in ('1.20','1.20.1'):
+        text=text.replace('net.minecraft.class_642.class_8678.field_45611','false')
     start=text.index('        class_318.method_1663(')
     text=text[:start]+'''        var image=class_318.method_1663(client.method_1522());
         try { image.method_4314(file); } catch (Exception e) { throw new RuntimeException(e); }

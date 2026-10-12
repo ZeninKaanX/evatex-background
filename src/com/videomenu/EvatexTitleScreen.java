@@ -61,7 +61,7 @@ public final class EvatexTitleScreen extends class_442 {
         original.remove(single);original.remove(multiplayer);
         int secondaryY=y+(wide ? tileHeight : tileHeight*2+6)+8;
         int smallHeight=field_22790>=220 ? 24 : 18;
-        int third=wide ? Math.max(42,(int)(field_22789*.074)) : (group-12)/3;
+        int third=wide ? Math.min((group-12)/3,Math.max(70,(int)(field_22789*.074))) : (group-12)/3;
         class_4185 options=find(original,"menu.options"),quit=find(original,"menu.quit");
         method_37063(new AstralHomeButton(margin,secondaryY,third,smallHeight,class_2561.method_43471("evatex.title"),
             button -> class_310.method_1551().method_1507(new VideoSelectScreen(this,0))));
@@ -159,18 +159,18 @@ public final class EvatexTitleScreen extends class_442 {
         AstralDraw.displayText(ctx,"EVATEX",margin,brandY,brandScale,0xFFF4F4F4);
         int sub=brandY+(int)(font.field_2000*brandScale)+10;
         ctx.method_25294(margin,sub+3,margin+14,sub+4,0xFFBBBBBB);
-        AstralDraw.displayText(ctx,"A S T R A L",margin+20,sub,.6f,0xFFBBBBBB);
-        int cardWidth=Math.min(60,field_22789/3),cardX=field_22789-margin-cardWidth;
+        AstralDraw.displayText(ctx,"A S T R A L",margin+20,sub,.75f,0xFFBBBBBB);
+        int cardWidth=Math.min(80,field_22789/3),cardX=field_22789-margin-cardWidth;
         AstralDraw.rounded(ctx,cardX,Math.max(10,(int)(field_22790*.052)),cardWidth,20,0xA0121212);
         int cardY=Math.max(10,(int)(field_22790*.052));
         AstralDraw.rounded(ctx,cardX+5,cardY+3,14,14,0xFF333333);
         AstralTypography.draw(ctx,"E",cardX+9,cardY+5,0xFFF4F4F4);
         String username=class_310.method_1551().method_1548().method_1676();
-        AstralDraw.displayText(ctx,username,cardX+22,cardY+6,.55f,0xFFDDDDDD);
+        AstralDraw.displayText(ctx,username,cardX+22,cardY+6,.75f,0xFFDDDDDD);
         for(var child:method_25396()) if(child instanceof net.minecraft.class_4068 drawable) drawable.method_25394(ctx,mx,my,delta);
-        AstralDraw.displayText(ctx,"EVATEX "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("evatexbackgroundvideo").orElseThrow().getMetadata().getVersion().getFriendlyString(),margin,field_22790-10,.4f,0xFF888888);
+        AstralDraw.displayText(ctx,"EVATEX "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("evatexbackgroundvideo").orElseThrow().getMetadata().getVersion().getFriendlyString(),margin,field_22790-10,.65f,0xFF888888);
         AstralDraw.displayText(ctx,"E",margin,Math.max(12,(int)(field_22790*.06)),1f,0xFFF4F4F4);
-        AstralDraw.displayText(ctx,"Minecraft "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("minecraft").orElseThrow().getMetadata().getVersion().getFriendlyString(),margin+14,Math.max(12,(int)(field_22790*.06))+2,.45f,0xFFBBBBBB);
+        AstralDraw.displayText(ctx,"Minecraft "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("minecraft").orElseThrow().getMetadata().getVersion().getFriendlyString(),margin+14,Math.max(12,(int)(field_22790*.06))+2,.7f,0xFFBBBBBB);
         String credits="© Mojang Studios";
         if(!hasCredits) ctx.method_25303(font,credits,Math.max(margin,field_22789-margin-font.method_1727(credits)),field_22790-10,0xFF888888);
     }

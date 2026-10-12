@@ -129,25 +129,25 @@ public final class VideoSelectScreen extends class_437 {
         int left=layout.left(),right=layout.right(),width=layout.colWidth(),header=layout.headerY();
         if(!layout.singleColumn()||!showSettings)panel(ctx,left,header,palette.accent());
         if(!layout.singleColumn()||showSettings)panel(ctx,right,header,palette.secondary());
-        ctx.method_25300(field_22793,field_22793.method_27523("EVATEX / ASTRAL",field_22789-12),field_22789/2,8,palette.text());
-        ctx.method_25300(field_22793,field_22793.method_27523(text("subtitle").getString(),field_22789-12),field_22789/2,24,palette.muted());
+        AstralTypography.centered(ctx,AstralTypography.fit("EVATEX / ASTRAL",field_22789-12),field_22789/2,8,palette.text());
+        AstralTypography.centered(ctx,AstralTypography.fit(text("subtitle").getString(),field_22789-12),field_22789/2,24,palette.muted());
         if(!layout.singleColumn()||!showSettings) {
-            ctx.method_25303(field_22793,text("library",videos.size()).getString(),left,header,palette.accent());
+            AstralTypography.draw(ctx,text("library",videos.size()).getString(),left,header,palette.accent());
             if(videos.isEmpty()) {
-                ctx.method_25303(field_22793,field_22793.method_27523(text("empty").getString(),width),left,layout.top()+6,palette.muted());
-                ctx.method_25303(field_22793,"videos / backgrounds",left,layout.top()+22,palette.muted());
+                AstralTypography.draw(ctx,AstralTypography.fit(text("empty").getString(),width),left,layout.top()+6,palette.muted());
+                AstralTypography.draw(ctx,"videos / backgrounds",left,layout.top()+22,palette.muted());
             }
-            if(pages(videos.size())>1)ctx.method_25300(field_22793,(page+1)+" / "+pages(videos.size()),left+width/2,layout.pagerY()+5,palette.muted());
+            if(pages(videos.size())>1)AstralTypography.centered(ctx,(page+1)+" / "+pages(videos.size()),left+width/2,layout.pagerY()+5,palette.muted());
         }
         if(!layout.singleColumn()||showSettings) {
-            ctx.method_25303(field_22793,text("settings").getString(),right,header,palette.secondary());
-            if(pages(SETTINGS)>1)ctx.method_25300(field_22793,(settingsPage+1)+" / "+pages(SETTINGS),right+width/2,layout.pagerY()+5,palette.muted());
+            AstralTypography.draw(ctx,text("settings").getString(),right,header,palette.secondary());
+            if(pages(SETTINGS)>1)AstralTypography.centered(ctx,(settingsPage+1)+" / "+pages(SETTINGS),right+width/2,layout.pagerY()+5,palette.muted());
         }
         String key=openingFolder ? "folder_opening" : folderError!=null ? "folder_error" : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("unavailable") ? "audio_error" : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("no_track") ? "audio_no_track" : "status."+VideoBackground.INSTANCE.status();
         int center=layout.singleColumn() ? left+width/2 : right+width/2;
-        ctx.method_25300(field_22793,field_22793.method_27523(text(key).getString(),width),center,layout.statusY(),palette.muted());
+        AstralTypography.centered(ctx,AstralTypography.fit(text(key).getString(),width),center,layout.statusY(),palette.muted());
         super.method_25394(ctx,mx,my,delta);
-        ctx.method_25300(field_22793,"EverVerity • EVATEX "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("evatexbackgroundvideo").orElseThrow().getMetadata().getVersion().getFriendlyString(),field_22789/2,field_22790-9,palette.muted());
+        AstralTypography.centered(ctx,"EverVerity • EVATEX "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("evatexbackgroundvideo").orElseThrow().getMetadata().getVersion().getFriendlyString(),field_22789/2,field_22790-9,palette.muted());
         if(config.themeTransitions) {
             double fade=Math.max(0,1-(System.nanoTime()-openedAt)/280_000_000.0);
             if(fade>0)ctx.method_25294(0,0,field_22789,field_22790,(int)(fade*fade*180)<<24);

@@ -35,5 +35,12 @@
   "evatex.custom_main_menu": "EVATEX main menu: %s",
   "evatex.home.more": "EVATEX Settings",
   "evatex.home.quit": "Quit",
-  "evatex.status.paused": "Paused while Minecraft is in the background"
+  "evatex.status.paused": "Paused while Minecraft is in the background",
+  "evatex.menu.server_details": "SERVER DETAILS",
+  "evatex.menu.world_details": "WORLD DETAILS",
+  "evatex.menu.players": "PLAYERS",
+  "evatex.menu.latency": "LATENCY",
+  "evatex.menu.select_server": "Select a server to view its details.",
+  "evatex.menu.select_world": "Select a world to view its details.",
+  "evatex.menu.world_selected": "World selected"
 }
