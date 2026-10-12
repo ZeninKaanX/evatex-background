@@ -117,7 +117,7 @@ def build(version, system_ffmpeg, prepare_only=False):
         digest.update(str(file.relative_to(ROOT)).encode());digest.update(str(file.stat().st_mtime_ns).encode());digest.update(str(file.stat().st_size).encode())
     resource_cache=ROOT/'build'/('resources-'+digest.hexdigest()+'.zip')
     if not resource_cache.exists():
-        temporary=resource_cache.with_suffix('.tmp')
+        temporary=resource_cache.with_name(resource_cache.name+f'.{os.getpid()}.tmp')
         with zipfile.ZipFile(temporary,'w',zipfile.ZIP_DEFLATED) as z:
             for file in asset_files:z.write(file,file.relative_to(ROOT),compress_type=zipfile.ZIP_STORED if file.suffix=='.gz' else zipfile.ZIP_DEFLATED)
         temporary.replace(resource_cache)
