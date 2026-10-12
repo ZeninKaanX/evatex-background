@@ -86,10 +86,19 @@ public final class AstralMenus {
             } else buttons.add(control);
         }
         if(screen instanceof class_429) {
-            int columns=2,cell=(w-next.margin*2-12)/columns;
-            int rows=(buttons.size()+1)/2;
-            int step=Math.min(29,Math.max(22,(h-104)/Math.max(1,rows)));
-            for(int i=0;i<buttons.size();i++)place(buttons.get(i),next.margin+(i%2)*(cell+12),76+(i/2)*step,cell,22);
+            var settings=new ArrayList<class_339>();var exits=new ArrayList<class_339>();
+            for(var button:buttons) {
+                String label=button.method_25369().getString();
+                if(label.equals(text("gui.done")) || label.equals(text("gui.back")))exits.add(button);else settings.add(button);
+            }
+            int content=Math.min(560,w-48);next.margin=(w-content)/2;
+            int cell=(content-12)/2,rows=(settings.size()+1)/2;
+            int step=Math.min(32,Math.max(22,(h-126)/Math.max(1,rows)));
+            next.bottom=76+rows*step;
+            for(int i=0;i<settings.size();i++)place(settings.get(i),next.margin+(i%2)*(cell+12),76+(i/2)*step,cell,20);
+            int exitWidth=Math.min(220,(content-6*Math.max(0,exits.size()-1))/Math.max(1,exits.size()));
+            int exitStart=(w-(exitWidth*exits.size()+6*Math.max(0,exits.size()-1)))/2;
+            for(int i=0;i<exits.size();i++)place(exits.get(i),exitStart+i*(exitWidth+6),next.bottom+12,exitWidth,20);
         } else if(screen instanceof class_500) {
             var topButtons=new ArrayList<class_339>();var footerButtons=new ArrayList<class_339>();
             for(var button:buttons) {
@@ -149,7 +158,7 @@ public final class AstralMenus {
         var s=state;
         if(background)screen.method_25420(ctx);
         // Also works when wallpaper playback is disabled: a quiet, readable surface.
-        ctx.method_25294(0,0,screen.field_22789,screen.field_22790,0x44000000);
+        if(!com.videomenu.video.VideoBackground.INSTANCE.status().equals("playing"))ctx.method_25294(0,0,screen.field_22789,screen.field_22790,0x44000000);
         AstralDraw.displayText(ctx,"EVATEX / ASTRAL",s.margin,14,.8f,0xFFC2C2C2);
         AstralDraw.displayText(ctx,screen.method_25440().getString(),s.margin,32,2.1f,0xFFF3F3F3);
         if(s.list!=null) {
@@ -157,7 +166,9 @@ public final class AstralMenus {
             panel(ctx,s.detailX,s.top-3,s.detailWidth,s.bottom-s.top+6);
             details(ctx,s);
         } else {
-            panel(ctx,s.margin-6,68,screen.field_22789-s.margin*2+12,screen.field_22790-88);
+            int end=screen instanceof class_429 ? s.bottom : screen.field_22790-20;
+            ctx.method_25294(s.margin-6,68,screen.field_22789-s.margin+6,end,0x88101010);
+            ctx.method_25294(s.margin-6,68,screen.field_22789-s.margin+6,69,0x44FFFFFF);
         }
         AstralTypography.beginNativeText();nativeText=true;
         try {for(var child:screen.method_25396())if(child instanceof class_4068 drawable && !(child instanceof class_7842 label && label.method_25369().getString().equals(screen.method_25440().getString())))drawable.method_25394(ctx,mx,my,delta);}

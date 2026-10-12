@@ -56,7 +56,10 @@ public final class VideoBackground {
         return settings != null && settings.enabled &&
             (settings.worldMenuBackground && (screen instanceof net.minecraft.class_526 || screen instanceof net.minecraft.class_525 || screen instanceof net.minecraft.class_524 || screen instanceof net.minecraft.class_5235)
              || settings.optionsMenuBackground && (screen instanceof net.minecraft.class_429 || screen instanceof net.minecraft.class_4667
-                 || screen instanceof net.minecraft.class_5375 || screen instanceof net.minecraft.class_8219 || isSodiumOptions(screen)));
+                 || screen instanceof net.minecraft.class_5375 || screen instanceof net.minecraft.class_8219 || isSodiumOptions(screen) || isModsScreen(screen)));
+    }
+    public static boolean isModsScreen(net.minecraft.class_437 screen) {
+        return screen!=null && screen.getClass().getName().equals("com.terraformersmc.modmenu.gui.ModsScreen");
     }
     private static boolean isSodiumOptions(net.minecraft.class_437 screen) {
         if (screen == null) return false;

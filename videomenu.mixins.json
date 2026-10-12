@@ -21,7 +21,9 @@
     "AstralMenuTextMixin",
     "AstralNativeSliderMixin",
     "AstralStringWidgetMixin",
-    "AstralFontRenderMixin"
+    "AstralFontRenderMixin",
+    "AstralFontTextureMixin",
+    "AstralGlyphSamplingMixin"
   ],
   "injectors": {
     "defaultRequire": 1

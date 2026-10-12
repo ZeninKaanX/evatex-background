@@ -6,6 +6,8 @@ public final class AstralTypography {
     private static final class_2583 STYLE=fontStyle("ui");
     private static final class_2583 DISPLAY_STYLE=fontStyle("ui_display");
     private static final class_2583 ICON_STYLE=fontStyle("home_icons");
+    private static final class_2583 METEOR_STYLE=fontStyle("meteor");
+    public static void meteor(net.minecraft.class_332 ctx,int x,int y,int color){ctx.method_51439(net.minecraft.class_310.method_1551().field_1772,class_2561.method_43470("\uE003").method_10862(METEOR_STYLE),x,y,color,false);}
     private static class_2583 fontStyle(String fontName) {
         try {
             var id=net.minecraft.class_2960.method_60655("evatexbackgroundvideo",fontName);

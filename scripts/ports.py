@@ -22,6 +22,9 @@ def sources(root,version):
         content=file.read_text()
         if old not in content: raise RuntimeError('Missing API adapter anchor: '+name)
         file.write_text(content.replace(old,new))
+    if base=='src' and version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
+        mixins['client'].remove('AstralGlyphSamplingMixin')
+        (folder/'com/videomenu/mixin/AstralGlyphSamplingMixin.java').unlink()
     if version in LEGACY and version not in ('1.20','1.20.1'):
         edit('EvatexTitleScreen.java','method_25420(class_332 ctx)','method_25420(class_332 ctx,int mx,int my,float delta)')
         edit('VideoSelectScreen.java','method_25420(class_332 context)','method_25420(class_332 context, int mouseX, int mouseY, float delta)')
@@ -92,7 +95,15 @@ def sources(root,version):
         for file in folder.rglob('*.java'):
             content=translate(file.read_text(),mapping)
             if version.startswith('26.'):
+                if file.name=='AstralGlyphSamplingMixin.java':
+                    content=content.replace('net.minecraft.client.gui.render.state.GlyphRenderState','net.minecraft.client.renderer.state.gui.GlyphRenderState').replace('comp_4637','renderable').replace('comp_4629','textureView').replace('comp_4056','textureSetup')
                 content=content.replace('drawCenteredString','centeredText').replace('drawString','text')
+                if file.name=='AstralMenuTextMixin.java':
+                    ordered='text(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;IIIZ)V'
+                    component='text(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIZ)V'
+                    content=content.replace('method={"text","text"}', 'method={"'+ordered+'","'+component+'"}')
+                    content=content.replace('@ModifyVariable(method="text",at=@At("HEAD"),argsOnly=true,require=0)\n    private net.minecraft.util.FormattedCharSequence', '@ModifyVariable(method="'+ordered+'",at=@At("HEAD"),argsOnly=true,ordinal=0,require=0)\n    private net.minecraft.util.FormattedCharSequence')
+                    content=content.replace('@ModifyVariable(method="text",at=@At("HEAD"),argsOnly=true,require=0)\n    private net.minecraft.network.chat.Component', '@ModifyVariable(method="'+component+'",at=@At("HEAD"),argsOnly=true,ordinal=0,require=0)\n    private net.minecraft.network.chat.Component')
                 content=content.replace('net.minecraft.util.Util.getPlatform().openFile(VideoFiles.directory().toFile());','java.awt.Desktop.getDesktop().open(VideoFiles.directory().toFile());')
                 content=content.replace('EditGameRulesScreen','WorldCreationGameRulesScreen')
                 content=content.replace('GuiGraphics','GuiGraphicsExtractor').replace('renderBackground','extractBackground').replace('renderContents','extractContents').replace('renderListBackground','extractListBackground').replace('renderListSeparators','extractListSeparators')

@@ -207,11 +207,29 @@ public abstract class SmokeMixin {
                 evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("options.resourcepack")));
             }
             case 8 -> {if(screen instanceof net.minecraft.class_429)throw new AssertionError("Pack settings action failed");evatexqa$capture(client,"astral-packs");screen.method_25419();}
-            case 9 -> {if(!(screen instanceof net.minecraft.class_429))throw new AssertionError("Options return failed");client.method_1507(new VideoSelectScreen(screen,0));}
+            case 9 -> {
+                if(!(screen instanceof net.minecraft.class_429))throw new AssertionError("Options return failed");
+                if(FabricLoader.getInstance().isModLoaded("modmenu"))try {client.method_1507((class_437)Class.forName("com.terraformersmc.modmenu.gui.ModsScreen").getConstructor(class_437.class).newInstance(screen));evatexqa$stage=90;}catch(ReflectiveOperationException error){throw new RuntimeException(error);}
+                else client.method_1507(new VideoSelectScreen(screen,0));
+            }
+            case 90 -> {
+                if(!VideoBackground.isModsScreen(screen) || !VideoBackground.INSTANCE.supportsMenu(screen,false) || !VideoBackground.INSTANCE.status().equals("playing"))throw new AssertionError("Mod Menu wallpaper did not play");
+                evatexqa$capture(client,"astral-mods");screen.method_25419();evatexqa$stage=91;
+            }
+            case 91 -> {client.method_1507(new VideoSelectScreen(screen,0));evatexqa$stage=10;}
+
             case 10 -> {
                 evatexqa$capture(client,"astral-backgrounds");
+                evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.category.appearance")));evatexqa$stage=100;
+            }
+            case 100 -> {
+                evatexqa$capture(client,"astral-appearance");
+                evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.category.menus")));evatexqa$stage=101;
+            }
+            case 101 -> {
+                evatexqa$capture(client,"astral-menu-settings");
                 var config=VideoMenuConfig.load();config.customMainMenu=false;config.save();VideoBackground.INSTANCE.reload(config);
-                client.method_1507(new class_500(new class_442()));
+                client.method_1507(new class_500(new class_442()));evatexqa$stage=11;
             }
             case 11 -> {
                 if(com.videomenu.AstralMenus.active(screen))throw new AssertionError("Native menus not restored");
@@ -249,7 +267,7 @@ public abstract class SmokeMixin {
                 case 1,10 -> {
                     if(!(screen instanceof VideoSelectScreen)) throw new AssertionError("Missing EVATEX settings");
                     var page=VideoSelectScreen.class.getDeclaredField("settingsPage");page.setAccessible(true);
-                    page.setInt(screen,13/com.videomenu.AstralLayout.of(screen.field_22789,screen.field_22790).rows());
+                    var targetPage=VideoSelectScreen.class.getDeclaredMethod("pageForSetting",int.class);targetPage.setAccessible(true);page.setInt(screen,(int)targetPage.invoke(screen,13));
                     var rebuild=VideoSelectScreen.class.getDeclaredMethod("rebuild");rebuild.setAccessible(true);rebuild.invoke(screen);
                     boolean on=evatexqa$stage==11;
                     evatexqa$capture(client,on ? "home-setting-on" : "home-setting-off");

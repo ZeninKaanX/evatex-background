@@ -42,5 +42,8 @@
   "evatex.menu.latency": "GECİKME",
   "evatex.menu.select_server": "Bilgilerini görmek için bir sunucu seç.",
   "evatex.menu.select_world": "Bilgilerini görmek için bir dünya seç.",
-  "evatex.menu.world_selected": "Dünya seçildi"
+  "evatex.menu.world_selected": "Dünya seçildi",
+  "evatex.category.playback": "Oynatma",
+  "evatex.category.appearance": "Görünüm",
+  "evatex.category.menus": "Menüler"
 }

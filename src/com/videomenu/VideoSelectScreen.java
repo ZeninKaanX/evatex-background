@@ -13,7 +13,8 @@ public final class VideoSelectScreen extends class_437 {
     private static final int[] FPS = {15, 24, 30, 45, 60, 90, 120};
     private static final int[] LIMITS = {720,1080,1440,2160,4320};
     private static final double[] DARK = {0, 0.15, 0.25, 0.4, 0.6, 0.8};
-    private static final int SETTINGS = 14;
+    private static final int[][] CATEGORIES={{0,1,2,3,4,5},{6,7,8,9},{10,11,12,13}};
+    private static final String[] CATEGORY_KEYS={"playback","appearance","menus"};
     private final class_437 parent;
     private VideoMenuConfig config;
     private List<Path> videos = List.of();
@@ -36,7 +37,7 @@ public final class VideoSelectScreen extends class_437 {
         videos = VideoFiles.discover(config.videoPath);
         layout = AstralLayout.of(field_22789,field_22790);
         int rows=layout.rows(), left=layout.left(), right=layout.right(), width=layout.colWidth();
-        int videoPages=pages(videos.size()), settingPages=pages(SETTINGS);
+        int videoPages=pages(videos.size()), settingPages=settingGroups().size();
         page=Math.max(0,Math.min(page,videoPages-1));
         settingsPage=Math.max(0,Math.min(settingsPage,settingPages-1));
         if (layout.singleColumn()) {
@@ -54,19 +55,30 @@ public final class VideoSelectScreen extends class_437 {
             if (videoPages>1) pagination(left,videoPages,false);
         }
         if (!layout.singleColumn() || showSettings) {
-            for(int i=settingsPage*rows;i<Math.min(SETTINGS,(settingsPage+1)*rows);i++) {
-                final int setting=i;
-                if(i==2) {method_37063(new AstralVolumeSlider(right,layout.top()+(i-settingsPage*rows)*layout.step(),width,layout.step()-2,config.audioVolume,value->{config.audioVolume=value;volumeDirty=true;volumeChangedAt=System.nanoTime();VideoBackground.INSTANCE.reload(config);}));continue;}
-                add(right,layout.top()+(i-settingsPage*rows)*layout.step(),width,layout.step()-2,
-                    settingLabel(i),b->{changeSetting(setting);apply();},i==0&&config.enabled || i==1&&config.audioEnabled || i==10&&config.worldMenuBackground || i==11&&config.optionsMenuBackground || i==12&&config.menuMeteors || i==13&&config.customMainMenu);
+            int[] group=settingGroups().get(settingsPage);
+            for(int row=0;row<group.length;row++) {
+                final int setting=group[row];
+                int y=layout.top()+row*layout.step();
+                if(setting==2) {method_37063(new AstralVolumeSlider(right,y,width,layout.step()-2,config.audioVolume,value->{config.audioVolume=value;volumeDirty=true;volumeChangedAt=System.nanoTime();VideoBackground.INSTANCE.reload(config);}));continue;}
+                add(right,y,width,layout.step()-2,settingLabel(setting),b->{changeSetting(setting);apply();},setting==0&&config.enabled || setting==1&&config.audioEnabled || setting==10&&config.worldMenuBackground || setting==11&&config.optionsMenuBackground || setting==12&&config.menuMeteors || setting==13&&config.customMainMenu);
             }
-            if (settingPages>1) pagination(right,settingPages,true);
+            if(settingPages==3) {
+                int tab=(width-8)/3;
+                for(int i=0;i<3;i++) {final int category=i;add(right+i*(tab+4),layout.pagerY(),i==2 ? width-2*(tab+4) : tab,18,text("category."+CATEGORY_KEYS[i]),b->{settingsPage=category;rebuild();},settingsPage==i);}
+            } else if(settingPages>1)pagination(right,settingPages,true);
         }
         int total=layout.singleColumn() ? width : width*2+12, third=(total-12)/3, y=layout.footerY();
         add(left,y,third,20,text("folder"),b->{if(!openingFolder)openFolder();},false);
         add(left+third+6,y,third,20,text("refresh"),b->{folderError=null;rebuild();VideoBackground.INSTANCE.reload(config);},false);
         add(left+(third+6)*2,y,total-(third+6)*2,20,class_2561.method_43471("gui.back"),b->method_25419(),false);
     }
+    private java.util.List<int[]> settingGroups() {
+        var groups=new java.util.ArrayList<int[]>();int capacity=Math.min(6,layout.rows());
+        for(var category:CATEGORIES)for(int start=0;start<category.length;start+=capacity)groups.add(java.util.Arrays.copyOfRange(category,start,Math.min(category.length,start+capacity)));
+        return groups;
+    }
+    private int pageForSetting(int setting){var groups=settingGroups();for(int i=0;i<groups.size();i++)for(int value:groups.get(i))if(value==setting)return i;return 0;}
+    private String categoryKey(){int first=settingGroups().get(settingsPage)[0];return CATEGORY_KEYS[first<6 ? 0 : first<10 ? 1 : 2];}
     private int pages(int count) { return Math.max(1,(count+layout.rows()-1)/layout.rows()); }
     private void pagination(int x,int count,boolean settings) {
         int active=settings ? settingsPage : page;
@@ -140,8 +152,8 @@ public final class VideoSelectScreen extends class_437 {
             if(pages(videos.size())>1)AstralTypography.centered(ctx,(page+1)+" / "+pages(videos.size()),left+width/2,layout.pagerY()+5,palette.muted());
         }
         if(!layout.singleColumn()||showSettings) {
-            AstralTypography.draw(ctx,text("settings").getString(),right,header,palette.secondary());
-            if(pages(SETTINGS)>1)AstralTypography.centered(ctx,(settingsPage+1)+" / "+pages(SETTINGS),right+width/2,layout.pagerY()+5,palette.muted());
+            AstralTypography.draw(ctx,text("category."+categoryKey()).getString(),right,header,palette.secondary());
+            if(settingGroups().size()>3)AstralTypography.centered(ctx,text("category."+categoryKey()).getString()+"  "+(settingsPage+1)+" / "+settingGroups().size(),right+width/2,layout.pagerY()+5,palette.muted());
         }
         String key=openingFolder ? "folder_opening" : folderError!=null ? "folder_error" : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("unavailable") ? "audio_error" : config.audioEnabled&&VideoBackground.INSTANCE.audioStatus().equals("no_track") ? "audio_no_track" : "status."+VideoBackground.INSTANCE.status();
         int center=layout.singleColumn() ? left+width/2 : right+width/2;

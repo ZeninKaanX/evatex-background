@@ -42,5 +42,8 @@
   "evatex.menu.latency": "LATENCY",
   "evatex.menu.select_server": "Select a server to view its details.",
   "evatex.menu.select_world": "Select a world to view its details.",
-  "evatex.menu.world_selected": "World selected"
+  "evatex.menu.world_selected": "World selected",
+  "evatex.category.playback": "Playback",
+  "evatex.category.appearance": "Appearance",
+  "evatex.category.menus": "Menus"
 }

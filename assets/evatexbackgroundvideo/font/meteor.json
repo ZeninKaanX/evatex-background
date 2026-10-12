@@ -1,0 +1,13 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "evatexbackgroundvideo:font/meteor.png",
+      "height": 48,
+      "ascent": 48,
+      "chars": [
+        "\ue003"
+      ]
+    }
+  ]
+}

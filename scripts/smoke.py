@@ -21,6 +21,7 @@ parser.add_argument('--language',default='tr_tr')
 parser.add_argument('--username',default='EvatexQA',help='Offline display name for screenshots')
 parser.add_argument('--quick',action='store_true',help='Shorter per-stage dwell time for the version matrix')
 parser.add_argument('--bundled',action='store_true')
+parser.add_argument('--clear-background',action='store_true',help='Verify zero darkening without a vignette in the isolated test')
 parser.add_argument('--extra-mods',type=Path,help='Additional verified jars in the isolated test only')
 parser.add_argument('--sodium',type=Path,help='Optional installed Sodium jar for reported-menu QA')
 parser.add_argument('--reported-menus',action='store_true',help='Check packs, credits, rules, video settings and minimized-window playback')
@@ -69,6 +70,7 @@ if version.startswith('26.'):
     source.parent.mkdir(parents=True,exist_ok=True)
     text=translate((ROOT/'tests/smoke/SmokeMixin.java').read_text(),symbols(ROOT/'build/dependencies'))
     text=text.replace('client.getWindow().getWindow()', 'client.getWindow().handle()').replace('EditGameRulesScreen','WorldCreationGameRulesScreen')
+    text=text.replace('.OptionsScreen(screen,client.options)','.OptionsScreen(screen,client.options,false)').replace('.OptionsScreen(evatexqa$title,client.options)','.OptionsScreen(evatexqa$title,client.options,false)').replace('client.resizeDisplay()','client.resizeGui()')
     if version=='26.3':
         text=text.replace('org.lwjgl.glfw.GLFW.glfwIconifyWindow','org.lwjgl.sdl.SDLVideo.SDL_MinimizeWindow').replace('org.lwjgl.glfw.GLFW.glfwRestoreWindow','org.lwjgl.sdl.SDLVideo.SDL_RestoreWindow')
         text=text.replace('org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(client.getWindow().handle(),org.lwjgl.glfw.GLFW.GLFW_ICONIFIED)', '(org.lwjgl.sdl.SDLVideo.SDL_GetWindowFlags(client.getWindow().handle()) & org.lwjgl.sdl.SDLVideo.SDL_WINDOW_MINIMIZED)')
@@ -136,7 +138,7 @@ if args.atlas:
         if atlas_config.exists():
             values=json.loads(atlas_config.read_text()); values['vanillaMode']=False
             atlas_config.write_text(json.dumps(values,indent=2))
-(config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'audioEnabled':False,'audioVolume':0.1,'scale':1.0,'darkening':.15,'showVignette':True}))
+(config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'audioEnabled':False,'audioVolume':0.1,'scale':1.0,'darkening':0 if args.clear_background else .15,'showVignette':not args.clear_background}))
 if args.extended_menus or args.reported_menus or args.home_menu:
     # A real summary-only save prevents vanilla auto-forwarding an empty list to world creation.
     # No world is entered/generated; all files live inside this isolated QA game directory.

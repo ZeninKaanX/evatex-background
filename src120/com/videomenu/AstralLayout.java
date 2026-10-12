@@ -5,7 +5,7 @@ public record AstralLayout(int left, int right, int colWidth, int headerY, int t
                            int step, int rows, int pagerY, int statusY, int footerY, boolean singleColumn) {
     public static AstralLayout of(int width, int height) {
         boolean single = width < 320;
-        int content = Math.max(24, Math.min(single ? 480 : 492, width-24));
+        int content = Math.max(24, Math.min(single ? 480 : 640, width-24));
         int column = single ? content : (content-12)/2;
         int left = (width-content)/2;
         int top = single ? 76 : height < 210 ? 52 : 62;

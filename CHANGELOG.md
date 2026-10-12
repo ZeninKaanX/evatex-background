@@ -1,3 +1,15 @@
+# 1.8.9 — Clearer menus
+
+- Split EVATEX settings into Playback, Appearance and Menus, with direct category tabs and at most six settings visible at once. Keep all existing controls and automatic saving.
+- Centre the optional Astral Minecraft options layout, limit its width, balance button spacing and give Done its own footer row. Retain native actions, keyboard navigation and compact-window fallback.
+- Remove the background library's forced full-screen darkening and lighten its panels. Respect the selected wallpaper darkening and vignette settings.
+- Use linear sampling for EVATEX-owned font and icon atlases; account for the explicit glyph sampler in Minecraft 1.21.11 and 26.x. Preserve other mods' fonts and textures.
+- Fix ambiguous named text-method hooks that prevented 26.x from opening the interface.
+- Replace rectangular meteor segments with an original smooth gradient sprite.
+- Continue wallpaper playback on Mod Menu's Mods screen when the options-menu wallpaper setting is enabled.
+
+Source video detail is unchanged. Separate jars are required for each supported Minecraft version.
+
 # 1.8.8
 
 The optional Astral interface now extends to native world selection, multiplayer and the main options screen. Translucent monochrome panels and clear action buttons keep the background visible. World and server selection include a details card. Original Minecraft actions remain in use.

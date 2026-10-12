@@ -3,7 +3,7 @@ package com.videomenu;
 /** EVATEX's own monochrome Astral identity. No external themes. */
 public final class AstralTheme {
     public record Palette(int background, int backdrop, int panel, int accent, int secondary, int text, int muted) {}
-    private static final Palette PALETTE = new Palette(0xFF080808, 0xFF161616, 0xC8111111,
+    private static final Palette PALETTE = new Palette(0xFF080808, 0xFF161616, 0x88111111,
         0xFFEAEAEA, 0xFFAAAAAA, 0xFFEFEFEF, 0xFF999999);
     private static boolean animate = true;
     private AstralTheme() {}

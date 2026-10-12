@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.8
+# EVATEX-Background — Astral 1.8.9
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -84,6 +84,6 @@ The Backgrounds shortcut prefers the lower centre and automatically avoids visib
 
 EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, profile information, EVATEX background controls and native game settings. Other native/mod title actions are retained in the footer, with pagination when needed. The selected background and optional meteors continue behind the menu.
 
-Enable **EVATEX main menu** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
+Enable **EVATEX main menu** under **Menus** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
 
 The development story behind this release is recorded in the [EVATEX 1.8.6 changelog](CHANGELOG.md).

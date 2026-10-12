@@ -6,7 +6,7 @@ public final class AstralBackdrop {
     private static final int STARS = 48;
     private AstralBackdrop() {}
     public static void render(class_332 ctx, int width, int height, boolean videoVisible, boolean motion) {
-        paint(ctx,width,height,videoVisible,motion,0x78000000);
+        paint(ctx,width,height,videoVisible,motion,0x00000000);
     }
     public static void renderMenu(class_332 ctx, int width, int height, boolean motion) {
         paint(ctx,width,height,true,motion,0x30000000);
@@ -32,16 +32,7 @@ public final class AstralBackdrop {
             double distance=height*1.15;
             double hx=startX+distance*progress, hy=startY+distance*progress;
             int fade=(int)(170*Math.sin(progress*Math.PI));
-            for (int segment=0; segment<16; segment++) {
-                double tail=segment*3.5;
-                int x=(int)(hx-tail), y=(int)(hy-tail);
-                if (x+4<0 || y+4<0 || x>width || y>height) continue;
-                int alpha=fade*(16-segment)/16;
-                ctx.method_25294(x,y,x+4,y+4,alpha<<24|0xFFFFFF);
-            }
-            int x=(int)hx,y=(int)hy;
-            ctx.method_25294(x-2,y-2,x+5,y+5,(fade/7)<<24|0xFFFFFF);
-            ctx.method_25294(x,y,x+2,y+2,fade<<24|0xFFFFFF);
+            AstralTypography.meteor(ctx,(int)hx-41,(int)hy-41,fade<<24|0xFFFFFF);
         }
     }
 }
