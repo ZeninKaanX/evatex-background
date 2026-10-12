@@ -159,6 +159,10 @@ public final class AstralMenus {
         if(background)screen.method_25420(ctx,mx,my,delta);
         // Also works when wallpaper playback is disabled: a quiet, readable surface.
         if(!com.videomenu.video.VideoBackground.INSTANCE.status().equals("playing"))ctx.method_25294(0,0,screen.field_22789,screen.field_22790,0x44000000);
+        // Local contrast for bright wallpapers; never dim the whole screen for a heading.
+        String title=screen.method_25440().getString();
+        int headingWidth=Math.min(screen.field_22789-s.margin*2,Math.max(180,(int)Math.ceil(AstralTypography.width(title)*2.1)+24));
+        ctx.method_25294(s.margin-6,10,s.margin+headingWidth,58,0xA01A1A1A);
         AstralDraw.displayText(ctx,"EVATEX / ASTRAL",s.margin,14,1f,0xFFC2C2C2);
         AstralDraw.displayText(ctx,screen.method_25440().getString(),s.margin,32,2.1f,0xFFF3F3F3);
         if(s.list!=null) {

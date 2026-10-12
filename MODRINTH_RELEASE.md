@@ -1,11 +1,8 @@
-# EVATEX-Background 1.8.8 — Clearer Astral menus
+# 1.8.10 — Consistent wallpaper brightness
 
-The optional Astral interface now extends to native world selection, multiplayer and the main options screen. Translucent monochrome panels and clear action buttons keep the background visible. World and server selection include a details card. Original Minecraft actions remain in use.
+- Remove the extra full-screen dimming from the optional EVATEX home. Switching between the client title screen and EVATEX now preserves the selected wallpaper brightness.
+- Keep user-selected darkening and vignette settings, translucent controls, animated black-hole branding and optional meteors.
+- Give native Astral menu headings a small translucent backdrop so they remain readable over bright wallpapers.
+- Retain the 1.8.9 typography, settings categories and Mod Menu wallpaper improvements.
 
-UI fonts use denser glyph rasterization, including a separate display font for large headings and original high-resolution line icons. Native menu text measurement and glyph preparation use the same UI font within EVATEX-owned presentation. Wallpaper resolution settings remain under your control.
-
-The optional interface remains disabled by default. Small windows keep the native layout, and EVATEX restores the original layout if another mod adds a control. Third-party custom screens retain their own presentation. Atlas Client 3.0.3 compatibility was checked with Sodium and Mod Menu on Minecraft 1.21.11.
-
-The gallery contains eight English 1920 × 1080 game-renderer captures: Astral home, multiplayer, world selection, options, resource packs, background library, menu preferences and Atlas compatibility.
-
-Install one jar matching your exact Minecraft version. This is a stable release. Minecraft 1.21.11 is published first.
+This is a stable release. Install the jar matching your exact Minecraft version. Minecraft 1.21.11 is published first.

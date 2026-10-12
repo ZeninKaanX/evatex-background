@@ -1,6 +1,6 @@
 # EVATEX 1.8.9 validation
 
-Status: release candidate pending the requested visual review. No 1.8.9 Modrinth publication has been performed.
+Status: EverVerity approved the interface and animated black-hole emblem. Minecraft 1.21.11 stable release is listed on Modrinth as 7DX4Ug4f; publication of the remaining exact-version jars is in progress.
 
 Minecraft options use a centred, bounded two-column layout with Done in a separate footer. EVATEX settings have direct Playback, Appearance and Menus tabs; small windows retain paged categories. Existing settings and automatic saving remain available.
 
@@ -29,3 +29,5 @@ Decorative star dots have been removed from both source families. The shared bou
 Final checks: the starless 1.21.11 native-menu test with Sodium and Mod Menu passed, including settings tabs, native actions, opt-out and fallback. Its home capture passed separately. The 26.3 SDL startup/shortcut test passed on the secondary display with no EVATEX shader or filtering errors; missing local vanilla asset-index data limits that run to startup/render-hook verification. All 24 bundled packages passed metadata, bytecode, embedded-module, engine checksum and archive checks. Decoder/audio/layout/ownership/translation regressions passed.
 
 The approved home emblem is an original 64-frame black-hole glyph with a rotating accretion ring and inward particles. Rendering reuses cached glyph components; animation pauses when unfocused and respects the UI animation switch. The updated 1.21.11 home capture passed with Sodium and Mod Menu.
+
+Post-approval checks: all 24 final black-hole packages passed package verification. The English gallery now contains ten current 1920 × 1080 framebuffer captures; old screenshots were removed and the entries are ordered by menu and settings flow.

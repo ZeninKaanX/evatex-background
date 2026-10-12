@@ -191,6 +191,10 @@ public abstract class SmokeMixin {
             }
             case 1 -> {
                 if(!com.videomenu.AstralMenus.active(screen))throw new AssertionError("Server skin missing");
+                for(var child:screen.method_25396())if(child instanceof net.minecraft.class_4267 list){
+                    if(!(list.method_25334() instanceof net.minecraft.class_4267.class_4270 selected) || !selected.method_20133().field_3752.equals("EVATEX Local Test"))
+                        throw new AssertionError("Selected server must be available to the details card");
+                }
                 evatexqa$homeGeometry(screen);evatexqa$capture(client,"astral-servers");
                 evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("selectServer.add")));
             }

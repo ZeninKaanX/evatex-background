@@ -149,8 +149,8 @@ public final class EvatexTitleScreen extends class_442 {
     @Override public void method_25420(class_332 ctx) {}
     @Override public void method_25394(class_332 ctx,int mx,int my,float delta) {
         boolean video=VideoBackground.INSTANCE.render(ctx,field_22789,field_22790);
-        if(video) AstralBackdrop.renderMenu(ctx,field_22789,field_22790,settings.menuMeteors && settings.themeTransitions);
-        else AstralBackdrop.render(ctx,field_22789,field_22790,false,settings.menuMeteors && settings.themeTransitions);
+        // The wallpaper renderer already applies the user's dimming and vignette.
+        AstralBackdrop.render(ctx,field_22789,field_22790,video,settings.menuMeteors && settings.themeTransitions);
         int margin=Math.max(10,(int)(field_22789*.028));
         var font=class_310.method_1551().field_1772;
         boolean wide=field_22789>=360 && field_22790>=220;
