@@ -164,13 +164,13 @@ public final class EvatexTitleScreen extends class_442 {
         AstralDraw.rounded(ctx,cardX,Math.max(10,(int)(field_22790*.052)),cardWidth,20,0xA0121212);
         int cardY=Math.max(10,(int)(field_22790*.052));
         AstralDraw.rounded(ctx,cardX+5,cardY+3,14,14,0xFF333333);
-        AstralTypography.draw(ctx,"E",cardX+9,cardY+5,0xFFF4F4F4);
+        AstralTypography.brand(ctx,cardX+5,cardY+3,0xFFF4F4F4);
         String username=class_310.method_1551().method_1548().method_1676();
         AstralDraw.displayText(ctx,AstralTypography.fit(username,cardWidth-27),cardX+22,cardY+6,1f,0xFFDDDDDD);
         for(var child:method_25396()) if(child instanceof net.minecraft.class_4068 drawable) drawable.method_25394(ctx,mx,my,delta);
         AstralDraw.displayText(ctx,"EVATEX "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("evatexbackgroundvideo").orElseThrow().getMetadata().getVersion().getFriendlyString(),margin,field_22790-10,1f,0xFF888888);
-        AstralDraw.displayText(ctx,"E",margin,Math.max(12,(int)(field_22790*.06)),1f,0xFFF4F4F4);
-        AstralDraw.displayText(ctx,"Minecraft "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("minecraft").orElseThrow().getMetadata().getVersion().getFriendlyString(),margin+14,Math.max(12,(int)(field_22790*.06))+2,1f,0xFFBBBBBB);
+        AstralTypography.brand(ctx,margin,Math.max(12,(int)(field_22790*.06))-2,0xFFF4F4F4);
+        AstralDraw.displayText(ctx,"Minecraft "+net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer("minecraft").orElseThrow().getMetadata().getVersion().getFriendlyString(),margin+20,Math.max(12,(int)(field_22790*.06))+2,1f,0xFFBBBBBB);
         String credits="© Mojang Studios";
         if(!hasCredits) AstralTypography.draw(ctx,credits,Math.max(margin,field_22789-margin-AstralTypography.width(credits)),field_22790-10,0xFF888888);
     }

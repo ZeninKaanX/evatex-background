@@ -8,6 +8,7 @@
 - Correct EVATEX RED8 glyph coverage on 1.21.11 and 26.x to remove dark fringes on light wallpapers.
 - Use linear sampling for EVATEX-owned font and icon atlases; account for the explicit glyph sampler in Minecraft 1.21.11 and 26.x. Preserve other mods' fonts and textures.
 - Fix ambiguous named text-method hooks that prevented 26.x from opening the interface.
+- Replace the home profile initial with an original animated monochrome black-hole emblem, with orbiting light and inward particles; pause the emblem when unfocused and respect the animation switch.
 - Remove decorative star dots while retaining the animated meteors; replace rectangular meteor segments with an original smooth gradient sprite.
 - Continue wallpaper playback on Mod Menu's Mods screen when the options-menu wallpaper setting is enabled.
 

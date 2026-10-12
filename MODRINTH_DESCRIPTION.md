@@ -9,7 +9,7 @@ Menu backgrounds also cover credits, game rules and supported Sodium video setti
 ## Features
 
 - Video, animated GIF and photo backgrounds.
-- Custom black-and-white Astral interface with optional transitions, stars and falling meteors.
+- Custom black-and-white Astral interface with optional transitions and falling meteors.
 - Playback across the title screen, server selection, world selection, resource packs, credits, game rules, supported options menus and background settings.
 - Separate world/options wallpaper switches, light menu darkening and optional Astral meteors. In-game options retain their normal background.
 - Resolution and frame-rate controls, fill/fit framing, darkening and vignette.
@@ -22,7 +22,7 @@ Menu backgrounds also cover credits, game rules and supported Sodium video setti
 
 ## Optional Astral home
 
-EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, EVATEX background controls and native game settings. Other native/mod title actions are retained in a separate EVATEX Settings page, with pagination when needed. The selected background and optional meteors continue behind the menu.
+EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, EVATEX background controls and native game settings. Other native/mod title actions are retained in a separate EVATEX Settings page, with pagination when needed. The selected background and optional meteors continue behind the menu. A small animated black-hole emblem completes the Astral identity and follows the animation setting.
 
 Enable **EVATEX main menu** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
 

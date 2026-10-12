@@ -8,7 +8,25 @@ public final class AstralTypography {
     private static final class_2583 LARGE_STYLE=fontStyle("ui_large");
     private static final class_2583 DISPLAY_STYLE=fontStyle("ui_display");
     private static final class_2583 ICON_STYLE=fontStyle("home_icons");
+    private static final class_2583 BRAND_STYLE=fontStyle("brand");
     private static final class_2583 METEOR_STYLE=fontStyle("meteor");
+    private static final class_2561[] BRAND_FRAMES=brandFrames();
+    private static double brandPhase;
+    private static long brandTick;
+    private static class_2561[] brandFrames(){
+        var frames=new class_2561[64];
+        for(int i=0;i<frames.length;i++)frames[i]=class_2561.method_43470(String.valueOf((char)(0xE100+i))).method_10862(BRAND_STYLE);
+        return frames;
+    }
+    public static void brand(net.minecraft.class_332 ctx,int x,int y,int color){
+        var client=net.minecraft.class_310.method_1551();
+        long now=System.nanoTime();
+        if(brandTick!=0 && AstralTheme.animated() && client.method_1569())
+            brandPhase=(brandPhase+Math.min((now-brandTick)/1e9,.1)*24)%BRAND_FRAMES.length;
+        if(!AstralTheme.animated())brandPhase=0;
+        brandTick=now;
+        ctx.method_51439(client.field_1772,BRAND_FRAMES[(int)brandPhase],x,y,color,false);
+    }
     public static void meteor(net.minecraft.class_332 ctx,int x,int y,int color){ctx.method_51439(net.minecraft.class_310.method_1551().field_1772,class_2561.method_43470("\uE003").method_10862(METEOR_STYLE),x,y,color,false);}
     private static class_2583 fontStyle(String fontName) {
         try {
