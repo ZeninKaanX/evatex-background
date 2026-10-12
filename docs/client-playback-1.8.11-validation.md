@@ -34,7 +34,7 @@ The supplied message.txt identifies Windows 11 and confirms successful extractio
 
 Smart App Control is a plausible cause because it can block unknown unsigned binaries. The friend's Smart App Control state and CodeIntegrity events were not supplied, so this remains a hypothesis alongside file permissions and other application-control or antivirus rules. Successful extraction makes protected-folder write denial a weaker explanation for this specific process-start failure. No security protections were disabled.
 
-A separate read-only diagnostic script checks the known engine checksum before a version-only launch, reports Authenticode status and file ACLs, and reads recent matching CodeIntegrity, Defender and Security-Mitigations events. Event 3077 identifies an enforced App Control block; 3089 provides associated signature information. The script has not been executed on the friend's Windows system. A real event report is required to distinguish these causes.
+The separate [`windows_engine_check.ps1`](../scripts/windows_engine_check.ps1) diagnostic checks the known engine checksum before a version-only launch, reports Authenticode status and file ACLs, and reads recent matching CodeIntegrity, Defender and Security-Mitigations events. Event 3077 identifies an enforced App Control block; 3089 provides associated signature information. The script has not been executed on the friend's Windows system. A real event report is required to distinguish these causes.
 
 Primary references:
 - https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
