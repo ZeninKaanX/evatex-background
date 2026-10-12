@@ -1,5 +1,9 @@
 # EVATEX-Background
 
+[Watch the official EVATEX showcase on YouTube](https://youtube.com/shorts/EzglUlDrTkI)
+
+**Add a file to `videos` or `backgrounds`, open Backgrounds, select it.**
+
 **EVATEX-Background**, formerly **EVATEX-Background Video**, is a client-side Fabric mod for Minecraft Java Edition. Use your own video, GIF or photo as the background of Minecraft's title screen, server selection, world selection, resource packs and main-menu options. Choose a background and adjust playback from the in-game Backgrounds.
 
 Windows automatically attempts GPU video decoding and GPU downscaling. Unsupported drivers or video formats fall back to software decoding. Performance depends on the video, graphics card and driver.
@@ -19,6 +23,7 @@ Menu backgrounds also cover credits, game rules and supported Sodium video setti
 - Automatic video and audio pause while Minecraft is unfocused, with continuation when returning.
 - Responsive library and settings pages, with tabs on narrow screens.
 - Automatic saving and an option to disable backgrounds or interface animations.
+- A local **Copy diagnostics** report for playback support, excluding private media paths and connection secrets.
 
 ## Optional Astral home
 

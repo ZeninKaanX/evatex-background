@@ -13,7 +13,7 @@ public final class VideoSelectScreen extends class_437 {
     private static final int[] FPS = {15, 24, 30, 45, 60, 90, 120};
     private static final int[] LIMITS = {720,1080,1440,2160,4320};
     private static final double[] DARK = {0, 0.15, 0.25, 0.4, 0.6, 0.8};
-    private static final int[][] CATEGORIES={{0,1,2,3,4,5},{6,7,8,9},{10,11,12,13}};
+    private static final int[][] CATEGORIES={{0,1,2,3,4,5},{6,7,8,9},{10,11,12,13,14}};
     private static final String[] CATEGORY_KEYS={"playback","appearance","menus"};
     private final class_437 parent;
     private VideoMenuConfig config;
@@ -23,7 +23,7 @@ public final class VideoSelectScreen extends class_437 {
     private boolean showSettings = true;
     private volatile boolean openingFolder;
     private volatile String folderError;
-    private boolean volumeDirty;
+    private boolean volumeDirty, diagnosticCopied;
     private long volumeChangedAt;
     private final long openedAt = System.nanoTime();
 
@@ -60,7 +60,7 @@ public final class VideoSelectScreen extends class_437 {
                 final int setting=group[row];
                 int y=layout.top()+row*layout.step();
                 if(setting==2) {method_37063(new AstralVolumeSlider(right,y,width,layout.step()-2,config.audioVolume,value->{config.audioVolume=value;volumeDirty=true;volumeChangedAt=System.nanoTime();VideoBackground.INSTANCE.reload(config);}));continue;}
-                add(right,y,width,layout.step()-2,settingLabel(setting),b->{changeSetting(setting);apply();},setting==0&&config.enabled || setting==1&&config.audioEnabled || setting==10&&config.worldMenuBackground || setting==11&&config.optionsMenuBackground || setting==12&&config.menuMeteors || setting==13&&config.customMainMenu);
+                add(right,y,width,layout.step()-2,settingLabel(setting),b->{if(setting==14){field_22787.field_1774.method_1455(PlaybackDiagnostics.report(config));diagnosticCopied=true;rebuild();}else{changeSetting(setting);apply();}},setting==0&&config.enabled || setting==1&&config.audioEnabled || setting==10&&config.worldMenuBackground || setting==11&&config.optionsMenuBackground || setting==12&&config.menuMeteors || setting==13&&config.customMainMenu);
             }
             if(settingPages==3) {
                 int tab=(width-8)/3;
@@ -101,6 +101,7 @@ public final class VideoSelectScreen extends class_437 {
             case 11 -> text("options_background",onOff(config.optionsMenuBackground));
             case 12 -> text("menu_meteors",onOff(config.menuMeteors));
             case 13 -> text("custom_main_menu",onOff(config.customMainMenu));
+            case 14 -> text(diagnosticCopied ? "diagnostics_copied" : "diagnostics_copy");
             default -> text("volume",Math.round(config.audioVolume*100));
         };
     }

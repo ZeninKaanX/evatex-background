@@ -1,0 +1,23 @@
+name: Volunteer platform test
+description: Share measurements from a real Windows, macOS or Linux machine.
+body:
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Hardware and EVATEX diagnostics
+      description: Paste Copy diagnostics, GPU driver version and operating system details.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: method
+    attributes:
+      label: Test conditions and results
+      description: Record the exact jar, client/mod versions, media codec/resolution/FPS, settings, playback duration, CPU usage and GPU Video Decode usage. Compare hardware enabled/disabled with the same sample. Record menu changes, loop and unfocus/resume results separately.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Relevant redacted logs and measurements. State which results are observations and which are hypotheses.

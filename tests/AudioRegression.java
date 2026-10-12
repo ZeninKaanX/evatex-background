@@ -46,7 +46,21 @@ public final class AudioRegression {
         return pcm;
     }
     private static Socket connect(VideoAudio audio) throws Exception {
-        URI uri=URI.create(audio.outputUrl());return new Socket(uri.getHost(),uri.getPort());
+        URI uri=URI.create(audio.outputUrl());
+        Socket socket=new Socket(uri.getHost(),uri.getPort()) {
+            @Override public java.io.OutputStream getOutputStream() throws java.io.IOException {
+                var raw=super.getOutputStream();
+                return new java.io.OutputStream() {
+                    @Override public void write(int b) throws java.io.IOException {write(new byte[]{(byte)b});}
+                    @Override public void write(byte[] b,int off,int len) throws java.io.IOException {
+                        raw.write((Integer.toHexString(len)+"\r\n").getBytes(java.nio.charset.StandardCharsets.US_ASCII));raw.write(b,off,len);raw.write(new byte[]{13,10});
+                    }
+                };
+            }
+            @Override public void shutdownOutput() throws java.io.IOException {super.getOutputStream().write("0\r\n\r\n".getBytes(java.nio.charset.StandardCharsets.US_ASCII));super.shutdownOutput();}
+            void handshake(String path) throws java.io.IOException {super.getOutputStream().write(("POST "+path+" HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n").getBytes(java.nio.charset.StandardCharsets.US_ASCII));}
+        };
+        socket.getClass().getDeclaredMethod("handshake",String.class).invoke(socket,uri.getPath());return socket;
     }
     private static void await(java.util.function.BooleanSupplier ready,String text) throws Exception {
         long until=System.nanoTime()+4_000_000_000L;
@@ -54,6 +68,7 @@ public final class AudioRegression {
         check(ready.getAsBoolean(),text);
     }
     public static void main(String[] args) throws Exception {
+        com.videomenu.VideoMenuClient.LOGGER.info("Initializing audio regression logging before worker threads");
         for (int capacity:new int[]{4,2048,8192,32768}) {
             AtomicInteger starts=new AtomicInteger(),samples=new AtomicInteger();
             try (VideoAudio audio=new VideoAudio(true,.1,f->line(capacity,starts,samples));Socket socket=connect(audio)) {

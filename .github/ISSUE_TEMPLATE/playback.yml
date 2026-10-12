@@ -1,0 +1,35 @@
+name: Playback or menu problem
+description: Report a reproducible EVATEX background or interface issue.
+labels: [bug]
+body:
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: EVATEX diagnostics
+      description: Open Backgrounds, choose Menus, click Copy diagnostics and paste the report. Review it before posting.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps and expected result
+      description: Describe the screen, client, mods and steps that reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: Media details
+      description: Resolution, codec, FPS, duration and format. A public sample is optional; do not upload private media.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log excerpt
+      description: Include FFmpeg/EVATEX errors from latest.log. Remove account names, tokens, private paths and server addresses.
+      render: text
+  - type: dropdown
+    id: software
+    attributes:
+      label: Result with hardware acceleration disabled
+      options: [Not tested, Same issue, Works, Different issue]

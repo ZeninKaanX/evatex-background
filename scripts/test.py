@@ -41,3 +41,6 @@ subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"MenuOwnershipRegressi
 
 subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/CustomWidgetBoundsRegression.java")],check=True)
 subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"CustomWidgetBoundsRegression"],check=True)
+
+subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/LocalMediaPipeRegression.java")],check=True)
+subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"com.videomenu.video.LocalMediaPipeRegression"],check=True)

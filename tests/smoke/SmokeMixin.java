@@ -74,6 +74,7 @@ public abstract class SmokeMixin {
         if (Boolean.getBoolean("evatex.qa.collisionLayout")) { evatexqa$collision(client); return; }
         if (Boolean.getBoolean("evatex.qa.reportedMenus")) { evatexqa$reportedMenus(client); return; }
         if (Boolean.getBoolean("evatex.qa.extendedMenus")) { evatexqa$menus(client); return; }
+        if (Boolean.getBoolean("evatex.qa.reviewDiagnostics")) {evatexqa$reviewDiagnostics(client);return;}
         if (Boolean.getBoolean("evatex.qa.shortcutOnly") && evatexqa$stage==1) {
             System.out.println("EVATEX_QA COMPLETE shortcut layout");client.method_1592();return;
         }
@@ -150,6 +151,28 @@ public abstract class SmokeMixin {
                 System.out.println("EVATEX_QA COMPLETE"); client.method_1592();
             }
         }
+    }
+    @Unique private void evatexqa$reviewDiagnostics(class_310 client) {
+        if(!VideoBackground.INSTANCE.status().equals("playing"))throw new AssertionError("Review video not playing");
+        if(evatexqa$stage++==0) {
+            evatexqa$capture(client,"review-vanilla");
+            evatexqa$title=client.field_1755;client.method_1507(new VideoSelectScreen(evatexqa$title,0));return;
+        }
+        VideoSelectScreen screen=(VideoSelectScreen)client.field_1755;
+        try {
+            var page=VideoSelectScreen.class.getDeclaredField("settingsPage");page.setAccessible(true);page.setInt(screen,2);
+            var rebuild=VideoSelectScreen.class.getDeclaredMethod("rebuild");rebuild.setAccessible(true);rebuild.invoke(screen);
+            String previous=client.field_1774.method_1460();
+            try {
+                evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.diagnostics_copy")));
+                String report=client.field_1774.method_1460();
+                if(!report.contains("EVATEX playback diagnostics") || !report.contains("Decoder: SOFTWARE") || !report.contains("GPU renderer:") || !report.contains("Configured FPS:"))throw new AssertionError("Incomplete clipboard diagnostic report");
+                if(report.contains("http://") || report.contains("/home/") || report.contains(".mp4"))throw new AssertionError("Diagnostic report leaked a connection secret or file path");
+                evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.diagnostics_copied"));
+                System.out.println("EVATEX_QA PASS diagnostic action, real clipboard, report privacy, translated feedback and software playback");
+            } finally {client.field_1774.method_1455(previous);}
+            System.out.println("EVATEX_QA COMPLETE review diagnostics");client.method_1592();
+        }catch(ReflectiveOperationException e){throw new RuntimeException(e);}
     }
     @Unique private void evatexqa$press(net.minecraft.class_4185 button) {
         try {

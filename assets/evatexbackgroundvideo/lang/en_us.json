@@ -47,5 +47,7 @@
   "evatex.category.appearance": "Appearance",
   "evatex.category.menus": "Menus",
   "evatex.status.engine_blocked": "Playback engine blocked by the operating system; check the log",
-  "evatex.status.engine_missing": "Playback engine unavailable; check the log"
+  "evatex.status.engine_missing": "Playback engine unavailable; check the log",
+  "evatex.diagnostics_copy": "Copy diagnostics",
+  "evatex.diagnostics_copied": "Diagnostics copied"
 }

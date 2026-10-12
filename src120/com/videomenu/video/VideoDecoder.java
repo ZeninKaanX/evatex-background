@@ -30,8 +30,7 @@ public final class VideoDecoder {
     private volatile int sourceWidth, sourceHeight, decodedWidth, decodedHeight;
     private boolean stillImage;
     private boolean gif;
-    private volatile java.net.ServerSocket videoServer;
-    private volatile java.net.Socket videoSocket;
+    private volatile LocalMediaPipe videoServer;
     private final boolean socketTransport = System.getProperty("os.name", "").toLowerCase(Locale.ROOT).startsWith("windows");
     private final java.util.List<Backend> backendCandidates;
     private volatile boolean closed, paused;
@@ -131,6 +130,7 @@ public final class VideoDecoder {
     public long audioWrittenBytes() { VideoAudio sink = audio; return sink == null ? 0 : sink.writtenBytes(); }
     public long audioUnderruns() { VideoAudio sink=audio;return sink==null ? 0 : sink.underruns(); }
     public String lastError() { return lastError; }
+    public String decodedSize() { return decodedWidth+"x"+decodedHeight; }
     public String decoderBackend() { return decoderBackend; }
     public long publishedFrames() {
         return this.publishedFrames;
@@ -299,12 +299,9 @@ public final class VideoDecoder {
         // Windows anonymous process pipes have small buffers. A bounded local TCP
         // connection avoids repeatedly stalling both FFmpeg and Java on those pipes.
         if (socketTransport) {
-            java.net.ServerSocket server = new java.net.ServerSocket();
+            LocalMediaPipe server = new LocalMediaPipe(262144);
             videoServer = server;
-            server.setReceiveBufferSize(262144);
-            server.bind(new java.net.InetSocketAddress("127.0.0.1", 0), 1);
-            server.setSoTimeout(500);
-            cmd.add("tcp://127.0.0.1:" + server.getLocalPort());
+            cmd.add(server.outputUrl());
         } else cmd.add("pipe:1");
         if (hasAudio) {
             try { synchronized(pauseLock){audio = new VideoAudio(audioEnabled,audioVolume);audio.paused(paused);} }
@@ -334,24 +331,14 @@ public final class VideoDecoder {
 
     private InputStream videoInput(Process p) throws IOException {
         if (!socketTransport) return p.getInputStream();
-        java.net.ServerSocket server = videoServer;
+        LocalMediaPipe server = videoServer;
         if (server == null) throw new IOException("Video connection closed");
-        while (!closed) {
-            try {
-                java.net.Socket socket = server.accept();
-                videoSocket = socket;
-                if (closed) { socket.close(); throw new IOException("Video closed"); }
-                return new java.io.BufferedInputStream(socket.getInputStream(), 262144);
-            } catch (java.net.SocketTimeoutException ignored) { if (!p.isAlive()) break; }
-        }
-        throw new IOException("Decoder stopped before opening the video connection");
+        return server.accept(() -> !closed && p.isAlive());
     }
 
     private void closeVideoTransport() {
-        java.net.Socket socket = videoSocket; videoSocket = null;
-        java.net.ServerSocket server = videoServer; videoServer = null;
-        try { if (socket != null) socket.close(); } catch (IOException ignored) {}
-        try { if (server != null) server.close(); } catch (IOException ignored) {}
+        LocalMediaPipe server = videoServer; videoServer = null;
+        if (server != null) server.close();
     }
 
     public boolean viewportChanged(int width, int height, boolean fill) {

@@ -193,12 +193,13 @@ public class DecoderRegression {
         check(durations.get(0)<durations.get(1) && durations.get(1)<durations.get(2),"GIF variable source delays preserved");
         // Force the Windows transport on every CI host. Callback-owned arrays are
         // recycled after return, with a bounded pool even across clip loops.
-        config.videoPath=Path.of(args[0]).toAbsolutePath().toString();config.fps=60;
+        config.videoPath=Path.of(args[0]).toAbsolutePath().toString();config.fps=60;config.hardwareAcceleration=false;
         CountDownLatch pooledFrames=new CountDownLatch(121);
         java.util.Set<int[]> identities=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
         VideoDecoder pooled=new VideoDecoder(config,(frame,w,h)->{identities.add(frame);pooledFrames.countDown();},()->{},true);
         transport.setBoolean(pooled,true);
         check(pooled.start() && pooledFrames.await(10,TimeUnit.SECONDS),"local TCP transport plays and loops");
+        check(pooled.decoderBackend().equals("SOFTWARE"),"explicit acceleration opt-out produces real software frames");
         pooled.close();Thread.sleep(300);
         check(identities.size()<=6,"no per-frame large array allocation in borrowed mode");
         var server=VideoDecoder.class.getDeclaredField("videoServer");server.setAccessible(true);
@@ -206,7 +207,7 @@ public class DecoderRegression {
         System.out.println("PASS PNG/JPEG/BMP single decode, literal Unicode/percent paths, GIF loops/timing, TCP transport and bounded frame pool");
         // Exercise failed native GPU initialization followed by real software
         // decoding on GPU-less CI hosts; all process/audio resources must be closed.
-        config.videoPath=Path.of(args[0]).toAbsolutePath().toString(); config.fps=30;
+        config.videoPath=Path.of(args[0]).toAbsolutePath().toString(); config.fps=30;config.hardwareAcceleration=true;
         CountDownLatch fallbackFrames=new CountDownLatch(12);
         VideoDecoder fallback=new VideoDecoder(config,(frame,w,h)->fallbackFrames.countDown());
         var candidates=VideoDecoder.class.getDeclaredField("backendCandidates");candidates.setAccessible(true);

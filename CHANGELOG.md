@@ -1,3 +1,11 @@
+## 1.8.12
+
+- Authenticate local FFmpeg video and audio uploads with a fresh per-connection secret; reject wrong/incomplete handshakes and close listeners after connection.
+- Add Copy diagnostics in the Menus settings category with operating system, GPU renderer, decoder, decoded resolution and configured FPS. Exclude private media paths and connection secrets.
+- Add playback and volunteer platform-test issue templates.
+- Update the official showcase link and align current source/issues links, Loader requirements and user documentation.
+- Preserve the existing playback settings, muted default and native/client menu ownership. Physical Windows/macOS and full Lunar runtime coverage remain bounded by the validation records.
+
 ## 1.8.11
 
 - Support Fabric Loader 0.18.4 and later; Minecraft 26.3 requires 0.19.3 and later. Embed the corrected Mixin Extras 0.5.5 library to avoid the startup failure with Loader 0.19.3's bundled revision.

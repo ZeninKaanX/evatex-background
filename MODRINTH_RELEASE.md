@@ -1,14 +1,17 @@
-# 1.8.11 — Client access and playback diagnostics
+# 1.8.12 — Authenticated playback and support diagnostics
 
-- Support Fabric Loader 0.18.4+ on Minecraft 1.20–26.2, and Loader 0.19.3+ on Minecraft 26.3. Include Mixin Extras 0.5.5 to fix the reproduced older-Loader startup failure.
-- Improve shortcut placement around public custom controls: visibility, fractional edges, nested children and bounded traversal.
-- Open EVATEX settings from Mod Menu as an alternative to the title-screen button. For Lunar Client, use the Fabric add-on and Vanilla (Overlay) menu style to expose native mod buttons. Full proprietary Lunar runtime testing is pending.
-- Decode standard PNG/JPEG/BMP photos with Java's bounded image reader, without an external FFmpeg process.
-- Show separate messages for blocked and missing playback engines. Preserve the permission-denial cause if system FFmpeg is also missing; avoid a permanently failed system-engine fallback.
-- Keep the chosen mod icon, clean Astral menus, video brightness, sharp text, meteors and focus pause/resume behavior.
+- Authenticate local FFmpeg video and PCM uploads with a fresh per-session secret. Bind only to IPv4 loopback on ephemeral ports, reject invalid/incomplete handshakes and close the listener after the legitimate connection.
+- Add **Copy diagnostics** under **Menus** in EVATEX settings. Reports include OS, Java, GPU renderer, active decoder, decoded resolution and configured FPS, excluding private media paths and connection secrets.
+- Provide focused playback-report and volunteer hardware-test issue templates.
+- Align current project source/issues links and Loader requirements, clean the README and add the official YouTube showcase plus an English full-HD vanilla-menu gallery image.
 
-The supplied Windows game log reports `CreateProcess error=5` for bundled FFmpeg and `error=2` for unavailable system FFmpeg. This release does not override Windows execution policies. The reported settings crash has no crash stack in the supplied files and is not claimed to be resolved.
+Fabric Loader 0.18.4+ is supported; Minecraft 26.3 needs 0.19.3+. Install the jar matching your exact Minecraft version. Existing settings and muted defaults are preserved. This is a stable release.
+
+Physical Windows/macOS GPU behavior and proprietary Lunar runtime remain subject to the documented validation limits. This update does not override Windows execution policies.
 
 ## Upload metadata
 
-Type: Release. Loader: Fabric. Upload Minecraft 1.21.11 first; use one exact Minecraft version for each jar.
+- Release type: release
+- Loader: Fabric
+- Client only
+- Separate exact-version files; Minecraft 1.21.11 first

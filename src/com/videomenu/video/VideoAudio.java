@@ -2,17 +2,13 @@ package com.videomenu.video;
 
 import com.videomenu.VideoMenuClient;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 
 /** PCM from the same FFmpeg input timeline as the video; no second video decoder. */
 public final class VideoAudio implements AutoCloseable {
-    private final ServerSocket server;
-    private volatile Socket socket;
+    private final LocalMediaPipe server;
     private volatile SourceDataLine line;
     private volatile boolean closed, enabled, paused;
     private volatile String status = "muted";
@@ -34,12 +30,10 @@ public final class VideoAudio implements AutoCloseable {
         lineFactory = factory;
         this.volume=volume;
         this.enabled = enabled;
-        server = new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"));
-        server.setReceiveBufferSize(8192);
-        server.setSoTimeout(1000);
+        server = new LocalMediaPipe(8192);
         thread = new Thread(this::read, "EVATEX-Audio"); thread.setDaemon(true); thread.start();
     }
-    public String outputUrl() { return "tcp://127.0.0.1:"+server.getLocalPort()+"?tcp_nodelay=1&send_buffer_size=8192"; }
+    public String outputUrl() { return server.outputUrl(); }
     public String status() { return status; }
     public long receivedBytes() { return receivedBytes; }
     public long writtenBytes() { return writtenBytes; }
@@ -75,14 +69,8 @@ public final class VideoAudio implements AutoCloseable {
     private synchronized void awaitResume() throws InterruptedException {while(paused && !closed)wait();}
     private void read() {
         try {
-            while (!closed && socket == null) {
-                try { socket = server.accept(); }
-                catch (java.net.SocketTimeoutException ignored) {}
-            }
-            if (closed) return;
-            socket.setReceiveBufferSize(8192); server.close();
             byte[] pcm = new byte[4096];
-            try (InputStream input = socket.getInputStream()) {
+            try (InputStream input = server.accept(() -> !closed)) {
                 int count;
                 while (!closed) {
                     awaitResume();if(closed)break;
@@ -161,7 +149,6 @@ public final class VideoAudio implements AutoCloseable {
     @Override public void close() {
         closed = true; synchronized(this){notifyAll();} closeLine();
         try { server.close(); } catch (Exception ignored) {}
-        try { if (socket != null) socket.close(); } catch (Exception ignored) {}
         thread.interrupt();
     }
 }

@@ -43,6 +43,13 @@ public final class VideoBackground {
     public String status() { return !foreground && decoder!=null ? "paused" : status; }
     public synchronized void setForeground(boolean value) {if(foreground!=value){foreground=value;if(decoder!=null)decoder.setPaused(!value);}}
     public synchronized String audioStatus() { return decoder == null ? "muted" : decoder.audioStatus(); }
+    public synchronized String diagnosticPlayback() {
+        VideoDecoder d=decoder;
+        return "Playback: "+status()+"\nDecoder: "+(d==null ? "inactive" : d.decoderBackend())
+            +"\nDecoded resolution: "+(d==null ? "none" : d.decodedSize())
+            +"\nPublished frames: "+(d==null ? 0 : d.publishedFrames())
+            +"\nAudio: "+audioStatus()+"\n";
+    }
     public boolean isActive() { return latest != null; }
     /** One policy for decoder lifetime, screen backdrop and opaque list suppression. */
     public boolean supportsMenu(net.minecraft.class_437 screen, boolean worldLoaded) {
