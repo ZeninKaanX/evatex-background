@@ -218,7 +218,17 @@ public abstract class SmokeMixin {
             case 8 -> {if(screen instanceof net.minecraft.class_429)throw new AssertionError("Pack settings action failed");evatexqa$capture(client,"astral-packs");screen.method_25419();}
             case 9 -> {
                 if(!(screen instanceof net.minecraft.class_429))throw new AssertionError("Options return failed");
-                if(FabricLoader.getInstance().isModLoaded("modmenu"))try {client.method_1507((class_437)Class.forName("com.terraformersmc.modmenu.gui.ModsScreen").getConstructor(class_437.class).newInstance(screen));evatexqa$stage=90;}catch(ReflectiveOperationException error){throw new RuntimeException(error);}
+                if(FabricLoader.getInstance().isModLoaded("modmenu"))try {client.method_1507((class_437)Class.forName("com.terraformersmc.modmenu.gui.ModsScreen").getConstructor(class_437.class).newInstance(screen));
+                    if(Boolean.getBoolean("evatex.qa.gallery")) {
+                        var field=client.field_1755.getClass().getDeclaredField("modList");field.setAccessible(true);Object list=field.get(client.field_1755);
+                        for(Object entry:(java.util.List<?>)list.getClass().getMethod("method_25396").invoke(list)) {
+                            Object mod=entry.getClass().getMethod("getMod").invoke(entry);
+                            if(Class.forName("com.terraformersmc.modmenu.util.mod.Mod").getMethod("getId").invoke(mod).equals("evatexbackgroundvideo")) {
+                                list.getClass().getMethod("select",Class.forName("com.terraformersmc.modmenu.gui.widget.entries.ModListEntry")).invoke(list,entry);break;
+                            }
+                        }
+                    }
+                    evatexqa$stage=90;}catch(ReflectiveOperationException error){throw new RuntimeException(error);}
                 else client.method_1507(new VideoSelectScreen(screen,0));
             }
             case 90 -> {
