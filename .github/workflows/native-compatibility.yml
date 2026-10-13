@@ -20,6 +20,13 @@ jobs:
           from pathlib import Path
           targets=json.loads(Path('loaders/targets.json').read_text())
           rows=[{'minecraft':mc,'loader':loader} for mc,loaders in targets.items() for loader,revision in loaders.items() if revision]
+          def priority(row):
+              mc=row['minecraft']
+              if mc=='1.21.11':return 0
+              if mc.startswith('26.'):return 1
+              if row['loader']=='neoforge' and mc in ('1.20.2','1.20.3','1.20.5'):return 4
+              return 2 if mc.startswith('1.21') else 3
+          rows.sort(key=priority)
           with open(os.environ['GITHUB_OUTPUT'],'a') as output:
               output.write('matrix='+json.dumps({'include':rows})+'\n')
           PY

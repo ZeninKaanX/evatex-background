@@ -39,6 +39,16 @@ def generate(loader,version,qa=False):
         fetch(reference['url'],CACHE/(version+'-mojang-mappings.txt'),reference['sha1'])
         tiny_jar=fetch(f'https://maven.fabricmc.net/net/fabricmc/intermediary/{version}/intermediary-{version}-v2.jar',CACHE/(version+'-mappings.jar'))
         with zipfile.ZipFile(tiny_jar) as archive:(CACHE/(version+'.tiny')).write_bytes(archive.read('mappings/mappings.tiny'))
+    else:
+        # The shared 26.x adapter translates the 1.21.11 source vocabulary
+        # before applying named-API changes. Fresh CI workers need that
+        # development input even though 26.x itself is unobfuscated.
+        reference_entry=next(item for item in manifest['versions'] if item['id']=='1.21.11')
+        reference_game=metadata(reference_entry['url'],'1.21.11.json')
+        reference=reference_game['downloads']['client_mappings']
+        fetch(reference['url'],CACHE/'1.21.11-mojang-mappings.txt',reference['sha1'])
+        tiny=fetch('https://maven.fabricmc.net/net/fabricmc/intermediary/1.21.11/intermediary-1.21.11-v2.jar',CACHE/'1.21.11-mappings.jar')
+        with zipfile.ZipFile(tiny) as archive:(CACHE/'1.21.11.tiny').write_bytes(archive.read('mappings/mappings.tiny'))
     project=native_project(loader,version)
     target=project/'build/generated/sources'
     if target.exists():shutil.rmtree(target)
