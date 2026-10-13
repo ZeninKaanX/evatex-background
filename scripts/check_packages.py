@@ -52,4 +52,5 @@ for version in ([args.minecraft] if args.minecraft else VERSIONS):
         assert archive.testzip() is None
     digest=hashlib.sha256(jar.read_bytes()).hexdigest()
     assert jar.with_suffix('.jar.sha256').read_text().split()[0]==digest
+    jar.with_suffix('.jar.validation.json').write_text(json.dumps(dict(status='package-verified',loader='fabric',minecraft=version,version=MOD_VERSION,sha256=digest),indent=2)+'\n')
     print('PASS bundled package',version,flush=True)

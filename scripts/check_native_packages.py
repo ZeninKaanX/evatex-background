@@ -41,6 +41,8 @@ for file in files:
    engines[path]=bundled
  with file.open('rb') as stream:checksum=hashlib.file_digest(stream,'sha256').hexdigest()
  assert file.with_suffix('.jar.sha256').read_text().split()[0]==checksum
- report.append(dict(loader=loader,minecraft=version,version=MOD_VERSION,file=str(file),bytes=file.stat().st_size,sha256=checksum,qaHelpers=False,fabricClasses=False,engines=engines))
+ entry=dict(loader=loader,minecraft=version,version=MOD_VERSION,file=str(file),bytes=file.stat().st_size,sha256=checksum,qaHelpers=False,fabricClasses=False,engines=engines,status='package-verified')
+ report.append(entry)
+ file.with_suffix('.jar.validation.json').write_text(json.dumps(entry,indent=2)+'\n')
  print('PASS native package',loader,file.name)
 path=ROOT/'build/native-loaders/package-validation.json';path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(report,indent=2)+'\n')

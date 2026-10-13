@@ -34,7 +34,12 @@ def main():
             loader='neoforge' if jar.name.endswith('-neoforge.jar') else 'forge'
             mc=jar.name.split('-mc',1)[1].rsplit('-'+loader+'.jar',1)[0]
             check=[sys.executable,str(ROOT/'scripts/check_native_packages.py'),str(jar)]
-        subprocess.run(check,check=True)
+        receipt_path=jar.with_suffix('.jar.validation.json')
+        receipt=json.loads(receipt_path.read_text()) if receipt_path.exists() else {}
+        with jar.open('rb') as stream:sha256=hashlib.file_digest(stream,'sha256').hexdigest()
+        if not (receipt.get('status')=='package-verified' and receipt.get('loader')==loader and receipt.get('minecraft')==mc and receipt.get('version')==MOD_VERSION and receipt.get('sha256')==sha256):
+            subprocess.run(check,check=True)
+        else:print('Reused unchanged package verification',loader,mc,flush=True)
         number=f'{MOD_VERSION}+mc{mc}.{loader}'
         found=next((item for item in remote if item['version_number']==number),None)
         with jar.open('rb') as stream:digest=hashlib.file_digest(stream,'sha512').hexdigest()
