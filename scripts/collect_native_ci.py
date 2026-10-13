@@ -3,7 +3,7 @@
 
 No remote artifact is executed. Runtime tests are recorded separately.
 """
-import argparse,hashlib,json,subprocess,sys,urllib.request,zipfile
+import argparse,hashlib,json,subprocess,sys,urllib.request,uuid,zipfile
 from pathlib import Path
 from build import ROOT,MOD_VERSION
 from build_native import package_native
@@ -22,7 +22,7 @@ def main():
     jobs=get_json(base+'/jobs?per_page=100')['jobs']
     successful={job['name'] for job in jobs if job['conclusion']=='success'}
     artifacts=get_json(base+'/artifacts?per_page=100')['artifacts']
-    remote=get_json('https://api.modrinth.com/v2/project/RWtUJXS3/version')
+    remote=get_json('https://api.modrinth.com/v2/project/RWtUJXS3/version?verify='+uuid.uuid4().hex)
     published={item['version_number'] for item in remote}
     kind='fabric' if args.fabric else 'native'
     report=ROOT/'build/native-loaders'/f'cloud-collection-{args.run}-{kind}.json'
