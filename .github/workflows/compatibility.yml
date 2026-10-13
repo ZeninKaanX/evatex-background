@@ -1,7 +1,7 @@
 name: Minecraft compatibility builds
 on:
   push:
-    paths: ['src/**', 'src120/**', 'scripts/**', 'tests/**', 'assets/evatexbackgroundvideo/**', 'fabric.mod.json', 'videomenu.mixins.json', '.github/workflows/compatibility.yml']
+    paths: ['src/**', 'src120/**', 'scripts/build.py', 'scripts/ports.py', 'scripts/named_port.py', 'scripts/test.py', 'scripts/test_desktop.py', 'tests/**', 'assets/evatexbackgroundvideo/**', 'fabric.mod.json', 'videomenu.mixins.json', '.github/workflows/compatibility.yml']
   pull_request:
   workflow_dispatch:
 permissions:

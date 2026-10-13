@@ -27,7 +27,7 @@ GPU decoding still involves CPU colour conversion, frame copies, audio and Minec
 ## Installation
 
 
-EVATEX has native **Forge** and **NeoForge** builds for **Minecraft 1.21.11**, alongside the existing Fabric builds. Choose the jar matching both your loader and Minecraft version; install only one EVATEX jar in an instance. Forge/NeoForge builds use their native Mods settings button and include the same backgrounds, sound controls and optional Astral interface. They do not require Fabric API, Mod Menu or a compatibility bridge.
+EVATEX has native **Forge** and **NeoForge** builds alongside Fabric. The release list shows the available Minecraft/loader combinations; **1.21.11** is the modern runtime-tested reference, and the historical Forge **1.20.1** development client also passed representative menu tests. Choose the jar matching both your loader and Minecraft version; install only one EVATEX jar in an instance. Forge/NeoForge builds use their native Mods settings button and include the same backgrounds, sound controls and optional Astral interface. They do not require Fabric API, Mod Menu or a compatibility bridge.
 
 | Loader | Minecraft | Minimum loader | Java |
 | --- | --- | --- | --- |
