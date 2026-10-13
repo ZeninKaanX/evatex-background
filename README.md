@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.12
+# EVATEX-Background — Astral 1.8.13
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -7,6 +7,10 @@ Replace Minecraft's title screen, multiplayer server selection, world selection,
 [Watch the official showcase](https://youtube.com/shorts/EzglUlDrTkI).
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
+
+## Optional in-game settings backgrounds
+
+In EVATEX settings → Menus, **In-game options background** is off by default. Enable it to use your wallpaper in supported options screens while a world is loaded. This does not play video behind ordinary gameplay, chat or inventories. Leaving a supported menu closes the decoder and audio processes and releases the video texture. Existing title-menu settings remain independent. Video playback still has a hardware-dependent cost while an opted-in menu is open.
 
 ## Backgrounds and Windows playback
 
@@ -27,7 +31,7 @@ EVATEX has native **Forge** and **NeoForge** builds for **Minecraft 1.21.11**, a
 
 | Loader | Minecraft | Minimum loader | Java |
 | --- | --- | --- | --- |
-| Forge | 1.21.11 | 61.2.0 | 21+ |
+| Forge | 1.21.11 | 61.2.3 | 21+ |
 | NeoForge | 1.21.11 | 21.11.45 | 21+ |
 
 Native-loader support currently covers 1.21.11. The 24-version coverage below describes **Fabric** builds.
@@ -113,3 +117,5 @@ python3 scripts/build_native.py --loader neoforge --minecraft 1.21.11
 ```
 
 Gradle wrappers download the official Forge/NeoForge toolchains. The build translates shared sources into Mojang names, preserves exact overload selectors for mixins, registers native client initialization/configuration screens, and packages the bundled FFmpeg assets. Development mappings are not distributed. Fetch the bundled engines using the existing FFmpeg scripts before packaging. Native artifacts are written to `build/dist` with `-forge.jar` or `-neoforge.jar` suffixes; they are separate from Fabric artifacts. Atlas integration remains in the Fabric build because Atlas Client 3.0.3 is a Fabric mod.
+
+`loaders/targets.json` pins the upstream native-loader versions for the same 24 Minecraft releases as Fabric. A null entry means no loader was published upstream: Forge has no 1.20.5 or 1.21.2 release, and NeoForge has no 1.20 release. The target list is a build plan, not runtime-test evidence. `python3 scripts/build_native_matrix.py` builds targets sequentially under a Linux user-systemd CPU quota of 70% of one core and records compilation results. It skips unavailable upstream combinations. Gradle uses one worker; NeoForge/legacy Forge binary development bundles avoid source decompilation. Older ForgeGradle projects require a Java 21 Gradle launcher (set `EVATEX_GRADLE_JAVA21` if it is not installed in the normal JDK locations).

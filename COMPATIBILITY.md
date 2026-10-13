@@ -68,7 +68,7 @@ On Windows, `CreateProcess error=5` means the bundled FFmpeg executable was deni
 
 | Minecraft | Loader | Minimum loader | Java | Artifact suffix |
 | --- | --- | --- | --- | --- |
-| 1.21.11 | Forge | 61.2.0 | 21+ | `-mc1.21.11-forge.jar` |
+| 1.21.11 | Forge | 61.2.3 | 21+ | `-mc1.21.11-forge.jar` |
 | 1.21.11 | NeoForge | 21.11.45 | 21+ | `-mc1.21.11-neoforge.jar` |
 
 Install the file for your actual loader. Native builds do not load Fabric modules or Mod Menu and do not require a loader bridge. The Mods configuration action opens EVATEX settings. Forge and NeoForge Mods screens are recognized by the options-menu wallpaper switch. Native builds share the player, configuration, resource assets and Astral controls with Fabric. The bundled engines cover the same target operating systems; loader QA recorded here is Linux only, not a new Windows/macOS performance certification. Minecraft versions other than 1.21.11 currently retain Fabric-only support.

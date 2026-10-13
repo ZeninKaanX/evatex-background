@@ -16,7 +16,7 @@ public abstract class MenuListBackgroundMixin {
     private void evatex$transparentMenu(class_332 context, CallbackInfo ci) {
         var client=class_310.method_1551();
         var screen=client.field_1755;
-        if (com.videomenu.AstralMenus.ownsList(this) || client.field_1687==null && VideoBackground.INSTANCE.isActive()
+        if (com.videomenu.AstralMenus.ownsList(this) || VideoBackground.INSTANCE.supportsMenu(screen, client.field_1687!=null) && VideoBackground.INSTANCE.isActive()
             && VideoBackground.INSTANCE.decoratesMenu(screen)) ci.cancel();
     }
 }

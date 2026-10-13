@@ -4,8 +4,8 @@ Mappings are development inputs, never included in distribution jars.
 from collections import defaultdict
 import re
 
-def symbols(cache):
-    lines=(cache/'1.21.11-mojang-mappings.txt').read_text().splitlines()
+def symbols(cache, version="1.21.11"):
+    lines=(cache/(version+'-mojang-mappings.txt')).read_text().splitlines()
     classes={}
     for line in lines:
         if line and not line[0].isspace() and ' -> ' in line and line.endswith(':'):
@@ -32,7 +32,7 @@ def symbols(cache):
         members[(owner,obf,signature)]=name
     result={}; candidates=defaultdict(set);owner=None
     reverse={v:k for k,v in classes.items()}
-    for line in (cache/'1.21.11.tiny').read_text().splitlines()[1:]:
+    for line in (cache/(version+'.tiny')).read_text().splitlines()[1:]:
         row=line.split('\t')
         if row[0]=='c':
             owner=row[1]

@@ -49,5 +49,6 @@
   "evatex.status.engine_blocked": "İşletim sistemi oynatma motorunu engelledi; günlüğü kontrol edin",
   "evatex.status.engine_missing": "Oynatma motoru bulunamadı; günlüğü kontrol edin",
   "evatex.diagnostics_copy": "Tanı raporunu kopyala",
-  "evatex.diagnostics_copied": "Tanı raporu kopyalandı"
+  "evatex.diagnostics_copied": "Tanı raporu kopyalandı",
+  "evatex.ingame_background": "Oyun içi ayarlarda arka plan: %s"
 }

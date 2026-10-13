@@ -28,7 +28,7 @@ public abstract class ServerListBackgroundMixin {
         var screen=client.field_1755;
         evatex$restore=((Object)this instanceof class_4267 && screen instanceof class_500
             || VideoBackground.INSTANCE.decoratesMenu(screen))
-            && client.field_1687==null && VideoBackground.INSTANCE.isActive();
+            && VideoBackground.INSTANCE.supportsMenu(screen,client.field_1687!=null) && VideoBackground.INSTANCE.isActive();
         if (evatex$restore) {
             evatex$background=field_26846; evatex$edges=field_26847;
             field_26846=false; field_26847=false;

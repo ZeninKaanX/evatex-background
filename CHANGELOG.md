@@ -1,3 +1,9 @@
+## 1.8.13
+
+- Add a separate, default-off in-game options wallpaper setting in the Menus category. Preserve existing settings and title-screen backgrounds.
+- Permit only supported options screens and EVATEX preview while a world is loaded; ordinary gameplay, chat and inventories never start decoding. Close decoder/audio processes and release textures on return to gameplay.
+- Retain focus pause, bounded frame buffers and native-loader settings factories.
+
 ## 1.8.12
 
 - Authenticate local FFmpeg video and audio uploads with a fresh per-connection secret; reject wrong/incomplete handshakes and close listeners after connection.

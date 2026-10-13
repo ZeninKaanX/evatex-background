@@ -53,13 +53,16 @@ public final class VideoBackground {
     public boolean isActive() { return latest != null; }
     /** One policy for decoder lifetime, screen backdrop and opaque list suppression. */
     public boolean supportsMenu(net.minecraft.class_437 screen, boolean worldLoaded) {
-        if (worldLoaded || screen == null) return false;
-        return screen instanceof net.minecraft.class_442 || screen instanceof net.minecraft.class_500
-            || screen instanceof com.videomenu.VideoSelectScreen || decoratesMenu(screen);
+        if (screen == null) return false;
+        return com.videomenu.MenuPlaybackPolicy.allows(worldLoaded,
+            config != null && config.inGameMenuBackground,
+            screen instanceof net.minecraft.class_442 || screen instanceof net.minecraft.class_500,
+            decoratesMenu(screen), screen instanceof com.videomenu.VideoSelectScreen);
     }
     public boolean decoratesMenu(net.minecraft.class_437 screen) {
         VideoMenuConfig settings = config;
-        return settings != null && settings.enabled &&
+        return settings != null && settings.enabled
+            && (class_310.method_1551().field_1687 == null || settings.inGameMenuBackground) &&
             (settings.worldMenuBackground && (screen instanceof net.minecraft.class_526 || screen instanceof net.minecraft.class_525 || screen instanceof net.minecraft.class_524 || screen instanceof net.minecraft.class_5235)
              || settings.optionsMenuBackground && (screen instanceof net.minecraft.class_429 || screen instanceof net.minecraft.class_4667
                  || screen instanceof net.minecraft.class_5375 || screen instanceof net.minecraft.class_8219 || isSodiumOptions(screen) || isModsScreen(screen)));

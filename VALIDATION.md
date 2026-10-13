@@ -1,6 +1,6 @@
-# EVATEX validation — 1.8.12
+# EVATEX validation — 1.8.13
 
-All 24 exact-version builds were compiled and their metadata, Java bytecode targets, embedded libraries, bundled engines, archive CRC and SHA-256 sidecars checked. Decoder/audio regression tests include real MP4/GIF playback, native PNG/JPEG/BMP decoding, error classification, bounded buffers, focus behavior, custom-widget bounds and menu ownership.
+The 1.8.12 Fabric release's 24 exact-version builds were compiled and their metadata, Java bytecode targets, embedded libraries, bundled engines, archive CRC and SHA-256 sidecars checked. Decoder/audio regression tests include real MP4/GIF playback, native PNG/JPEG/BMP decoding, error classification, bounded buffers, focus behavior, custom-widget bounds and menu ownership. Current 1.8.13 expansion results are recorded separately below.
 
 ## Historical 1.8.11 runtime coverage
 
@@ -38,3 +38,14 @@ Real clients ran on Linux with Mesa Intel UHD Graphics. Final QA used isolated p
 Fabric 1.21.11 and the Java 17 legacy adapter for 1.20.1 compiled after the platform refactor. Decoder/audio/layout/menu-ownership/custom-widget/authenticated-loopback regressions passed, including local TCP focus pause/resume with zero FFmpeg CPU time during the paused interval and temporary audio-device recovery with no sound emitted.
 
 Limits: these are native-loader integration tests on Linux, not real Windows/macOS driver tests. Native builds currently target Minecraft 1.21.11 only; the existing 24-version matrix remains Fabric-specific. Atlas compatibility remains Fabric-specific because the referenced Atlas client is a Fabric mod. Native APIs are pinned to the tested loader revisions; minimum metadata allows Forge 61.2.0+, but the real Forge run recorded here used 61.2.3.
+
+
+## Optional in-game menu policy (1.8.13)
+
+The 1.21.11 and legacy 1.20.1 Fabric builds compiled. Decoder, audio, focus, authenticated loopback and translation regressions passed. MenuPlaybackRegression verified the default-off setting, copied configuration, supported-menu opt-in, gameplay/overlay exclusion and 1,000 exit transitions. A real NeoForge 21.11.45 Linux client ran the supplied 1080p60 Reze video through the existing menus with master audio muted. An actual loaded-world GUI measurement has not yet been recorded; no zero-FPS-loss claim is made.
+
+## Native version expansion (in progress)
+
+`loaders/targets.json` records available upstream targets for Fabric's 24 Minecraft releases. It contains 22 Forge and 23 NeoForge targets; Forge 1.20.5/1.21.2 and NeoForge 1.20 do not exist upstream. A listed target alone does not establish EVATEX compatibility. Compilation receipts, including failed attempts, are written to `build/native-loaders/matrix-build.json`; publication receipts include exact loader/version and the remote SHA-512. These local reports are build output, not shipped source documentation.
+
+Real Minecraft integration coverage remains the named 1.21.11 configurations above. Extended-version compilation is not an individual runtime test. Native packaging checks reject Fabric dependencies and QA helpers, verify exact Minecraft/loader requirements and Java bytecode targets, check production refmaps where SRG is used, and compare bundled engine hashes. Builds share a low CPU quota, Gradle has one worker, and binary development bundles avoid decompilation where supported.

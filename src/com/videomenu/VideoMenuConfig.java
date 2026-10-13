@@ -25,6 +25,7 @@ public final class VideoMenuConfig {
     public boolean themeTransitions = true;
     public boolean worldMenuBackground = true;
     public boolean optionsMenuBackground = true;
+    public boolean inGameMenuBackground = false;
     public boolean menuMeteors = true;
     public boolean customMainMenu = false;
     public double darkening = 0.25;
@@ -41,6 +42,7 @@ public final class VideoMenuConfig {
             JsonObject obj = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
             config.worldMenuBackground = getBoolean(obj, "worldMenuBackground", true);
             config.optionsMenuBackground = getBoolean(obj, "optionsMenuBackground", true);
+            config.inGameMenuBackground = getBoolean(obj, "inGameMenuBackground", false);
             config.customMainMenu = getBoolean(obj, "customMainMenu", false);
             config.menuMeteors = getBoolean(obj, "menuMeteors", true);
             config.themeTransitions = getBoolean(obj, "themeTransitions", true);
@@ -68,6 +70,7 @@ public final class VideoMenuConfig {
         copy.darkening = darkening; copy.showVignette = showVignette;
         copy.worldMenuBackground = worldMenuBackground;
         copy.optionsMenuBackground = optionsMenuBackground;
+        copy.inGameMenuBackground = inGameMenuBackground;
         copy.menuMeteors = menuMeteors;
         copy.customMainMenu = customMainMenu;
         copy.themeTransitions = themeTransitions;
@@ -111,6 +114,7 @@ public final class VideoMenuConfig {
         obj.addProperty("_HELP", "EVATEX-Background ayarları. Arka Plan menüsünden video, GIF veya fotoğraf seçebilirsiniz. Dosyaları oyun klasöründeki videos, videolar veya backgrounds klasörüne ekleyin. videoPath seçili arka planın yoludur; eski ayarlar korunur. FFmpeg modla birlikte gelir.");
         obj.addProperty("worldMenuBackground", worldMenuBackground);
         obj.addProperty("optionsMenuBackground", optionsMenuBackground);
+        obj.addProperty("inGameMenuBackground", inGameMenuBackground);
         obj.addProperty("menuMeteors", menuMeteors);
         obj.addProperty("customMainMenu", customMainMenu);
         obj.addProperty("themeTransitions", themeTransitions);

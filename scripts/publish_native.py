@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""Publish explicitly selected, validated native packages; reconcile by version/hash.
+
+Requires MODRINTH_TOKEN or MODRINTH_TOKEN_FILE. Never logs credentials.
+"""
+import argparse, hashlib, http.client, json, os, subprocess, sys, urllib.request, uuid
+from pathlib import Path
+from build import ROOT, MOD_VERSION
+
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('files', nargs='+', type=Path)
+    args=parser.parse_args()
+    token=os.environ.get('MODRINTH_TOKEN')
+    if not token and os.environ.get('MODRINTH_TOKEN_FILE'):
+        token=Path(os.environ['MODRINTH_TOKEN_FILE']).read_text().strip()
+    if not token:raise SystemExit('Set MODRINTH_TOKEN_FILE or MODRINTH_TOKEN')
+    def api(path):
+        req=urllib.request.Request('https://api.modrinth.com/v2/'+path,headers={'Authorization':token,'User-Agent':'EVATEX-publisher/'+MOD_VERSION})
+        with urllib.request.urlopen(req,timeout=60) as response:return json.load(response)
+    remote=api('project/RWtUJXS3/version')
+    journal=ROOT/'build/native-loaders'/f'modrinth-native-{MOD_VERSION}-matrix.json'
+    results=json.loads(journal.read_text()) if journal.exists() else []
+    for jar in args.files:
+        jar=jar.resolve()
+        # Static package validation is a prerequisite, not a runtime-test claim.
+        subprocess.run([sys.executable,str(ROOT/'scripts/check_native_packages.py'),str(jar)],check=True)
+        loader='neoforge' if jar.name.endswith('-neoforge.jar') else 'forge'
+        mc=jar.name.split('-mc',1)[1].rsplit('-'+loader+'.jar',1)[0]
+        number=f'{MOD_VERSION}+mc{mc}.{loader}'
+        found=next((item for item in remote if item['version_number']==number),None)
+        with jar.open('rb') as stream:digest=hashlib.file_digest(stream,'sha512').hexdigest()
+        if found and found['files'][0]['hashes']['sha512']!=digest:
+            raise RuntimeError('Existing published version has a different hash: '+number)
+        if found is None:
+            name='NeoForge' if loader=='neoforge' else 'Forge'
+            data={'project_id':'RWtUJXS3','name':f'EVATEX-Background {MOD_VERSION} / Minecraft {mc} / {name}','version_number':number,'changelog':f'Native {name} build for Minecraft {mc}. Video, GIF and photo backgrounds, native Mods settings, volume controls and focus pause. Optional backgrounds in supported in-game settings screens are disabled by default; returning to gameplay stops decoding. Exact-version compilation and package checks passed. Runtime test coverage is documented in VALIDATION.md. Install one JAR matching your loader and Minecraft version.','dependencies':[],'game_versions':[mc],'version_type':'release','loaders':[loader],'featured':mc=='1.21.11','file_parts':['file'],'primary_file':'file','status':'listed'}
+            boundary=uuid.uuid4().hex
+            prefix=(f'--{boundary}\r\nContent-Disposition: form-data; name="data"\r\nContent-Type: application/json\r\n\r\n'+json.dumps(data)+f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{jar.name}"\r\nContent-Type: application/java-archive\r\n\r\n').encode()
+            suffix=f'\r\n--{boundary}--\r\n'.encode()
+            conn=http.client.HTTPSConnection('api.modrinth.com',timeout=300)
+            conn.putrequest('POST','/v2/version')
+            headers={'Authorization':token,'User-Agent':'EVATEX-publisher/'+MOD_VERSION,'Content-Type':'multipart/form-data; boundary='+boundary,'Content-Length':str(len(prefix)+jar.stat().st_size+len(suffix))}
+            for key,value in headers.items():conn.putheader(key,value)
+            conn.endheaders();conn.send(prefix)
+            print('Uploading',number,flush=True)
+            with jar.open('rb') as stream:
+                while chunk:=stream.read(1024*1024):conn.send(chunk)
+            conn.send(suffix);response=conn.getresponse();body=response.read();conn.close()
+            if response.status not in (200,201):
+                print('Publication stopped:',response.status,body.decode(errors='replace')[:600],flush=True)
+                return 1
+            found=json.loads(body);remote.append(found)
+        verified=api('version/'+found['id'])
+        assert verified['files'][0]['hashes']['sha512']==digest
+        assert verified['game_versions']==[mc] and verified['loaders']==[loader]
+        entry={'minecraft':mc,'loader':loader,'id':verified['id'],'sha512':digest,'url':'https://modrinth.com/mod/evatex-background/version/'+verified['id']}
+        results=[item for item in results if item['id']!=entry['id']]+[entry]
+        journal.parent.mkdir(parents=True,exist_ok=True);journal.write_text(json.dumps(results,indent=2)+'\n')
+        print('Verified',number,verified['id'],flush=True)
+    return 0
+
+if __name__=='__main__':sys.exit(main())

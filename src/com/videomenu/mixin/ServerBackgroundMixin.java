@@ -14,7 +14,7 @@ public abstract class ServerBackgroundMixin {
     @Inject(method = "method_25420", at = @At("HEAD"), cancellable = true)
     private void evatex$serverVideo(class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         class_437 screen = (class_437)(Object)this;
-        if (class_310.method_1551().field_1687 == null
+        if (VideoBackground.INSTANCE.supportsMenu(screen, class_310.method_1551().field_1687 != null)
             && VideoBackground.INSTANCE.renderMenu(context, screen.field_22789, screen.field_22790, screen)) {
             com.videomenu.AstralMenus.chrome(context,screen);ci.cancel();
         }

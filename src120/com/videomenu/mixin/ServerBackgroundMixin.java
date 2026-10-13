@@ -14,7 +14,7 @@ public abstract class ServerBackgroundMixin {
     @Inject(method = "method_25420", at = @At("HEAD"), cancellable = true)
     private void evatex$serverVideo(class_332 context, CallbackInfo ci) {
         class_437 screen = (class_437)(Object)this;
-        if (class_310.method_1551().field_1687 == null
+        if (VideoBackground.INSTANCE.supportsMenu(screen, class_310.method_1551().field_1687 != null)
             && VideoBackground.INSTANCE.renderMenu(context, screen.field_22789, screen.field_22790, screen)) {
             com.videomenu.AstralMenus.chrome(context,screen);ci.cancel();
         }
@@ -22,7 +22,7 @@ public abstract class ServerBackgroundMixin {
     @Inject(method = "method_25434", at = @At("HEAD"), cancellable = true)
     private void evatex$packVideo(class_332 context, CallbackInfo ci) {
         class_437 screen = (class_437)(Object)this;
-        if (screen instanceof net.minecraft.class_5375 && class_310.method_1551().field_1687 == null
+        if (screen instanceof net.minecraft.class_5375 && VideoBackground.INSTANCE.supportsMenu(screen,class_310.method_1551().field_1687 != null)
             && VideoBackground.INSTANCE.renderMenu(context, screen.field_22789, screen.field_22790, screen)) {
             com.videomenu.AstralMenus.chrome(context,screen);ci.cancel();
         }

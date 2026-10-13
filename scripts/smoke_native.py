@@ -5,19 +5,20 @@ from pathlib import Path
 from build_native import ROOT,generate
 p=argparse.ArgumentParser()
 p.add_argument('--loader',choices=('forge','neoforge'),required=True)
+p.add_argument('--minecraft',default='1.21.11')
 p.add_argument('--video',type=Path,required=True)
 p.add_argument('--timeout',type=int,default=210)
 a=p.parse_args()
 if not a.video.is_file():raise SystemExit('Video not found')
-project=generate(a.loader,'1.21.11',qa=True)
+project=generate(a.loader,a.minecraft,qa=True)
 run=project/'run';config=run/'config';config.mkdir(parents=True,exist_ok=True)
 (config/'fml.toml').write_text('earlyWindowControl=false\n')
 (config/'evatexbackgroundvideo.json').write_text(json.dumps(dict(videoPath=str(a.video.resolve()),fps=30,audioEnabled=False,audioVolume=.1,scale=1.,darkening=0,showVignette=False)))
 (run/'options.txt').write_text('lang:en_us\nguiScale:3\nmaxFps:30\nsoundCategory_master:0.0\nsoundCategory_music:0.0\n')
-log=ROOT/'build'/f'{a.loader}-smoke.log'
+log=ROOT/'build'/f'{a.loader}-{a.minecraft}-smoke.log'
 guards=[]; guarded=set();start=time.monotonic()
 with log.open('w') as out:
- task=subprocess.Popen(['nice','-n','19',str(project/'gradlew'),'-p',str(project),'runClient','-Pqa','--console','plain'],stdout=out,stderr=subprocess.STDOUT,start_new_session=True)
+ task=subprocess.Popen(['nice','-n','19',str(project/'gradlew'),'-p',str(project),'runClient','-Pqa','-PmodVersion='+json.loads((ROOT/'fabric.mod.json').read_text())['version'],'--console','plain'],stdout=out,stderr=subprocess.STDOUT,start_new_session=True)
  try:
   while task.poll() is None:
    if time.monotonic()-start>a.timeout:raise TimeoutError('Native QA timed out')
