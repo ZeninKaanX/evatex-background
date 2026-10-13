@@ -14,12 +14,23 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - id: targets
+        env:
+          EVATEX_REMAINING_NATIVE: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[remaining-native]') }}
         run: |
           python3 - <<'PY'
           import json, os
           from pathlib import Path
           targets=json.loads(Path('loaders/targets.json').read_text())
           rows=[{'minecraft':mc,'loader':loader} for mc,loaders in targets.items() for loader,revision in loaders.items() if revision]
+          # Explicit release-expansion recovery runs only unpublished targets.
+          # Normal pushes/PRs retain the complete compile matrix.
+          if os.environ.get('EVATEX_REMAINING_NATIVE')=='true':
+              import urllib.request, time
+              version=json.loads(Path('fabric.mod.json').read_text())['version']
+              url='https://api.modrinth.com/v2/project/RWtUJXS3/version?check='+str(time.time())
+              with urllib.request.urlopen(url,timeout=30) as response:
+                  published={item['version_number'] for item in json.load(response)}
+              rows=[row for row in rows if f"{version}+mc{row['minecraft']}.{row['loader']}" not in published]
           def priority(row):
               mc=row['minecraft']
               if mc=='1.21.11':return 0
@@ -61,7 +72,16 @@ jobs:
       - name: Compile exact native loader API
         run: |
           set -o pipefail
-          python scripts/build_native.py --loader '${{ matrix.loader }}' --minecraft '${{ matrix.minecraft }}' --compile-only 2>&1 | tee native-build.log
+          if python scripts/build_native.py --loader '${{ matrix.loader }}' --minecraft '${{ matrix.minecraft }}' --compile-only 2>&1 | tee native-build.log; then
+            exit 0
+          fi
+          # One bounded retry for an upstream download failure; compiler errors
+          # are surfaced immediately and are never converted into success.
+          if rg -q 'Connection reset|HttpTimeoutException|request timed out' native-build.log; then
+            python scripts/build_native.py --loader '${{ matrix.loader }}' --minecraft '${{ matrix.minecraft }}' --compile-only 2>&1 | tee -a native-build.log
+          else
+            exit 1
+          fi
       - name: Save development build and logs
         if: always()
         uses: actions/upload-artifact@v4

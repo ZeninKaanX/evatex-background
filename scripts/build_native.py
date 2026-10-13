@@ -265,10 +265,12 @@ def package_native(loader,version,artifact):
             for file in asset_files:z.write(file,file.relative_to(ROOT),compress_type=zipfile.ZIP_STORED if file.suffix=='.gz' else zipfile.ZIP_DEFLATED)
         temporary.replace(resource_cache)
     output.parent.mkdir(parents=True,exist_ok=True)
-    shutil.copyfile(resource_cache,output)
-    with zipfile.ZipFile(output,'a',zipfile.ZIP_DEFLATED) as z,zipfile.ZipFile(artifact) as native:
+    staged=output.with_name(output.name+f'.{os.getpid()}.tmp')
+    shutil.copyfile(resource_cache,staged)
+    with zipfile.ZipFile(staged,'a',zipfile.ZIP_DEFLATED) as z,zipfile.ZipFile(artifact) as native:
         for item in native.infolist():
             if not item.filename.startswith('assets/'):z.writestr(item,native.read(item.filename))
+    staged.replace(output)
     with output.open('rb') as stream:checksum=hashlib.file_digest(stream,'sha256').hexdigest()
     output.with_suffix('.jar.sha256').write_text(checksum+'  '+output.name+'\n')
     print('Built native',output,flush=True)

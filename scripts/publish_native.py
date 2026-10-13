@@ -17,6 +17,7 @@ def main():
     if not token:raise SystemExit('Set MODRINTH_TOKEN_FILE or MODRINTH_TOKEN')
     def api(path):
         req=urllib.request.Request('https://api.modrinth.com/v2/'+path,headers={'Authorization':token,'User-Agent':'EVATEX-publisher/'+MOD_VERSION})
+        req.full_url += ('&' if '?' in req.full_url else '?')+'verify='+uuid.uuid4().hex
         with urllib.request.urlopen(req,timeout=60) as response:return json.load(response)
     remote=api('project/RWtUJXS3/version')
     fabric_batch=all(file.name.startswith(f'evatex-background-video-{MOD_VERSION}-mc') for file in args.files)
@@ -42,7 +43,11 @@ def main():
         else:print('Reused unchanged package verification',loader,mc,flush=True)
         number=f'{MOD_VERSION}+mc{mc}.{loader}'
         found=next((item for item in remote if item['version_number']==number),None)
-        with jar.open('rb') as stream:digest=hashlib.file_digest(stream,'sha512').hexdigest()
+        # Hold the same inode through hashing and upload. Collection may
+        # atomically replace the path while this publication is in progress.
+        payload=jar.open('rb')
+        digest=hashlib.file_digest(payload,'sha512').hexdigest()
+        payload.seek(0)
         if found and found['files'][0]['hashes']['sha512']!=digest:
             raise RuntimeError('Existing published version has a different hash: '+number)
         if found is None:
@@ -57,13 +62,13 @@ def main():
             for key,value in headers.items():conn.putheader(key,value)
             conn.endheaders();conn.send(prefix)
             print('Uploading',number,flush=True)
-            with jar.open('rb') as stream:
-                while chunk:=stream.read(1024*1024):conn.send(chunk)
+            while chunk:=payload.read(1024*1024):conn.send(chunk)
             conn.send(suffix);response=conn.getresponse();body=response.read();conn.close()
             if response.status not in (200,201):
                 print('Publication stopped:',response.status,body.decode(errors='replace')[:600],flush=True)
                 return 1
             found=json.loads(body);remote.append(found)
+        payload.close()
         verified=api('version/'+found['id'])
         assert verified['files'][0]['hashes']['sha512']==digest
         assert verified['game_versions']==[mc] and verified['loaders']==[loader]
