@@ -52,6 +52,12 @@ mixin {{ add sourceSets.main, 'videomenu.refmap.json'; config 'videomenu.mixins.
 repositories {{ mavenCentral() }}
 dependencies {{ implementation 'net.neoforged:neoforge:{lv}' }}
 runs {{ client {{ client(); modSource sourceSets.main }} }}
+// The current source transformer requires Java 21, even for Java 17 games.
+// Keep compilation and the published bytecode on the game's own toolchain.
+tasks.withType(net.neoforged.gradle.common.runtime.tasks.JavaSourceTransformer).configureEach {{
+ javaVersion = JavaLanguageVersion.of(21)
+ javaLauncher = javaToolchains.launcherFor {{ languageVersion = JavaLanguageVersion.of(21) }}
+}}
 '''
     elif loader=='neoforge':
         gradle=f'''plugins {{ id 'java-library'; id 'net.neoforged.moddev' version '2.0.148' }}
