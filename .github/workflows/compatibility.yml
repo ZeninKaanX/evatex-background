@@ -28,6 +28,12 @@ jobs:
         run: python3 scripts/build.py --minecraft '${{ matrix.minecraft }}' --system-ffmpeg
       - name: Verify playback, frame ownership and configuration
         run: python3 scripts/test.py --minecraft '${{ matrix.minecraft }}'
+      - name: Save verified development jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: fabric-development-${{ matrix.minecraft }}
+          path: build/dist/*-mc${{ matrix.minecraft }}-system-ffmpeg.jar
+          if-no-files-found: error
 
   desktop-decoder:
     runs-on: ${{ matrix.os }}

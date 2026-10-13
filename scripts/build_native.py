@@ -126,7 +126,7 @@ public final class EvatexNative {
         entry=entry.replace('public EvatexNative(IEventBus bus,ModContainer container)', 'public EvatexNative(IEventBus bus)').replace('  bus.addListener(this::setup);','  if(net.neoforged.fml.loading.FMLEnvironment.dist!=Dist.CLIENT)return;\n  ModContainer container=net.neoforged.fml.ModLoadingContext.get().getActiveContainer();\n  bus.addListener(this::setup);\n  ')
     if loader=='neoforge' and version=='1.20.5':
         entry=entry.replace(',dist=Dist.CLIENT','').replace('  bus.addListener(this::setup);','  if(net.neoforged.fml.loading.FMLEnvironment.dist!=Dist.CLIENT)return;\n  bus.addListener(this::setup);')
-    if loader=='forge' and not version.startswith('26.') and version!='1.21.11' or legacy_namespace:
+    if loader=='forge' and version in ('1.20','1.20.1','1.20.2','1.20.3','1.20.4','1.20.6','1.21','1.21.1','1.21.3','1.21.4','1.21.5') or legacy_namespace:
         entry=entry.replace('public EvatexNative(FMLJavaModLoadingContext context)', 'public EvatexNative()').replace('  if(FMLEnvironment.dist==Dist.CLIENT)Client.setup(context);','  if(FMLEnvironment.dist==Dist.CLIENT)Client.setup(FMLJavaModLoadingContext.get());')
         entry=entry.replace('context.getContainer()', 'net.minecraftforge.fml.ModLoadingContext.get()')
         entry=entry.replace('ConfigScreenFactory(parent->new VideoSelectScreen(parent,0))','ConfigScreenFactory((minecraft,parent)->new VideoSelectScreen(parent,0))')
