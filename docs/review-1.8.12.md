@@ -33,3 +33,7 @@
 - An opt-in preview channel should be introduced only for actual preview builds. Current releases stay stable.
 - CurseForge needs a maintainer project/account and a release-mirroring choice. No upload or account change was performed.
 - NeoForge first, Forge afterward: inspect a single-version proof of concept before committing a reliable schedule or cost. Shared media code can be reused, but loader entrypoints, rendering hooks and native-widget/version adapters still need porting. See [expansion plan](expansion-plan.md).
+
+## Publication outcome
+
+21 of 24 stable 1.8.12 variants are published and verified against their local hashes, with Minecraft 1.21.11 first. Minecraft 26.1.1, 26.2 and 26.3 are ready locally but were rejected by Modrinth's daily version-upload limit. The response contains no quota-reset timestamp. No limit bypass or deletion of existing releases was attempted. The local release staging folder contains a stop-on-rejection resume helper and partial-publication verification.
