@@ -37,7 +37,7 @@ Real clients ran on Linux with Mesa Intel UHD Graphics. Final QA used isolated p
 
 Fabric 1.21.11 and the Java 17 legacy adapter for 1.20.1 compiled after the platform refactor. Decoder/audio/layout/menu-ownership/custom-widget/authenticated-loopback regressions passed, including local TCP focus pause/resume with zero FFmpeg CPU time during the paused interval and temporary audio-device recovery with no sound emitted.
 
-Limits: these are native-loader integration tests on Linux, not real Windows/macOS driver tests. Native builds currently target Minecraft 1.21.11 only; the existing 24-version matrix remains Fabric-specific. Atlas compatibility remains Fabric-specific because the referenced Atlas client is a Fabric mod. Native APIs are pinned to the tested loader revisions; minimum metadata allows Forge 61.2.0+, but the real Forge run recorded here used 61.2.3.
+Limits: these are native-loader integration tests on Linux, not real Windows/macOS driver tests. This runtime record concerns Minecraft 1.21.11; expansion builds below have their own compilation and package checks and are not individually covered by this game test. Atlas compatibility remains Fabric-specific because the referenced Atlas client is a Fabric mod. Native APIs are pinned to the tested loader revisions; minimum metadata allows Forge 61.2.0+, but the real Forge run recorded here used 61.2.3.
 
 
 ## Optional in-game menu policy (1.8.13)

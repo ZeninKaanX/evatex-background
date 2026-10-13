@@ -34,7 +34,7 @@ EVATEX has native **Forge** and **NeoForge** builds alongside Fabric. The releas
 | Forge | 1.21.11 | 61.2.3 | 21+ |
 | NeoForge | 1.21.11 | 21.11.45 | 21+ |
 
-Native-loader support currently covers 1.21.11. The 24-version coverage below describes **Fabric** builds.
+Native-loader coverage is being expanded across the same Minecraft releases as Fabric. The [Modrinth version list](https://modrinth.com/mod/evatex-background/versions) shows the published combinations. The 24-version coverage below describes **Fabric** builds; unavailable upstream loader combinations cannot have native builds.
 
 Install Fabric Loader **0.18.4 or later** (Minecraft 26.3 requires **0.19.3 or later**) and the jar matching your exact Minecraft version:
 

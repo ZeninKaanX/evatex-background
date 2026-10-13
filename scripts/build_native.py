@@ -73,7 +73,7 @@ def generate(loader,version,qa=False):
     package=target/'com/videomenu'
     ns='net.neoforged' if loader=='neoforge' and not legacy_namespace else 'net.minecraftforge'
     registry=ns+'.fml.ModList'
-    (package/'EvatexPlatform.java').write_text('''package com.videomenu;
+    platform='''package com.videomenu;
 import java.nio.file.Path;
 import %s;
 import %s.fml.loading.FMLPaths;
@@ -90,7 +90,11 @@ public final class EvatexPlatform {
  public static String loaderName(){return "%s";}
  public static String loaderVersion(){return modVersion("%s");}
 }
-'''%(registry,ns,('NeoForge' if loader=='neoforge' else 'Forge'),('forge' if legacy_namespace else loader)))
+'''%(registry,ns,('NeoForge' if loader=='neoforge' else 'Forge'),('forge' if legacy_namespace else loader))
+    if loader=='forge' and version.startswith('26.'):
+        # Forge 26.x exposes ModList through static methods rather than get().
+        platform=platform.replace('  var mods=ModList.get();\n','').replace('mods==null ? "unavailable" : mods.getModContainerById(id)','ModList.getModContainerById(id)').replace('var mods=ModList.get();return mods==null ? 0 : mods.getMods().size();','return ModList.getMods().size();')
+    (package/'EvatexPlatform.java').write_text(platform)
     if loader=='neoforge' and not legacy_namespace:
         entry='''package com.videomenu;
 import net.neoforged.api.distmarker.Dist;
