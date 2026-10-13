@@ -60,6 +60,9 @@ neoForge {{ enable {{ version='{lv}'; disableRecompilation=true }}; mods {{ evat
 '''
     elif version.startswith('26.'):
         gradle=(template/'build.gradle').read_text().replace("getOrElse('1.21.11')",f"getOrElse('{version}')").replace("getOrElse('61.2.3')",f"getOrElse('{lv}')").replace('JavaLanguageVersion.of(21)','JavaLanguageVersion.of(25)')
+        # Minecraft 26.x ships named bytecode; its official client has no
+        # separate mapping artifact. Match Forge's 26.x MDK configuration.
+        gradle=gradle.replace("    mappings channel: 'official', version: mcVersion\n",'').replace("version '[7.0.3,8)'","version '[7.0.17,8)'")
     else:
         srg=version in ('1.20.2','1.20.3','1.20.4')
         wrapper=folder/'gradle/wrapper/gradle-wrapper.properties';s=wrapper.read_text();import re
