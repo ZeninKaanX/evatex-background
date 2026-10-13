@@ -161,3 +161,13 @@ Türkçe: 12 Ekim 2026 gecesi saat ikiyi geçmişti. EverVerity, Codex ile estet
 - Version-specific GUI, texture, panorama and resource-loading adapters, including native named APIs and Java 25 for Minecraft 26.x.
 - Fix Turkish/English resource loading on 1.21.9 and 1.21.10 by including both required loader modules.
 - Automated compatibility build and decoder regression matrix for all supported releases.
+
+
+### 1.8.12 — native loader additions
+
+- Added separate Forge and NeoForge jars for Minecraft 1.21.11, with native client initialization and Mods configuration screens.
+- Shared game/config paths, mod version/count and playback diagnostics across loaders while preserving Fabric behavior.
+- Kept wallpaper active in native Forge/NeoForge Mods screens when the options-menu wallpaper setting is enabled.
+- Preserved exact mixin overloads and glyph accessor names in native mappings, keeping the Astral interface and smooth text rendering.
+- Bundled the existing media engines; native builds require neither Fabric API nor a compatibility bridge.
+- Loader coverage: Forge/NeoForge 1.21.11; the 24-version range still applies to Fabric.

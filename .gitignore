@@ -22,3 +22,8 @@ Thumbs.db
 # Local regression/smoke test logs
 logs/
 __pycache__/
+
+# Native loader Gradle caches
+.gradle/
+!loaders/*/gradle/wrapper/gradle-wrapper.jar
+loaders/*/run/

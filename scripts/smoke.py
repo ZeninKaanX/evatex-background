@@ -194,7 +194,7 @@ if args.extended_menus or args.reported_menus or args.home_menu:
     data=nbt_tag(3,'version',struct.pack('>i',19133))+nbt_tag(8,'LevelName',nbt_string('EVATEX menu preview'))+nbt_tag(3,'DataVersion',struct.pack('>i',data_version))+nbt_tag(4,'LastPlayed',struct.pack('>q',0))+nbt_tag(3,'GameType',struct.pack('>i',1))+nbt_tag(1,'hardcore',b'\x00')+nbt_tag(1,'allowCommands',b'\x01')+nbt_tag(10,'Version',version_tag)+b'\x00'
     save=run/'saves'/'evatex-menu-preview';save.mkdir(parents=True,exist_ok=True)
     (save/'level.dat').write_bytes(gzip.compress(b'\x0a\x00\x00'+nbt_tag(10,'Data',data)+b'\x00'))
-(run/'options.txt').write_text(f'lang:{args.language}\nguiScale:{args.gui_scale}\nfullscreen:false\nmaxFps:60\nskipMultiplayerWarning:true\n')
+(run/'options.txt').write_text(f'lang:{args.language}\nguiScale:{args.gui_scale}\nfullscreen:false\nmaxFps:60\nsoundCategory_master:0.0\nsoundCategory_music:0.0\nskipMultiplayerWarning:true\n')
 game=json.loads((ROOT/'build/dependencies'/f'{version}.json').read_text())
 index=game['assetIndex']['id']
 # Official client is needed on the runtime classpath. Fabric remaps it in the isolated run folder.

@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import net.fabricmc.loader.api.FabricLoader;
+import com.videomenu.EvatexPlatform;
 
 public final class VideoMenuConfig {
     public static final String FILE_NAME = "evatexbackgroundvideo.json";
@@ -32,7 +32,7 @@ public final class VideoMenuConfig {
 
     public static VideoMenuConfig load() {
         VideoMenuConfig config = new VideoMenuConfig();
-        Path file = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
+        Path file = EvatexPlatform.configDir().resolve(FILE_NAME);
         if (!Files.isRegularFile(file, new LinkOption[0])) {
             config.save();
             return config;
@@ -90,7 +90,7 @@ public final class VideoMenuConfig {
     public void save() {
         validate();
         try {
-            Path dir = FabricLoader.getInstance().getConfigDir();
+            Path dir = EvatexPlatform.configDir();
             Files.createDirectories(dir);
             Path temp = Files.createTempFile(dir, FILE_NAME, ".tmp");
             try {

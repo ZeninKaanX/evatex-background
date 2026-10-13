@@ -1,6 +1,6 @@
 # Minecraft compatibility — EVATEX 1.8.12
 
-This release targets all 24 stable Java Edition releases from 1.20 through 26.3, using one exact-version Fabric jar per release. Install only the jar matching your game. Earlier versions, snapshots, other loaders and future releases are not supported by these files.
+This release targets all 24 stable Java Edition releases from 1.20 through 26.3, using one exact-version Fabric jar per release. Install only the jar matching your game. Earlier versions, snapshots and future releases are not supported by these Fabric files.
 
 | Minecraft | Required Java | Release file |
 | --- | --- | --- |
@@ -62,3 +62,13 @@ All 24 exact-version targets compile. Native-menu actions, return paths, opt-out
 Use Lunar's Fabric add-on. Its custom themes can hide ordinary Minecraft mod buttons; enable the theme setting **Main Menu Style → Vanilla (Overlay)** to expose them. EVATEX also supplies an optional Mod Menu configuration entrypoint, so its settings can be opened through the mod list. Public widget bounds are used for collision placement; private/obfuscated client controls are not assumed to be discoverable. Full Lunar Client runtime validation is still required. Official instructions: https://support.lunarclient.com/solutions/enabling-vanilla-overlay
 
 On Windows, `CreateProcess error=5` means the bundled FFmpeg executable was denied execution. A missing system FFmpeg then produces error=2. EVATEX displays the engine failure rather than calling the video invalid. Java-supported photos remain available without FFmpeg. Operating-system execution policies are not changed by the mod.
+
+
+## Native Forge and NeoForge
+
+| Minecraft | Loader | Minimum loader | Java | Artifact suffix |
+| --- | --- | --- | --- | --- |
+| 1.21.11 | Forge | 61.2.0 | 21+ | `-mc1.21.11-forge.jar` |
+| 1.21.11 | NeoForge | 21.11.45 | 21+ | `-mc1.21.11-neoforge.jar` |
+
+Install the file for your actual loader. Native builds do not load Fabric modules or Mod Menu and do not require a loader bridge. The Mods configuration action opens EVATEX settings. Forge and NeoForge Mods screens are recognized by the options-menu wallpaper switch. Native builds share the player, configuration, resource assets and Astral controls with Fabric. The bundled engines cover the same target operating systems; loader QA recorded here is Linux only, not a new Windows/macOS performance certification. Minecraft versions other than 1.21.11 currently retain Fabric-only support.

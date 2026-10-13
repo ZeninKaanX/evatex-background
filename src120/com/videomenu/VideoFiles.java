@@ -8,23 +8,23 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
-import net.fabricmc.loader.api.FabricLoader;
+import com.videomenu.EvatexPlatform;
 
 public final class VideoFiles {
     private VideoFiles() {}
-    public static Path directory() { return FabricLoader.getInstance().getGameDir().resolve("videos"); }
+    public static Path directory() { return EvatexPlatform.gameDir().resolve("videos"); }
     public static Path resolve(String value) {
         if (value == null || value.isBlank()) return null;
         try {
             Path path = Path.of(value);
-            if (!path.isAbsolute()) path = FabricLoader.getInstance().getGameDir().resolve(path);
+            if (!path.isAbsolute()) path = EvatexPlatform.gameDir().resolve(path);
             return path.toAbsolutePath().normalize();
         } catch (InvalidPathException e) { return null; }
     }
     public static List<Path> discover(String selected) {
         java.util.ArrayList<Path> result = new java.util.ArrayList<>();
         for (String folder : new String[]{"videos", "videolar", "backgrounds"}) {
-            Path dir = FabricLoader.getInstance().getGameDir().resolve(folder);
+            Path dir = EvatexPlatform.gameDir().resolve(folder);
             if (!Files.isDirectory(dir)) continue;
             try (Stream<Path> files = Files.list(dir)) {
                 files.filter(Files::isRegularFile).filter(VideoFiles::isMedia)

@@ -22,6 +22,16 @@ GPU decoding still involves CPU colour conversion, frame copies, audio and Minec
 
 ## Installation
 
+
+EVATEX has native **Forge** and **NeoForge** builds for **Minecraft 1.21.11**, alongside the existing Fabric builds. Choose the jar matching both your loader and Minecraft version; install only one EVATEX jar in an instance. Forge/NeoForge builds use their native Mods settings button and include the same backgrounds, sound controls and optional Astral interface. They do not require Fabric API, Mod Menu or a compatibility bridge.
+
+| Loader | Minecraft | Minimum loader | Java |
+| --- | --- | --- | --- |
+| Forge | 1.21.11 | 61.2.0 | 21+ |
+| NeoForge | 1.21.11 | 21.11.45 | 21+ |
+
+Native-loader support currently covers 1.21.11. The 24-version coverage below describes **Fabric** builds.
+
 Install Fabric Loader **0.18.4 or later** (Minecraft 26.3 requires **0.19.3 or later**) and the jar matching your exact Minecraft version:
 
 | Minecraft releases | Java |
@@ -30,7 +40,7 @@ Install Fabric Loader **0.18.4 or later** (Minecraft 26.3 requires **0.19.3 or l
 | 1.20.5, 1.20.6, 1.21 through 1.21.11 | 21+ |
 | 26.1, 26.1.1, 26.1.2, 26.2, 26.3 | 25+ |
 
-There are 24 separate builds covering every stable Java Edition release from 1.20 through 26.3. See `COMPATIBILITY.md` for the complete file list and validation results. Use one EVATEX jar at a time and remove the old EVATEX jar when updating. Exact-version metadata prevents loading the wrong API adapter.
+There are 24 separate Fabric builds covering every stable Java Edition release from 1.20 through 26.3. See `COMPATIBILITY.md` for the complete file list and validation results. Use one EVATEX jar at a time and remove the old EVATEX jar when updating. Exact-version metadata prevents loading the wrong API adapter.
 
 Fabric API is not required by EVATEX; its resource-loading modules are embedded. FFmpeg engines are bundled for Windows x64, Linux x64/ARM64 and macOS Intel/Apple Silicon. No separate FFmpeg installation is required on these targets. A compatible system `ffmpeg` is used as a fallback if the bundled engine cannot run. Minecraft versions before 1.20, snapshots and future versions are outside this release's support range.
 
@@ -91,3 +101,15 @@ The Backgrounds shortcut prefers the lower centre and automatically avoids visib
 EVATEX includes its own black-and-white home menu with large singleplayer and multiplayer tiles, profile information, EVATEX background controls and native game settings. Other native/mod title actions are retained in the footer, with pagination when needed. The selected background and optional meteors continue behind the menu.
 
 Enable **EVATEX main menu** under **Menus** in EVATEX settings. It is **disabled by default**, including when updating an existing configuration. Disabling it restores the normal or installed client title screen. The menu is an original EVATEX implementation inspired by spacious client layouts and does not bundle Atlas code, themes or assets.
+
+
+## Native-loader builds
+
+With JDK 21 or later available through `JAVA_HOME`:
+
+```bash
+python3 scripts/build_native.py --loader forge --minecraft 1.21.11
+python3 scripts/build_native.py --loader neoforge --minecraft 1.21.11
+```
+
+Gradle wrappers download the official Forge/NeoForge toolchains. The build translates shared sources into Mojang names, preserves exact overload selectors for mixins, registers native client initialization/configuration screens, and packages the bundled FFmpeg assets. Development mappings are not distributed. Fetch the bundled engines using the existing FFmpeg scripts before packaging. Native artifacts are written to `build/dist` with `-forge.jar` or `-neoforge.jar` suffixes; they are separate from Fabric artifacts. Atlas integration remains in the Fabric build because Atlas Client 3.0.3 is a Fabric mod.

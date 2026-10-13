@@ -66,7 +66,11 @@ public final class VideoBackground {
                  || screen instanceof net.minecraft.class_5375 || screen instanceof net.minecraft.class_8219 || isSodiumOptions(screen) || isModsScreen(screen)));
     }
     public static boolean isModsScreen(net.minecraft.class_437 screen) {
-        return screen!=null && screen.getClass().getName().equals("com.terraformersmc.modmenu.gui.ModsScreen");
+        if(screen==null)return false;
+        String name=screen.getClass().getName();
+        return name.equals("com.terraformersmc.modmenu.gui.ModsScreen")
+            || name.equals("net.neoforged.neoforge.client.gui.ModListScreen")
+            || name.equals("net.minecraftforge.client.gui.ModListScreen");
     }
     private static boolean isSodiumOptions(net.minecraft.class_437 screen) {
         if (screen == null) return false;

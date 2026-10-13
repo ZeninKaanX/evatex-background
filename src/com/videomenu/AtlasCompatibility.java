@@ -2,15 +2,14 @@ package com.videomenu;
 
 import com.videomenu.video.VideoBackground;
 import java.lang.reflect.Method;
-import net.fabricmc.loader.api.FabricLoader;
+import com.videomenu.EvatexPlatform;
 import net.minecraft.class_2561;
 import net.minecraft.class_310;
 import net.minecraft.class_442;
 
 /** Optional bridge. No Atlas classes, settings or binaries are copied into EVATEX. */
 public final class AtlasCompatibility {
-    public static final boolean SUPPORTED = FabricLoader.getInstance().getModContainer("atlas-client")
-        .map(mod -> mod.getMetadata().getVersion().getFriendlyString().equals("3.0.3")).orElse(false);
+    public static final boolean SUPPORTED = EvatexPlatform.modVersion("atlas-client").equals("3.0.3");
     private static boolean failed;
     private AtlasCompatibility() {}
     private static final class Api {

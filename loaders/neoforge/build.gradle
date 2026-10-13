@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+version = providers.gradleProperty('modVersion').getOrElse('1.8.12')
+group = 'com.videomenu'
+base.archivesName = 'evatex-background-neoforge-mc'+providers.gradleProperty('minecraftVersion').getOrElse('1.21.11')
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+neoForge {
+    version = providers.gradleProperty('loaderVersion').getOrElse('21.11.45')
+    mods { evatexbackgroundvideo { sourceSet sourceSets.main } }
+    runs {
+        client { client(); gameDirectory = file('run'); programArguments.addAll('--width','1280','--height','720'); systemProperty('evatex.qa.hiddenWindow','true') }
+    }
+}
+sourceSets.main.java.srcDirs = [layout.buildDirectory.dir('generated/sources')]
+sourceSets.main.resources.srcDirs = [layout.buildDirectory.dir('generated/resources')]
+tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
+tasks.named('jar') { manifest { attributes('Implementation-Version': project.version) } }

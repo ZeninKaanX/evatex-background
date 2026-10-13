@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""Check native release metadata, dependencies, QA exclusion and bundled engines."""
+import argparse,hashlib,json,tomllib,zipfile
+from pathlib import Path
+from build import ROOT,MOD_VERSION
+p=argparse.ArgumentParser();p.add_argument('files',nargs='*',type=Path);args=p.parse_args()
+files=args.files or [ROOT/'build/dist'/f'evatex-background-{MOD_VERSION}-mc1.21.11-{loader}.jar' for loader in ('forge','neoforge')]
+report=[]
+for file in files:
+ loader='neoforge' if file.name.endswith('-neoforge.jar') else 'forge'
+ with zipfile.ZipFile(file) as archive:
+  names=archive.namelist()
+  assert len(names)==len(set(names)),'Duplicate ZIP entries'
+  assert 'fabric.mod.json' not in names,'Fabric metadata in native build'
+  assert not any(n.startswith('evatexqa/') or 'evatexqa.mixins' in n or 'ModMenuBridge.class' in n for n in names),'QA or Fabric API helper leaked'
+  assert not any(b'net/fabricmc/' in archive.read(n) for n in names if n.endswith('.class')),'Fabric bytecode dependency'
+  config=tomllib.loads(archive.read('META-INF/'+('neoforge.mods.toml' if loader=='neoforge' else 'mods.toml')).decode())
+  assert config['mods'][0]['version']==MOD_VERSION
+  assert config['dependencies']['evatexbackgroundvideo'][0]['versionRange']=='[1.21.11]'
+  mixins=json.loads(archive.read('videomenu.mixins.json'))
+  assert 'plugin' not in mixins and all(not n.startswith('atlas.') for n in mixins['client'])
+  for asset in ('assets/videomenu/icon.png','assets/evatexbackgroundvideo/font/ui.ttf','assets/videomenu/ffmpeg/COPYING.GPLv3','assets/videomenu/ffmpeg/PROVENANCE.json','assets/videomenu/ffmpeg/PLATFORMS.json'):
+   assert asset in names,asset
+  engines={}
+  for path in ('linux64/ffmpeg','win64/ffmpeg.exe','darwin-x64/ffmpeg.gz','darwin-arm64/ffmpeg.gz','linux-arm64/ffmpeg.gz'):
+   asset='assets/videomenu/ffmpeg/'+path
+   with archive.open(asset) as stream:bundled=hashlib.file_digest(stream,'sha256').hexdigest()
+   with (ROOT/asset).open('rb') as stream:assert bundled==hashlib.file_digest(stream,'sha256').hexdigest(),asset
+   engines[path]=bundled
+ with file.open('rb') as stream:checksum=hashlib.file_digest(stream,'sha256').hexdigest()
+ assert file.with_suffix('.jar.sha256').read_text().split()[0]==checksum
+ report.append(dict(loader=loader,minecraft='1.21.11',version=MOD_VERSION,file=str(file),bytes=file.stat().st_size,sha256=checksum,qaHelpers=False,fabricClasses=False,engines=engines))
+ print('PASS native package',loader,file.name)
+path=ROOT/'build/native-loaders/package-validation.json';path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(report,indent=2)+'\n')

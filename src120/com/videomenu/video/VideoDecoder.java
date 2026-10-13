@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import com.videomenu.VideoFiles;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.fabricmc.loader.api.FabricLoader;
+import com.videomenu.EvatexPlatform;
 
 public final class VideoDecoder {
     private static final Pattern DIM_PATTERN = Pattern.compile("\\b([1-9]\\d{0,4})x([1-9]\\d{0,4})\\b");
@@ -583,7 +583,7 @@ public final class VideoDecoder {
                 VideoMenuClient.LOGGER.info("[VideoMenu] Dahili FFmpeg bulunamadı; sistem ffmpeg'i kullanılacak.");
                 return null;
             }
-            Path dir = FabricLoader.getInstance().getGameDir().resolve(".evatex-ffmpeg").resolve("1.8.0").resolve(platform);
+            Path dir = EvatexPlatform.gameDir().resolve(".evatex-ffmpeg").resolve("1.8.0").resolve(platform);
             Files.createDirectories(dir);
             Path out = dir.resolve(exeName);
             long expectedSize = VideoDecoder.class.getClassLoader().getResource("assets/videomenu/ffmpeg/"+platform+"/"+exeName).openConnection().getContentLengthLong();
@@ -612,7 +612,7 @@ public final class VideoDecoder {
             if(metadata==null)return null;
             var manifest=com.google.gson.JsonParser.parseString(new String(metadata.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject(platform);
             String expected=manifest.get("binary_sha256").getAsString();
-            Path dir=FabricLoader.getInstance().getGameDir().resolve(".evatex-ffmpeg").resolve("6.1.1").resolve(platform);
+            Path dir=EvatexPlatform.gameDir().resolve(".evatex-ffmpeg").resolve("6.1.1").resolve(platform);
             Files.createDirectories(dir);Path output=dir.resolve("ffmpeg");
             if(!Files.isRegularFile(output) || !sha256(output).equals(expected)) {
                 temporary=Files.createTempFile(dir,"ffmpeg-",".tmp");

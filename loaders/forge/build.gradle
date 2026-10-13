@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '[7.0.3,8)'
+}
+version = providers.gradleProperty('modVersion').getOrElse('1.8.12')
+group = 'com.videomenu'
+def mcVersion = providers.gradleProperty('minecraftVersion').getOrElse('1.21.11')
+def forgeVersion = providers.gradleProperty('loaderVersion').getOrElse('61.2.3')
+base.archivesName = 'evatex-background-forge-mc'+mcVersion
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+minecraft {
+    mappings channel: 'official', version: mcVersion
+    runs {
+        configureEach { workingDir = layout.projectDirectory.dir('run') }
+        register('client') {
+            args '--width', '1280', '--height', '720', '--mixin', 'videomenu.mixins.json'
+            if (providers.gradleProperty('qa').isPresent()) args '--mixin', 'evatexqa.mixins.json'
+        }
+    }
+}
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+}
+dependencies { implementation minecraft.dependency('net.minecraftforge:forge:'+mcVersion+'-'+forgeVersion) }
+sourceSets.main.java.srcDirs = [layout.buildDirectory.dir('generated/sources')]
+sourceSets.main.resources.srcDirs = [layout.buildDirectory.dir('generated/resources')]
+tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
+tasks.named('jar') { manifest { attributes('Implementation-Version': project.version, 'MixinConfigs': (providers.gradleProperty('qa').isPresent() ? 'videomenu.mixins.json,evatexqa.mixins.json' : 'videomenu.mixins.json')) } }
+
+// Forge's dev scanner must see the entrypoint and TOML in the same mod root.
+sourceSets.main.output.resourcesDir = layout.buildDirectory.dir('classes/java/main').get().asFile
+tasks.named('processResources') {
+    destinationDir = sourceSets.main.output.resourcesDir
+    dependsOn tasks.named('compileJava')
+}

@@ -1,0 +1,3 @@
+
+# Preserve Windows wrapper line endings while normalizing repository text.
+loaders/**/gradlew.bat text eol=crlf
