@@ -208,7 +208,9 @@ side="CLIENT"
     shutil.copyfile(ROOT/'LICENSE',resource/'LICENSE')
     return project
 
-def build_native(loader,version,prepare_only=False,compile_only=False):
+def build_native(loader,version,prepare_only=False,compile_only=False,allow_source_preparation=False):
+    if loader=='neoforge' and version in ('1.20.2','1.20.3','1.20.5') and not prepare_only and os.environ.get('GITHUB_ACTIONS')!='true' and not allow_source_preparation:
+        raise RuntimeError('This early NeoForge SDK requires source preparation. Use the GitHub compatibility workflow to avoid local load, or explicitly pass --allow-source-preparation.')
     project=generate(loader,version)
     if prepare_only:return
     env=os.environ.copy()
@@ -258,6 +260,6 @@ def package_native(loader,version,artifact):
     print('Built native',output,flush=True)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--loader',choices=('forge','neoforge'),required=True);parser.add_argument('--minecraft',default='1.21.11');parser.add_argument('--prepare-only',action='store_true');parser.add_argument('--compile-only',action='store_true',help='CI development JAR only; does not create a distributable bundled release');parser.add_argument('--package-existing',type=Path,help='Bundle a verified native development artifact without local compilation');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--loader',choices=('forge','neoforge'),required=True);parser.add_argument('--minecraft',default='1.21.11');parser.add_argument('--prepare-only',action='store_true');parser.add_argument('--compile-only',action='store_true',help='CI development JAR only; does not create a distributable bundled release');parser.add_argument('--package-existing',type=Path,help='Bundle a verified native development artifact without local compilation');parser.add_argument('--allow-source-preparation',action='store_true',help='Allow expensive early NeoForge SDK source preparation locally');args=parser.parse_args()
     if args.package_existing:package_native(args.loader,args.minecraft,args.package_existing)
-    else:build_native(args.loader,args.minecraft,args.prepare_only,args.compile_only)
+    else:build_native(args.loader,args.minecraft,args.prepare_only,args.compile_only,args.allow_source_preparation)
