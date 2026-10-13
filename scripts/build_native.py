@@ -203,7 +203,7 @@ side="CLIENT"
     shutil.copyfile(ROOT/'LICENSE',resource/'LICENSE')
     return project
 
-def build_native(loader,version,prepare_only=False):
+def build_native(loader,version,prepare_only=False,compile_only=False):
     project=generate(loader,version)
     if prepare_only:return
     env=os.environ.copy()
@@ -220,6 +220,9 @@ def build_native(loader,version,prepare_only=False):
     with zipfile.ZipFile(artifact) as archive:
         if any(name.startswith('evatexqa/') or name=='evatexqa.mixins.json' for name in archive.namelist()):
             raise RuntimeError('QA helpers must never enter a release jar')
+    if compile_only:
+        print('Compiled development artifact (media engines are not bundled):',artifact,flush=True)
+        return
     output=ROOT/'build/dist'/f'evatex-background-{MOD_VERSION}-mc{version}-{loader}.jar'
     # Copy the cached ZIP records: do not recompress bundled engines per loader.
     asset_files=[file for file in sorted((ROOT/'assets').rglob('*')) if file.is_file()]
@@ -242,5 +245,5 @@ def build_native(loader,version,prepare_only=False):
     print('Built native',output,flush=True)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--loader',choices=('forge','neoforge'),required=True);parser.add_argument('--minecraft',default='1.21.11');parser.add_argument('--prepare-only',action='store_true');args=parser.parse_args()
-    build_native(args.loader,args.minecraft,args.prepare_only)
+    parser=argparse.ArgumentParser();parser.add_argument('--loader',choices=('forge','neoforge'),required=True);parser.add_argument('--minecraft',default='1.21.11');parser.add_argument('--prepare-only',action='store_true');parser.add_argument('--compile-only',action='store_true',help='CI development JAR only; does not create a distributable bundled release');args=parser.parse_args()
+    build_native(args.loader,args.minecraft,args.prepare_only,args.compile_only)
