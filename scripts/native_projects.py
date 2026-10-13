@@ -46,7 +46,7 @@ mixin {{ add sourceSets.main, 'videomenu.refmap.json'; config 'videomenu.mixins.
     elif loader=='neoforge' and version in ('1.20.2','1.20.3','1.20.5'):
         wrapper=folder/'gradle/wrapper/gradle-wrapper.properties';s=wrapper.read_text();import re
         wrapper.write_text(re.sub(r'distributionUrl=.*',r'distributionUrl=https\://services.gradle.org/distributions/gradle-8.14.3-bin.zip',s))
-        props.write_text(props.read_text()+'neogradle.subsystems.decompiler.enabled=false\n')
+        props.write_text(props.read_text()+'neogradle.subsystems.decompiler.enabled=false\nneogradle.subsystems.decompiler.maxThreads=1\nneogradle.subsystems.decompiler.maxMemory=1536m\nneogradle.subsystems.recompiler.maxMemory=1536m\n')
         gradle=f'''plugins {{ id 'java-library'; id 'net.neoforged.gradle.userdev' version '7.1.39' }}
 {common}
 repositories {{ mavenCentral() }}

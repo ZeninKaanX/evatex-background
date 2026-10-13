@@ -52,13 +52,16 @@ jobs:
           python-version: '3.12'
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile exact native loader API
-        run: python scripts/build_native.py --loader '${{ matrix.loader }}' --minecraft '${{ matrix.minecraft }}' --compile-only
+        run: |
+          set -o pipefail
+          python scripts/build_native.py --loader '${{ matrix.loader }}' --minecraft '${{ matrix.minecraft }}' --compile-only 2>&1 | tee native-build.log
       - name: Save development build and logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: development-${{ matrix.loader }}-${{ matrix.minecraft }}
           path: |
+            native-build.log
             loaders/*/build/libs/*.jar
             build/native-projects/*/*/build/libs/*.jar
             loaders/*/build/reports/

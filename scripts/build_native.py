@@ -124,6 +124,8 @@ public final class EvatexNative {
         entry=entry.replace('net.neoforged.neoforge.client.gui.IConfigScreenFactory','net.neoforged.neoforge.client.ConfigScreenHandler.ConfigScreenFactory')
         entry=entry.replace('IConfigScreenFactory.class,(mod,parent)->new VideoSelectScreen(parent,0)', 'ConfigScreenFactory.class,()->new ConfigScreenFactory((minecraft,parent)->new VideoSelectScreen(parent,0))')
         entry=entry.replace('public EvatexNative(IEventBus bus,ModContainer container)', 'public EvatexNative(IEventBus bus)').replace('  bus.addListener(this::setup);','  if(net.neoforged.fml.loading.FMLEnvironment.dist!=Dist.CLIENT)return;\n  ModContainer container=net.neoforged.fml.ModLoadingContext.get().getActiveContainer();\n  bus.addListener(this::setup);\n  ')
+    if loader=='neoforge' and version=='1.20.5':
+        entry=entry.replace(',dist=Dist.CLIENT','').replace('  bus.addListener(this::setup);','  if(net.neoforged.fml.loading.FMLEnvironment.dist!=Dist.CLIENT)return;\n  bus.addListener(this::setup);')
     if loader=='forge' and not version.startswith('26.') and version!='1.21.11' or legacy_namespace:
         entry=entry.replace('public EvatexNative(FMLJavaModLoadingContext context)', 'public EvatexNative()').replace('  if(FMLEnvironment.dist==Dist.CLIENT)Client.setup(context);','  if(FMLEnvironment.dist==Dist.CLIENT)Client.setup(FMLJavaModLoadingContext.get());')
         entry=entry.replace('context.getContainer()', 'net.minecraftforge.fml.ModLoadingContext.get()')
@@ -163,7 +165,10 @@ public final class EvatexNative {
         (resource/'evatexqa.mixins.json').write_text(json.dumps(qa_mixins))
         if legacy_namespace or loader=='forge' and version!='1.21.11' and not version.startswith('26.'):
             script=project/'build.gradle'
-            script.write_text(script.read_text()+"\ntasks.named('jar') { manifest { attributes('MixinConfigs':'videomenu.mixins.json,evatexqa.mixins.json') } }\n")
+            addition="\ntasks.named('jar') { manifest { attributes('MixinConfigs':'videomenu.mixins.json,evatexqa.mixins.json') } }\n"
+            if legacy_namespace:addition+="mixin { config 'evatexqa.mixins.json' }\n"
+            else:addition+="minecraft.runs.client.args '--mixin','evatexqa.mixins.json'\n"
+            script.write_text(script.read_text()+addition)
     # Forge/NeoForge include resources natively; no Fabric resource-loader modules.
     pack_formats={'1.20':15,'1.20.1':15,'1.20.2':18,'1.20.3':22,'1.20.4':22,'1.20.5':32,'1.20.6':32,'1.21':34,'1.21.1':34,'1.21.2':42,'1.21.3':42,'1.21.4':46,'1.21.5':55,'1.21.6':63,'1.21.7':64,'1.21.8':64,'1.21.9':69,'1.21.10':69,'1.21.11':75,'26.1':84,'26.1.1':84,'26.1.2':84,'26.2':88,'26.3':97}
     pf=pack_formats[version]
@@ -223,6 +228,14 @@ def build_native(loader,version,prepare_only=False,compile_only=False):
     if compile_only:
         print('Compiled development artifact (media engines are not bundled):',artifact,flush=True)
         return
+    package_native(loader,version,artifact)
+
+def package_native(loader,version,artifact):
+    """Bundle a separately compiled native artifact without rerunning Gradle."""
+    with zipfile.ZipFile(artifact) as archive:
+        names=archive.namelist()
+        if 'fabric.mod.json' in names or any(name.startswith('evatexqa/') or name=='evatexqa.mixins.json' for name in names):
+            raise RuntimeError('Invalid native release input')
     output=ROOT/'build/dist'/f'evatex-background-{MOD_VERSION}-mc{version}-{loader}.jar'
     # Copy the cached ZIP records: do not recompress bundled engines per loader.
     asset_files=[file for file in sorted((ROOT/'assets').rglob('*')) if file.is_file()]
@@ -245,5 +258,6 @@ def build_native(loader,version,prepare_only=False,compile_only=False):
     print('Built native',output,flush=True)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--loader',choices=('forge','neoforge'),required=True);parser.add_argument('--minecraft',default='1.21.11');parser.add_argument('--prepare-only',action='store_true');parser.add_argument('--compile-only',action='store_true',help='CI development JAR only; does not create a distributable bundled release');args=parser.parse_args()
-    build_native(args.loader,args.minecraft,args.prepare_only,args.compile_only)
+    parser=argparse.ArgumentParser();parser.add_argument('--loader',choices=('forge','neoforge'),required=True);parser.add_argument('--minecraft',default='1.21.11');parser.add_argument('--prepare-only',action='store_true');parser.add_argument('--compile-only',action='store_true',help='CI development JAR only; does not create a distributable bundled release');parser.add_argument('--package-existing',type=Path,help='Bundle a verified native development artifact without local compilation');args=parser.parse_args()
+    if args.package_existing:package_native(args.loader,args.minecraft,args.package_existing)
+    else:build_native(args.loader,args.minecraft,args.prepare_only,args.compile_only)
