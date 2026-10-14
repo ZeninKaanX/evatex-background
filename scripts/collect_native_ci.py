@@ -15,7 +15,7 @@ def get_json(url):
     with urllib.request.urlopen(request,timeout=60) as response:return json.load(response)
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--run',required=True,type=int);parser.add_argument('--commit',required=True);parser.add_argument('--fabric',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--run',required=True,type=int);parser.add_argument('--commit',required=True);parser.add_argument('--fabric',action='store_true');parser.add_argument('--minecraft');args=parser.parse_args()
     base='https://api.github.com/repos/'+REPO+'/actions/runs/'+str(args.run)
     run=get_json(base)
     if run['head_sha']!=args.commit:raise RuntimeError('Unexpected GitHub source revision')
@@ -27,11 +27,13 @@ def main():
     kind='fabric' if args.fabric else 'native'
     report=ROOT/'build/native-loaders'/f'cloud-collection-{args.run}-{kind}.json'
     receipts=json.loads(report.read_text()) if report.exists() else {}
+    artifacts.sort(key=lambda item: (not item['name'].endswith('-1.21.11'),item['name']))
     for item in artifacts:
         prefix='fabric-development-' if args.fabric else 'development-'
         if not item['name'].startswith(prefix) or item['expired']:continue
         if args.fabric:loader='fabric';version=item['name'][len(prefix):]
         else:_,loader,version=item['name'].split('-',2)
+        if args.minecraft and version!=args.minecraft:continue
         key=version+'/'+loader
         job=f'compile-and-decoder ({version})' if args.fabric else f'compile ({version}, {loader})'
         if job not in successful:continue
