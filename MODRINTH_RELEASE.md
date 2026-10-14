@@ -1,8 +1,9 @@
-# 1.8.17 — Smooth playback and clearer menus
+# 1.8.18 — Clear labels and a live Store
 
-- Pause both video and audio in Backgrounds, Store, My Library and EVATEX Settings. Leaving resumes the existing player at its paused position.
-- Render the main EVATEX wordmark as a dedicated antialiased, linearly sampled texture.
-- Fix modern server/world entries retaining cached positions after list resizing, which could clip icons and misalign rows. Keep native layouts at smaller sizes.
-- Add four verified, directly downloadable MP4 space backgrounds from NASA/Goddard, with visible credits and a dedicated Videos filter. The catalogue now contains 254 entries: 238 photos, 12 GIFs and 4 MP4 videos.
-- Reuse the parsed catalogue across menu transitions instead of reading and parsing it repeatedly on the game thread. A successful Refresh replaces this cache.
-- Add restrained press feedback and a short, dry interface click.
+- Keep home labels readable over bright wallpapers with a fine text contour, including the antialiased EVATEX wordmark. Preserve the translucent controls and wallpaper brightness; no extra dark panels.
+- Refresh Store metadata automatically on opening and every five minutes while browsing. Keep the current search, page and selected item when entries change.
+- Share concurrent catalogue requests, retry unavailable catalogues after 30 seconds, and keep the last valid cached list when offline or an update is malformed.
+- Publish catalogue additions from individual GitHub entry files, with validation and automatic metadata generation. New listings no longer require a mod release once this version is installed.
+- Interleave discovery categories so the first page includes different kinds of artwork instead of only black holes. The Videos filter still contains the four credited NASA MP4s.
+
+Install one file matching your exact Minecraft version and loader. Stable release. Existing media and settings are preserved.

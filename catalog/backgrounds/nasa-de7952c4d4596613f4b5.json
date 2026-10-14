@@ -1,0 +1,26 @@
+{
+  "id": "nasa-de7952c4d4596613f4b5",
+  "title": "Black Hole — Event Horizon Loop",
+  "category": "astral",
+  "kind": "video",
+  "sourceUrl": "https://svs.gsfc.nasa.gov/13326/",
+  "thumbnailUrl": "https://svs.gsfc.nasa.gov/vis/a010000/a013300/a013326/BH_Accretion_Disk_Sim_360_4k_Prores.00001_print.jpg",
+  "creator": "NASA Goddard Space Flight Center / Jeremy Schnittman",
+  "license": "NASA media usage guidelines; credit NASA/GSFC/Jeremy Schnittman; no endorsement",
+  "downloadUrl": "https://svs.gsfc.nasa.gov/vis/a010000/a013300/a013326/BH_AccretionDisk_Sim_Stationary_1080.mp4",
+  "sha256": "87dcf121886ce7431230d5ac51bf9af382373ada82b154b40fdd50ff15ff735a",
+  "gitBlobSha1": "",
+  "fileName": "BH_AccretionDisk_Sim_Stationary_1080.mp4",
+  "bytes": 12492579,
+  "width": 1920,
+  "height": 1080,
+  "builtin": false,
+  "redistributionAllowed": true,
+  "tags": [
+    "astral",
+    "space",
+    "black hole",
+    "mp4",
+    "video"
+  ]
+}

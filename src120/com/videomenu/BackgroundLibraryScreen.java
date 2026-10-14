@@ -15,7 +15,7 @@ public final class BackgroundLibraryScreen extends class_437 {
  private LibraryThumbnails thumbs=new LibraryThumbnails();private LibraryDownloads downloads=new LibraryDownloads();
  private String category="all",query="",status="";private LibraryCatalog.Entry selected;private int page;
  private class_342 search;private int margin,left,gridX,gridW,detailX,detailW,top,columns,rows,cardW,cardH,perPage;private boolean compact,closed;
- private long transitionAt=System.nanoTime();private boolean refreshing;
+ private long transitionAt=System.nanoTime();private boolean refreshing;private long nextAutoCheck;private volatile boolean automaticFinished;
  private AstralButton primary,favorite;private volatile Path ready;private volatile String transferError;private volatile List<LibraryCatalog.Entry> refreshed;
  public BackgroundLibraryScreen(class_437 parent){this(parent,false);}
  public BackgroundLibraryScreen(class_437 parent,boolean localMode){super(text("title"));this.parent=parent;this.localMode=localMode;reloadLocal();}
@@ -27,7 +27,7 @@ public final class BackgroundLibraryScreen extends class_437 {
  private static class_2561 text(String key,Object...args){return class_2561.method_43469("evatex.catalog."+key,args);}
  private static String label(String key){return text(key).getString();}
  @Override protected void method_25426(){
-  if(closed){closed=false;config=VideoMenuConfig.load();refreshing=false;ready=null;transferError=null;refreshed=null;thumbs=new LibraryThumbnails();downloads=new LibraryDownloads();reloadLocal();}
+  if(closed){closed=false;config=VideoMenuConfig.load();catalogue=LibraryCatalog.initial();nextAutoCheck=0;refreshing=false;ready=null;transferError=null;refreshed=null;thumbs=new LibraryThumbnails();downloads=new LibraryDownloads();reloadLocal();}
   margin=Math.max(10,Math.min(20,field_22789/40));left=field_22789<600?76:100;compact=field_22789<560;
   detailW=compact?0:Math.max(160,Math.min(230,field_22789/4));detailX=field_22789-margin-detailW;
   gridX=margin+left+14;gridW=field_22789-gridX-margin-(compact?0:detailW+14);top=111;
@@ -79,14 +79,23 @@ public final class BackgroundLibraryScreen extends class_437 {
   downloads.download(entry).whenComplete((path,error)->{if(!closed){if(error==null)ready=path;else transferError=label(downloads.progress().phase().equals("cancelled")?"cancelled":"download_error");}});rebuild();
  }
  private void apply(Path path){config.videoPath=path.toString();config.save();com.videomenu.video.VideoBackground.INSTANCE.reload(config);status=label("applied");}
- public void refreshCatalogue(){if(refreshing)return;refreshing=true;status=label("refreshing");rebuild();LibraryCatalog.refresh(config.libraryCatalogUrl.isBlank()?LibraryCatalog.DEFAULT_URL:config.libraryCatalogUrl).whenComplete((list,error)->{if(!closed){if(error==null)refreshed=list;else transferError=label("catalog_error");}});}
+ private String catalogueAddress(){return config.libraryCatalogUrl.isBlank()?LibraryCatalog.DEFAULT_URL:config.libraryCatalogUrl;}
+ public void refreshCatalogue(){if(refreshing)return;refreshing=true;status=label("refreshing");rebuild();LibraryCatalog.refresh(catalogueAddress()).whenComplete((list,error)->{if(!closed){if(error==null)refreshed=list;else transferError=label("catalog_error");}});}
+ private void autoRefreshCatalogue(){
+  long now=System.nanoTime();if(localMode||closed||refreshing||now-nextAutoCheck<0)return;
+  nextAutoCheck=now+java.util.concurrent.TimeUnit.SECONDS.toNanos(1);
+  var task=LibraryCatalog.refreshIfDue(catalogueAddress());if(task==null)return;
+  refreshing=true;task.whenComplete((list,error)->{if(!closed){if(error==null)refreshed=list;else automaticFinished=true;}});
+ }
  @Override public void method_25419(){closed=true;downloads.cancel();thumbs.close();field_22787.method_1507(parent);}
  @Override public void method_25432(){closed=true;downloads.cancel();thumbs.close();}
  @Override public void method_25420(class_332 c){}
  @Override public boolean method_25422(){return false;}
  @Override public boolean method_25421(){return false;}
  @Override public void method_25394(class_332 ctx,int mx,int my,float delta){
-  if(ready!=null){ready=null;reloadLocal();status=label("downloaded");rebuild();}if(transferError!=null){refreshing=false;status=transferError;transferError=null;rebuild();}if(refreshed!=null){refreshing=false;status=label("updated");catalogue=refreshed;refreshed=null;page=0;rebuild();}
+  if(ready!=null){ready=null;reloadLocal();status=label("downloaded");rebuild();}if(transferError!=null){refreshing=false;status=transferError;transferError=null;rebuild();}if(automaticFinished){automaticFinished=false;refreshing=false;}
+  if(refreshed!=null){var incoming=refreshed;refreshed=null;refreshing=false;boolean changed=!catalogue.equals(incoming);catalogue=incoming;if(selected!=null){String id=selected.id();selected=catalogue.stream().filter(e->e.id().equals(id)).findFirst().orElse(selected);}if(changed||status.equals(label("refreshing"))){status=label("updated");rebuild();}}
+  autoRefreshCatalogue();
   Set<String> visible=new HashSet<>();
   for(int n=page*perPage;n<Math.min(filtered.size(),(page+1)*perPage);n++)visible.add(filtered.get(n).id());
   if(selected!=null&&!compact)visible.add(selected.id());thumbs.retainVisible(visible);

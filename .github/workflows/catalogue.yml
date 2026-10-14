@@ -1,0 +1,33 @@
+name: Publish background catalogue
+on:
+  push:
+    branches: [main]
+    paths: ['catalog/base.json', 'catalog/backgrounds/**', 'scripts/compile_catalog.py', '.github/workflows/catalogue.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: catalogue-main
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate catalogue compiler
+        run: python3 -m unittest discover -s tests -p 'test_catalog_compiler.py'
+      - name: Build online metadata only
+        run: python3 scripts/compile_catalog.py
+      - name: Publish catalogue
+        run: |
+          if git diff --quiet -- catalog/v1.json; then exit 0; fi
+          git config user.name 'EVATEX catalogue'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add catalog/v1.json
+          git commit -m 'Update live background catalogue'
+          git push origin HEAD:main

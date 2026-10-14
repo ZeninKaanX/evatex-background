@@ -1,0 +1,26 @@
+{
+  "id": "nasa-c1dd68c494331e972b77",
+  "title": "Black Hole — Orbital Flight",
+  "category": "astral",
+  "kind": "video",
+  "sourceUrl": "https://svs.gsfc.nasa.gov/13326/",
+  "thumbnailUrl": "https://svs.gsfc.nasa.gov/vis/a010000/a013300/a013326/BH_Accretion_Disk_Sim_360_4k_Prores.00001_print.jpg",
+  "creator": "NASA Goddard Space Flight Center / Jeremy Schnittman",
+  "license": "NASA media usage guidelines; credit NASA/GSFC/Jeremy Schnittman; no endorsement",
+  "downloadUrl": "https://svs.gsfc.nasa.gov/vis/a010000/a013300/a013326/BH_Accretion_Disk_Sim_360_1080.mp4",
+  "sha256": "946cd5722134534f73b38aacc670b6b95a2937b5669ea49907691ead262c7250",
+  "gitBlobSha1": "",
+  "fileName": "BH_Accretion_Disk_Sim_360_1080.mp4",
+  "bytes": 19945852,
+  "width": 1080,
+  "height": 1080,
+  "builtin": false,
+  "redistributionAllowed": true,
+  "tags": [
+    "astral",
+    "space",
+    "black hole",
+    "mp4",
+    "video"
+  ]
+}

@@ -1,3 +1,11 @@
+## 1.8.18 — Clear labels and a live Store
+
+- Keep home labels readable over bright wallpapers with a fine text contour, including the antialiased EVATEX wordmark. Preserve the translucent controls and wallpaper brightness; no extra dark panels.
+- Refresh Store metadata automatically on opening and every five minutes while browsing. Keep the current search, page and selected item when entries change.
+- Share concurrent catalogue requests, retry unavailable catalogues after 30 seconds, and keep the last valid cached list when offline or an update is malformed.
+- Publish catalogue additions from individual GitHub entry files, with validation and automatic metadata generation. New listings no longer require a mod release once this version is installed.
+- Interleave discovery categories so the first page includes different kinds of artwork instead of only black holes. The Videos filter still contains the four credited NASA MP4s.
+
 ## 1.8.17 — Smooth playback and clearer menus
 
 - Pause both video and audio in Backgrounds, Store, My Library and EVATEX Settings. Leaving resumes the existing player at its paused position.

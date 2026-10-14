@@ -6,12 +6,14 @@ import java.util.*;
 import java.util.concurrent.*;
 import javax.imageio.ImageIO;
 public final class LibraryRegression {
+ static volatile CountDownLatch networkGate;
+ static final java.util.concurrent.atomic.AtomicInteger requests=new java.util.concurrent.atomic.AtomicInteger();
  static byte[] payload="Verified wallpaper payload".getBytes(java.nio.charset.StandardCharsets.UTF_8);
  static void check(boolean ok,String message){if(!ok)throw new AssertionError(message);}
  static void rejects(Runnable action){try{action.run();throw new AssertionError("Accepted malformed catalogue/address");}catch(IllegalArgumentException|IllegalStateException expected){}}
  static LibraryCatalog.Entry external(String id,String digest,long size){return new LibraryCatalog.Entry(id,id,"anime","video","https://example.com/source","","Owner","CC0","https://example.com/media",digest,size,1920,1080,false,true);}
  public static void main(String[] args)throws Exception {
-  URL.setURLStreamHandlerFactory(protocol->protocol.equals("https")?new URLStreamHandler(){protected URLConnection openConnection(URL u){return new HttpURLConnection(u){public int getResponseCode(){return 200;}public InputStream getInputStream(){return new ByteArrayInputStream(payload);}public void disconnect(){}public boolean usingProxy(){return false;}public void connect(){}};}}:null);
+  URL.setURLStreamHandlerFactory(protocol->protocol.equals("https")?new URLStreamHandler(){protected URLConnection openConnection(URL u){return new HttpURLConnection(u){public int getResponseCode(){return 200;}public InputStream getInputStream(){requests.incrementAndGet();try{if(networkGate!=null&&!networkGate.await(5,TimeUnit.SECONDS))throw new AssertionError("Network gate timed out");}catch(InterruptedException e){throw new AssertionError(e);}return new ByteArrayInputStream(payload);}public void disconnect(){}public boolean usingProxy(){return false;}public void connect(){}};}}:null);
   String catalogue=Files.readString(Path.of(args[0]));var entries=LibraryCatalog.parse(catalogue);
   check(entries.size()==254,"254 curated entries");check(entries.stream().filter(e->e.kind().equals("video")).count()>=4,"Direct MP4 videos are present");check(entries.stream().filter(LibraryCatalog.Entry::builtin).count()==13,"13 offline originals");check(entries.stream().allMatch(LibraryCatalog.Entry::downloadable),"All entries have direct downloads");
   check(entries.stream().filter(e->e.id().startsWith("community-")).allMatch(e->e.pinnedPersonalDownload()&&!e.redistributionAllowed()),"Personal collection downloads do not grant redistribution rights");
@@ -31,6 +33,16 @@ public final class LibraryRegression {
   var original=entries.stream().filter(LibraryCatalog.Entry::builtin).findFirst().orElseThrow();file=download.download(original).get(20,TimeUnit.SECONDS);var image=ImageIO.read(file.toFile());check(image!=null&&image.getWidth()==1920&&image.getHeight()==1080,"Offline original dimensions/PNG");image.flush();
   download.download(original);download.cancel();try{download.download(good);throw new AssertionError("Overlapping transfer accepted");}catch(IllegalStateException expected){}while(download.busy())Thread.sleep(10);check(download.progress().phase().equals("cancelled"),"Cancellation observed");
   try(var files=Files.list(file.getParent())){check(files.noneMatch(p->p.toString().endsWith(".part")),"Partial files removed");}
+  payload=catalogue.getBytes(java.nio.charset.StandardCharsets.UTF_8);networkGate=new CountDownLatch(1);
+  int before=requests.get();var first=LibraryCatalog.refreshIfDue("https://example.com/catalog");
+  check(first!=null&&first==LibraryCatalog.refreshIfDue("https://example.com/catalog"),"Concurrent auto checks share one request");
+  networkGate.countDown();check(first.get(5,TimeUnit.SECONDS).equals(entries),"Remote entries applied");
+  for(int i=0;i<100&&LibraryCatalog.refreshIfDue("https://example.com/catalog")!=null;i++)Thread.sleep(1);
+  check(LibraryCatalog.refreshIfDue("https://example.com/catalog")==null&&requests.get()==before+1,"Successful auto refresh throttled");
+  check(LibraryCatalog.initial().equals(entries)&&Files.isRegularFile(LibraryCatalog.CACHE.resolve("catalog.json")),"Remote catalogue cached for offline use");
+  payload="{invalid".getBytes();try{LibraryCatalog.refresh("https://example.com/catalog").get(5,TimeUnit.SECONDS);throw new AssertionError("Malformed remote catalogue accepted");}catch(ExecutionException expected){}
+  check(LibraryCatalog.initial().equals(entries),"Failed update preserves last valid catalogue");
+  System.out.println("PASS live catalogue: coalesced fetch, throttling, durable cache, malformed update rollback");
   System.out.println("PASS library: 254 entries, pinned personal downloads and Git blob verification, schema/duplicate/path/address rejection, checksum/size validation, offline 1080p original, cancellation and partial cleanup");
  }
 }

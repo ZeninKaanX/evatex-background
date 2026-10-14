@@ -40,7 +40,7 @@ public final class AstralHomeButton extends class_4185 {
         while(AstralTypography.width(label)*scale>available && label.length()>1)label=label.substring(0,label.length()-1);
         int textY=y+(h-(int)(9*scale))/2;
         if(icon>=0)AstralDraw.homeIcon(ctx,icon,x+5,y+(h-9)/2,0xFFCCCCCC);
-        AstralDraw.displayText(ctx,label,x+inset,textY,scale,color);
-        if(!compact)AstralDraw.displayText(ctx,"→",x+w-14,textY,1f,color);
+        AstralDraw.wallpaperText(ctx,label,x+inset,textY,scale,color);
+        if(!compact)AstralDraw.wallpaperText(ctx,"→",x+w-14,textY,1f,color);
     }
 }

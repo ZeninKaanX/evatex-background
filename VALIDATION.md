@@ -1,3 +1,12 @@
+## 1.8.18 validation
+
+- Minecraft 1.21.11 Fabric development API compilation: passed.
+- Live catalogue regression: concurrent checks share one fetch; automatic checks throttle after success; remote metadata persists; malformed updates preserve the previous list. Passed with an isolated HTTPS transport fixture and temporary game directory.
+- Catalogue compiler: deterministic output; adding/removing an entry changes/restores the published catalogue; duplicate identifiers, insecure URLs, invalid checksums and excessive sizes are rejected. Passed.
+- Existing library checksum, personal Git blob, cancellation, offline originals and 1,000-page thumbnail queue regressions: passed.
+- Minecraft 1.20.1 legacy API compilation: passed. Final contour-only secondary-display review: passed at 1920×1080, with a bright 1080p video and fully loaded mixed-category Store covers. Main screen was not touched; host sound stayed muted. Navigation retained the same decoder/native process and paused/resumed its timeline. The rejected dark-panel prototype is excluded.
+- Real Windows GPU/macOS/Lunar runtime coverage is unchanged from the recorded earlier validation; these metadata/UI changes do not imply new device validation.
+
 ## 1.8.17 local validation
 
 The user superseded the earlier continuous-audio behavior: all Backgrounds screens must pause both picture and PCM, then resume the same player. The 1.8.16 expansion service was stopped; published 1.8.16 files remain immutable. A new presentation regression checks both counters stop and resume without changing decoder/native process/audio sink, over pipe and TCP with no host sound.

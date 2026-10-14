@@ -22,4 +22,22 @@ public final class AstralDraw {
             AstralTypography.drawScaled(ctx,text,0,0,color,scale);
         } finally {matrix.popMatrix();}
     }
+    /** A one-physical-pixel contour, never a rectangle or fullscreen overlay. */
+    public static void wallpaperText(net.minecraft.class_332 ctx,String text,int x,int y,float scale,int color) {
+        float pixel=1f/(float)net.minecraft.class_310.method_1551().method_22683().method_4495();
+        int edge=(color&0xFF000000)|0x101014;
+        wallpaperLayer(ctx,text,x-pixel,y,scale,edge);
+        wallpaperLayer(ctx,text,x+pixel,y,scale,edge);
+        wallpaperLayer(ctx,text,x,y-pixel,scale,edge);
+        wallpaperLayer(ctx,text,x,y+pixel,scale,edge);
+        wallpaperLayer(ctx,text,x,y,scale,color);
+    }
+    private static void wallpaperLayer(net.minecraft.class_332 ctx,String text,float x,float y,float scale,int color) {
+        var matrix=ctx.method_51448();matrix.pushMatrix();
+        try {
+            matrix.translate((float)x,(float)y);matrix.scale(scale,scale);
+            AstralTypography.drawScaled(ctx,text,0,0,color,scale);
+        } finally {matrix.popMatrix();}
+    }
+
 }

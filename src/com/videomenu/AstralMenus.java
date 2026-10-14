@@ -182,7 +182,7 @@ public final class AstralMenus {
         AstralTypography.beginNativeText();nativeText=true;
         try {for(var child:screen.method_25396())if(child instanceof class_4068 drawable && !(child instanceof class_7842 label && label.method_25369().getString().equals(screen.method_25440().getString())))drawable.method_25394(ctx,mx,my,delta);}
         finally {nativeText=false;}
-        AstralDraw.displayText(ctx,"EVATEX",s.margin,screen.field_22790-12,1f,0xFF999999);
+        AstralDraw.displayText(ctx,"EVATEX",s.margin,screen.field_22790-12,1f,0xFFBFC3C9);
         return true;
     }
     public static void panel(class_332 ctx,int x,int y,int width,int height) {
@@ -200,17 +200,17 @@ public final class AstralMenus {
     private static void details(class_332 ctx,State s) {
         int x=s.detailX+12,y=s.top+14,width=s.detailWidth-24;
         Object entry=s.list.method_25334();
-        line(ctx,text(s.screen instanceof class_500 ? "evatex.menu.server_details" : "evatex.menu.world_details"),x,y,width,1f,0xFF999999);
+        line(ctx,text(s.screen instanceof class_500 ? "evatex.menu.server_details" : "evatex.menu.world_details"),x,y,width,1f,0xFFBFC3C9);
         if(entry instanceof class_4267.class_4270 server) {
             var info=server.method_20133();
             line(ctx,info.field_3752,x,y+24,width,1.3f,0xFFFFFFFF);
             line(ctx,info.field_3761,x,y+43,width,1f,0xFFAAAAAA);
             ctx.method_25294(x,y+66,x+width,y+67,0x33FFFFFF);
-            line(ctx,text("evatex.menu.players"),x,y+82,width,1f,0xFF999999);
+            line(ctx,text("evatex.menu.players"),x,y+82,width,1f,0xFFBFC3C9);
             String players=info.field_3753==null ? "" : info.field_3753.getString();
             boolean unavailable=players.isEmpty() || players.equals(text("multiplayer.status.cannot_connect")) || players.equals(text("multiplayer.status.cannot_resolve")) || players.equals(text("multiplayer.status.pinging"));
             line(ctx,unavailable ? "—" : players,x,y+99,width,1f,0xFFF0F0F0);
-            line(ctx,text("evatex.menu.latency"),x,y+122,width,1f,0xFF999999);
+            line(ctx,text("evatex.menu.latency"),x,y+122,width,1f,0xFFBFC3C9);
             line(ctx,unavailable || info.field_3758<0 ? "—" : info.field_3758+" ms",x,y+139,width,1f,0xFFF0F0F0);
             if(s.bottom-y>185)line(ctx,info.field_3757==null ? "" : info.field_3757.getString(),x,y+172,width,1f,0xFFCCCCCC);
         } else if(entry!=null && s.screen instanceof class_526) {

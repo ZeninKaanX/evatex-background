@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.17
+# EVATEX-Background — Astral 1.8.18
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -14,7 +14,7 @@ Open **Backgrounds → Store**, choose a background, select **Download**, then *
 
 My Library also shows cached covers for your own photos, GIFs and videos. Video covers are silent, single-frame posters generated one at a time; cards do not run multiple video players. Astral navigation, subtle transitions and an original soft click sound keep the interface consistent. UI clicks follow Minecraft's own sound controls independently of wallpaper audio.
 
-Online covers load automatically and can be disabled in Store. Cached covers and the bundled catalogue remain available offline; uncached external downloads require a connection. **Refresh** retrieves the small public catalogue without a new mod download. External files download directly from pinned public source collections or credited NASA/Goddard media into the game directory, with exact-size and Git blob or SHA-256 checks. Media is not bundled, mirrored or relicensed by EVATEX; original artist rights apply. The collection is mostly static images, not 254 animated videos.
+Online covers load automatically and can be disabled in Store. Cached covers and the bundled catalogue remain available offline; uncached external downloads require a connection. Store checks its small public GitHub catalogue automatically when opened and every five minutes while browsing; **Refresh** checks immediately. New backgrounds appear without updating the mod. Offline or invalid responses keep the last valid list. [Adding catalogue entries](catalog/README.md) is handled by a separate metadata workflow. External files download directly from pinned public source collections or credited NASA/Goddard media into the game directory, with exact-size and Git blob or SHA-256 checks. Media is not bundled, mirrored or relicensed by EVATEX; original artist rights apply. The collection is mostly static images, not 254 animated videos.
 
 ## Optional in-game settings backgrounds
 
