@@ -11,6 +11,7 @@ public final class AstralHomeButton extends class_4185 {
     public AstralHomeButton(int x,int y,int width,int height,class_2561 text,class_4241 action) {
         super(x,y,width,height,text,action,field_40754);
     }
+    @Override public void method_25354(net.minecraft.class_1144 manager){AstralSound.click(manager);}
     @Override protected void method_75752(class_332 ctx,int mx,int my,float delta) {
         boolean focused=field_22762 || method_25370();
         long now=System.nanoTime();double dt=last==0 ? 0 : Math.min(.1,(now-last)/1e9);last=now;

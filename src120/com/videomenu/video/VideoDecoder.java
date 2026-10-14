@@ -541,6 +541,14 @@ public final class VideoDecoder {
         return null;
     }
 
+    /** A silent, single-frame poster; callers own timeout and process cleanup. */
+    public static Process startPosterProcess(java.nio.file.Path source, java.nio.file.Path output) throws IOException {
+        return startFfmpeg(new ProcessBuilder(ffmpegPath(), "-nostdin", "-hide_banner", "-loglevel", "error",
+            "-threads", "1", "-ss", "1", "-i", source.toString(), "-an", "-sn", "-frames:v", "1",
+            "-vf", "scale=768:432:force_original_aspect_ratio=decrease", "-threads", "1", "-y", output.toString())
+            .redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.DISCARD));
+    }
+
     private static Process startFfmpeg(ProcessBuilder builder) throws IOException {
         try { return builder.start(); }
         catch (IOException e) {

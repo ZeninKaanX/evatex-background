@@ -41,6 +41,7 @@ def sources(root,version):
         edit('mixin/ServerListBackgroundMixin.java','method="method_25394"','method="method_48579"')
     if version in LEGACY and version.startswith('1.21'):
         edit('AstralTypography.java','new net.minecraft.class_2960("evatexbackgroundvideo",fontName)','net.minecraft.class_2960.method_60655("evatexbackgroundvideo",fontName)')
+        edit('AstralSound.java','new net.minecraft.class_2960("evatexbackgroundvideo","ui.astral_click")','net.minecraft.class_2960.method_60655("evatexbackgroundvideo","ui.astral_click")')
         edit('library/LibraryThumbnails.java','new class_2960("evatexbackgroundvideo","library/"+e.id())','class_2960.method_60655("evatexbackgroundvideo","library/"+e.id())')
         edit('video/VideoBackground.java','new class_2960("evatexbackgroundvideo", "video")','class_2960.method_60655("evatexbackgroundvideo", "video")')
     if version in ('1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
@@ -71,7 +72,7 @@ def sources(root,version):
         edit('mixin/RotatingCubeMapRendererMixin.java','IIZ)V','IIFF)V')
         edit('mixin/RotatingCubeMapRendererMixin.java','boolean rotate, CallbackInfo ci','float delta, float rotation, CallbackInfo ci')
     if version in ('1.21.2' ,'1.21.3','1.21.4'):
-        edit('library/LibraryThumbnails.java','ctx.method_25293(id,x+(w-dw)/2,y+(h-dh)/2,dw,dh,0f,0f,384,216,384,216)','ctx.method_25302(net.minecraft.class_1921::method_62277,id,x+(w-dw)/2,y+(h-dh)/2,0f,0f,dw,dh,384,216,384,216)')
+        edit('library/LibraryThumbnails.java','ctx.method_25293(id,x+(w-dw)/2,y+(h-dh)/2,dw,dh,0f,0f,768,432,768,432)','ctx.method_25302(net.minecraft.class_1921::method_62277,id,x+(w-dw)/2,y+(h-dh)/2,0f,0f,dw,dh,768,432,768,432)')
         edit('video/VideoBackground.java', 'context.method_25293(TEXTURE_ID, (width-dw)/2, (height-dh)/2, dw, dh,\n                0f, 0f, frame.width, frame.height, frame.width, frame.height);', 'context.method_25302(net.minecraft.class_1921::method_62277, TEXTURE_ID, (width-dw)/2, (height-dh)/2,\n                0f, 0f, dw, dh, frame.width, frame.height, frame.width, frame.height);')
     if version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
         if version in ('1.21.5','1.21.6','1.21.7','1.21.8'):edit('BackgroundLibraryScreen.java','method_73210','method_1854')

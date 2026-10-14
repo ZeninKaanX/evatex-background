@@ -1,0 +1,11 @@
+{
+  "ui.astral_click": {
+    "sounds": [
+      {
+        "name": "evatexbackgroundvideo:ui/astral_click",
+        "stream": false,
+        "preload": true
+      }
+    ]
+  }
+}

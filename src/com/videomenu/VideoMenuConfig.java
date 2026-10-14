@@ -17,7 +17,7 @@ public final class VideoMenuConfig {
     public int fps = 30;
     public double scale = 1.0;
     public boolean enabled = true;
-    public boolean libraryOnlinePreviews = false;
+    public boolean libraryOnlinePreviews = true;
     public String libraryCatalogUrl = "";
     public java.util.List<String> libraryFavorites = new java.util.ArrayList<>();
     public boolean audioEnabled = false;
@@ -64,7 +64,7 @@ public final class VideoMenuConfig {
         } catch (Exception e) {
             VideoMenuClient.LOGGER.error("[VideoMenu] evatexbackgroundvideo.json okunamadı, varsayılan ayarlar kullanılıyor.", e);
         }
-        config.libraryOnlinePreviews = getBoolean(obj, "libraryOnlinePreviews", false);
+        config.libraryOnlinePreviews = getInt(obj,"libraryPreviewPreferenceVersion",0)<1 || getBoolean(obj, "libraryOnlinePreviews", true);
         var library = obj;
         config.libraryCatalogUrl = getString(library,"libraryCatalogUrl","");
         if(library.has("libraryFavorites") && library.get("libraryFavorites").isJsonArray()) for(var id:library.getAsJsonArray("libraryFavorites")) if(id.isJsonPrimitive() && id.getAsString().matches("[a-z0-9-]{1,120}") && config.libraryFavorites.size()<1000)config.libraryFavorites.add(id.getAsString());
@@ -124,6 +124,7 @@ public final class VideoMenuConfig {
         JsonObject obj = new JsonObject();
         obj.addProperty("_HELP", "EVATEX-Background ayarları. Arka Plan menüsünden video, GIF veya fotoğraf seçebilirsiniz. Dosyaları oyun klasöründeki videos, videolar veya backgrounds klasörüne ekleyin. videoPath seçili arka planın yoludur; eski ayarlar korunur. FFmpeg modla birlikte gelir.");
         obj.addProperty("libraryOnlinePreviews",libraryOnlinePreviews);
+        obj.addProperty("libraryPreviewPreferenceVersion",1);
         obj.addProperty("libraryCatalogUrl",libraryCatalogUrl);
         obj.add("libraryFavorites",new com.google.gson.Gson().toJsonTree(libraryFavorites));
         obj.addProperty("worldMenuBackground", worldMenuBackground);
