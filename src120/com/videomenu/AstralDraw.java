@@ -22,14 +22,13 @@ public final class AstralDraw {
             AstralTypography.drawScaled(ctx,text,0,0,color,scale);
         } finally {matrix.method_22909();}
     }
-    /** A one-physical-pixel contour, never a rectangle or fullscreen overlay. */
+    /** Soft, offset glyph shadows; the foreground stays clean and fully opaque. */
     public static void wallpaperText(net.minecraft.class_332 ctx,String text,int x,int y,float scale,int color) {
         float pixel=1f/(float)net.minecraft.class_310.method_1551().method_22683().method_4495();
-        int edge=(color&0xFF000000)|0x101014;
-        wallpaperLayer(ctx,text,x-pixel,y,scale,edge);
-        wallpaperLayer(ctx,text,x+pixel,y,scale,edge);
-        wallpaperLayer(ctx,text,x,y-pixel,scale,edge);
-        wallpaperLayer(ctx,text,x,y+pixel,scale,edge);
+        int opacity=color>>>24;
+        // A faint outer falloff and a short contact shadow avoid the hollow black-outline effect.
+        wallpaperLayer(ctx,text,x+pixel*1.1f,y+pixel*1.25f,scale,(32*opacity/255)<<24|0x17191D);
+        wallpaperLayer(ctx,text,x+pixel*.25f,y+pixel*.55f,scale,(100*opacity/255)<<24|0x24262C);
         wallpaperLayer(ctx,text,x,y,scale,color);
     }
     private static void wallpaperLayer(net.minecraft.class_332 ctx,String text,float x,float y,float scale,int color) {

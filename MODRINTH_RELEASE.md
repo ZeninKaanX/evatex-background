@@ -1,6 +1,6 @@
 # 1.8.18 — Clear labels and a live Store
 
-- Keep home labels readable over bright wallpapers with a fine text contour, including the antialiased EVATEX wordmark. Preserve the translucent controls and wallpaper brightness; no extra dark panels.
+- Keep home labels readable over bright wallpapers with subtle glyph shadows and a softly shaded, antialiased EVATEX wordmark. Preserve the translucent controls and wallpaper brightness without hard outlines or extra dark panels.
 - Refresh Store metadata automatically on opening and every five minutes while browsing. Keep the current search, page and selected item when entries change.
 - Share concurrent catalogue requests, retry unavailable catalogues after 30 seconds, and keep the last valid cached list when offline or an update is malformed.
 - Publish catalogue additions from individual GitHub entry files, with validation and automatic metadata generation. New listings no longer require a mod release once this version is installed.
