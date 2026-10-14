@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.16
+# EVATEX-Background — Astral 1.8.17
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -10,11 +10,11 @@ Replace Minecraft's title screen, multiplayer server selection, world selection,
 
 ## Store and My Library
 
-Open **Backgrounds → Store**, choose a background, select **Download**, then **Apply**. The catalogue has **250 entries: 238 photos and 12 animated GIFs**, including 13 offline EVATEX originals. Anime, space, nature, gaming and minimal categories, search and favourites help you browse. Downloaded items appear in **My Library** and show **Downloaded / Apply** in the store.
+Open **Backgrounds → Store**, choose a background, select **Download**, then **Apply**. The catalogue has **254 entries: 238 photos, 12 animated GIFs and 4 MP4 videos**, including 13 offline EVATEX originals. Anime, space, nature, gaming and minimal categories, search and favourites help you browse. Downloaded items appear in **My Library** and show **Downloaded / Apply** in the store.
 
 My Library also shows cached covers for your own photos, GIFs and videos. Video covers are silent, single-frame posters generated one at a time; cards do not run multiple video players. Astral navigation, subtle transitions and an original soft click sound keep the interface consistent. UI clicks follow Minecraft's own sound controls independently of wallpaper audio.
 
-Online covers load automatically and can be disabled in Store. Cached covers and the bundled catalogue remain available offline; uncached external downloads require a connection. **Refresh** retrieves the small public catalogue without a new mod download. External files download directly from pinned public source collections into the game directory, with exact-size and Git blob checks. Media is not bundled, mirrored or relicensed by EVATEX; original artist rights apply. The collection is mostly static images, not 250 animated videos.
+Online covers load automatically and can be disabled in Store. Cached covers and the bundled catalogue remain available offline; uncached external downloads require a connection. **Refresh** retrieves the small public catalogue without a new mod download. External files download directly from pinned public source collections or credited NASA/Goddard media into the game directory, with exact-size and Git blob or SHA-256 checks. Media is not bundled, mirrored or relicensed by EVATEX; original artist rights apply. The collection is mostly static images, not 254 animated videos.
 
 ## Optional in-game settings backgrounds
 
@@ -62,7 +62,7 @@ Fabric API is not required by EVATEX; its resource-loading modules are embedded.
 2. Open **Backgrounds** on the title screen and select a background.
 3. Adjust sound, resolution, decode-size limit, frame rate, framing (fill or fit), darkening and vignette. The mod has its own black-and-white Astral interface, with optional screen fades, hover transitions and falling meteors. My Library, Store and Settings share the same Astral navigation. Settings contains only playback, appearance and menu preferences; file previews, Open folder and Refresh are in My Library. Narrow screens paginate settings cards. Folder opening runs asynchronously with Windows, Linux and macOS commands. Settings save automatically.
 
-Backgrounds uses an opaque Astral surface. Video presentation pauses while the menu is open; enabled audio continues on the existing timeline, and video rejoins that timeline when you leave. Muted or silent media pauses completely. Switching between My Library, Store and Settings preserves the player instead of restarting the clip. Unfocused Minecraft pauses both picture and sound.
+Backgrounds uses an opaque Astral surface. Video and audio pause together while the menu is open, then resume at the paused position when you leave. Switching between My Library, Store and Settings preserves the player instead of restarting the clip. Unfocused Minecraft pauses both picture and sound.
 
 The Astral interface uses dark panels and black/white accents, with keyboard focus and native narration support. Text follows Minecraft's selected language. Turkish and English are included; other languages use the English fallback.
 

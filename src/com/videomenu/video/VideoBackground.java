@@ -42,14 +42,14 @@ public final class VideoBackground {
     public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
     private volatile boolean foreground=true;
     private boolean presentationSuppressed;
-    public String status(){return !foreground&&decoder!=null?"paused":presentationSuppressed&&decoder!=null?config.audioEnabled&&decoder.hasAudioTrack()?"audio_only":"paused":status;}
+    public String status(){return !foreground&&decoder!=null?"paused":presentationSuppressed&&decoder!=null?"paused":status;}
     public synchronized void setForeground(boolean value){foreground=value;updatePlaybackMode();}
     public synchronized void setPresentationFor(net.minecraft.class_437 screen){
         presentationSuppressed=(screen instanceof com.videomenu.BackgroundLibraryScreen||screen instanceof com.videomenu.VideoSelectScreen);
         updatePlaybackMode();
     }
     private void updatePlaybackMode(){
-        if(decoder!=null){decoder.setPresentationEnabled(!presentationSuppressed);decoder.setPaused(!foreground||presentationSuppressed&&(!config.audioEnabled||!decoder.hasAudioTrack()));}
+        if(decoder!=null){decoder.setPresentationEnabled(!presentationSuppressed);decoder.setPaused(!foreground||presentationSuppressed);}
     }
     public boolean isPresentationSuppressed(){return presentationSuppressed;}
 
@@ -148,7 +148,7 @@ public final class VideoBackground {
         }, () -> { synchronized (frameLock) { if (session == generation) { latest = null; staging = null; status = "error"; } } }, true,
             window.method_4489(), window.method_4506());
         next.setPresentationEnabled(!presentationSuppressed);
-        next.setPaused(!foreground||presentationSuppressed&&(!config.audioEnabled||!next.hasAudioTrack()));
+        next.setPaused(!foreground||presentationSuppressed);
         decoder = next;
         worker.execute(() -> {
             boolean started = next.start();

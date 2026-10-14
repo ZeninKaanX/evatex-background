@@ -156,7 +156,7 @@ public final class EvatexTitleScreen extends class_442 {
         boolean wide=field_22789>=360 && field_22790>=220;
         int brandY=wide ? (int)(field_22790*.24) : field_22790>=180 ? 22 : 12;
         float brandScale=wide ? field_22790/100f : 1.8f;
-        AstralDraw.displayText(ctx,"EVATEX",margin,brandY,brandScale,0xFFF4F4F4);
+        if(!AstralWordmark.draw(ctx,margin,brandY,Math.round(font.field_2000*brandScale*.84f)))AstralDraw.displayText(ctx,"EVATEX",margin,brandY,brandScale,0xFFF4F4F4);
         int sub=brandY+(int)(font.field_2000*brandScale)+10;
         ctx.method_25294(margin,sub+3,margin+14,sub+4,0xFFBBBBBB);
         AstralDraw.displayText(ctx,"A S T R A L",margin+20,sub,1f,0xFFBBBBBB);

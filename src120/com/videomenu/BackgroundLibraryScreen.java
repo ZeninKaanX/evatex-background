@@ -40,8 +40,8 @@ public final class BackgroundLibraryScreen extends class_437 {
   add(margin+navW+8,44,navW,24,text("discover"),b->openTab(false),!localMode);
   add(margin+2*(navW+8),44,navW,24,text("settings"),b->field_22787.method_1507(new VideoSelectScreen(this,0)),false);
   search=method_37063(new class_342(field_22787.field_1772,gridX,82,gridW,21,text("search")));search.method_1880(120);search.method_1852(query);search.method_47404(AstralTypography.styled(text("search")));search.method_1854((value,offset)->AstralTypography.text(value).method_30937());search.method_1863(value->{query=value;page=0;rebuild();});
-  int y=82,categoryStep=Math.max(16,Math.min(29,(field_22790-134)/7));
-  for(String key:localMode?List.of("all","image","video","gif","favorites"):List.of("all","anime","astral","nature","games","minimal","favorites")){final String next=key;add(margin,y,left,Math.min(22,categoryStep-3),text("category."+key),b->{category=next;page=0;rebuild();},category.equals(key));y+=categoryStep;}
+  int y=82,categoryStep=Math.max(16,Math.min(29,(field_22790-134)/(localMode?7:8)));
+  for(String key:localMode?List.of("all","image","video","gif","favorites"):List.of("all","video","anime","astral","nature","games","minimal","favorites")){final String next=key;add(margin,y,left,Math.min(22,categoryStep-3),text("category."+key),b->{category=next;page=0;rebuild();},category.equals(key));y+=categoryStep;}
   filter();int pages=Math.max(1,(filtered.size()+perPage-1)/perPage);page=Math.max(0,Math.min(page,pages-1));
   if(selected==null || !filtered.contains(selected))selected=filtered.isEmpty()?null:filtered.get(0);
   for(int n=page*perPage;n<Math.min(filtered.size(),(page+1)*perPage);n++){
@@ -65,7 +65,7 @@ public final class BackgroundLibraryScreen extends class_437 {
   }
 
  }
- private void filter(){String q=query.toLowerCase(Locale.ROOT);filtered=(localMode?new ArrayList<>(localFiles.keySet()):catalogue).stream().filter(e->category.equals("all")||category.equals("favorites")&&config.libraryFavorites.contains(e.id())||category.equals(localMode?e.kind():e.category())).filter(e->q.isBlank()||(e.title()+" "+e.category()+" "+label("category."+e.category())).toLowerCase(Locale.ROOT).contains(q)).toList();}
+ private void filter(){String q=query.toLowerCase(Locale.ROOT);filtered=(localMode?new ArrayList<>(localFiles.keySet()):catalogue).stream().filter(e->category.equals("all")||category.equals("video")&&e.kind().equals("video")||category.equals("favorites")&&config.libraryFavorites.contains(e.id())||category.equals(localMode?e.kind():e.category())).filter(e->q.isBlank()||(e.title()+" "+e.category()+" "+label("category."+e.category())).toLowerCase(Locale.ROOT).contains(q)).toList();}
  private AstralButton add(int x,int y,int w,int h,class_2561 t,class_4185.class_4241 action,boolean selected){return method_37063(new AstralButton(x,y,w,h,t,action,selected).astralSurface(false));}
  private void rebuild(){if(closed)return;transitionAt=System.nanoTime();boolean typing=search!=null&&method_25399()==search;int cursor=search==null?query.length():search.method_1881();method_37067();method_25426();search.method_1875(Math.min(query.length(),cursor));if(typing)method_48265(search);}
  private class_2561 actionLabel(){if(selected==null)return text("select");if(downloads.busy())return text("cancel");if(installed(selected))return text("apply");return text(selected.builtin()?"create_apply":selected.downloadable()?"download":"source");}

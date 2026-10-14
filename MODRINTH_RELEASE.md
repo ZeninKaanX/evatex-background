@@ -1,10 +1,8 @@
-# 1.8.16 — Unified Astral menus
+# 1.8.17 — Smooth playback and clearer menus
 
-- Give Settings the same Astral header, navigation and panels as Store and My Library. File management and Open folder live only in My Library.
-- Keep Backgrounds opaque. Hold video presentation while enabled audio keeps its timeline; muted media pauses fully. Leaving the menu resumes the same player without restarting the clip.
-- Replace the interface click with a short, restrained tactile sound.
-- Fix previews stopping after rapid Store page changes. Requests for off-screen cards are cancelled and removed immediately, including already completed requests.
-- Select the current page's first card when paging, keeping compact-screen Apply actions consistent with what is visible.
-- Include the redesigned Astral Store with 250 backgrounds, direct downloads, local video/GIF/photo covers, soft original click sounds, and My Library / Store / Settings navigation from 1.8.15.
-
-The catalogue contains 238 photos and 12 animated GIFs, including 13 offline EVATEX originals. Media stays outside the JAR; original artist rights apply. Existing backgrounds and sound settings are preserved. Install one JAR matching your exact Minecraft version and loader. Stable release.
+- Pause both video and audio in Backgrounds, Store, My Library and EVATEX Settings. Leaving resumes the existing player at its paused position.
+- Render the main EVATEX wordmark as a dedicated antialiased, linearly sampled texture.
+- Fix modern server/world entries retaining cached positions after list resizing, which could clip icons and misalign rows. Keep native layouts at smaller sizes.
+- Add four verified, directly downloadable MP4 space backgrounds from NASA/Goddard, with visible credits and a dedicated Videos filter. The catalogue now contains 254 entries: 238 photos, 12 GIFs and 4 MP4 videos.
+- Reuse the parsed catalogue across menu transitions instead of reading and parsing it repeatedly on the game thread. A successful Refresh replaces this cache.
+- Add restrained press feedback and a short, dry interface click.

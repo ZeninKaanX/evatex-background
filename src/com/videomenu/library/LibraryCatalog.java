@@ -20,11 +20,12 @@ public final class LibraryCatalog {
 
   public boolean downloadable(){return builtin || pinnedPersonalDownload() || redistributionAllowed && !downloadUrl.isBlank() && sha256.matches("[a-fA-F0-9]{64}") && bytes>0 && bytes<=512L*1024*1024;}
  }
- private static final int CATALOG_VERSION=2;
+ private static final int CATALOG_VERSION=3;
  public static final String DEFAULT_URL="https://raw.githubusercontent.com/ZeninKaanX/evatex-background-video-1.8.2/main/catalog/v1.json";
  public static final ExecutorService WORKER=Executors.newFixedThreadPool(2,r->{Thread t=new Thread(r,"EVATEX-library");t.setDaemon(true);return t;});
  public static final Path CACHE=EvatexPlatform.gameDir().resolve(".evatex-library");
  private static final Set<String> CATEGORIES=Set.of("anime","astral","nature","games","minimal");
+ private static volatile List<Entry> cachedInitial;
  private LibraryCatalog(){}
  public static List<Entry> bundled(){
   try(var in=LibraryCatalog.class.getResourceAsStream("/assets/evatexbackgroundvideo/catalog/v1.json")){
@@ -59,7 +60,7 @@ public final class LibraryCatalog {
  }
  public static String digest(byte[] bytes)throws Exception{return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));}
  public static CompletableFuture<List<Entry>> refresh(String address){return CompletableFuture.supplyAsync(()->{
-  try(var input=open(address)){byte[] bytes=input.readNBytes(1024*1024+1);if(bytes.length>1024*1024)throw new IOException("Catalogue too large");String json=new String(bytes,StandardCharsets.UTF_8);var document=JsonParser.parseString(json).getAsJsonObject();if(!document.has("catalogVersion")||document.get("catalogVersion").getAsInt()<CATALOG_VERSION)return initial();var list=parse(json);Files.createDirectories(CACHE);Path tmp=Files.createTempFile(CACHE,"catalog-",".part");try{Files.write(tmp,bytes);Files.move(tmp,CACHE.resolve("catalog.json"),StandardCopyOption.REPLACE_EXISTING);}finally{Files.deleteIfExists(tmp);}return list;}catch(Exception e){throw new CompletionException(e);}
+  try(var input=open(address)){byte[] bytes=input.readNBytes(1024*1024+1);if(bytes.length>1024*1024)throw new IOException("Catalogue too large");String json=new String(bytes,StandardCharsets.UTF_8);var document=JsonParser.parseString(json).getAsJsonObject();if(!document.has("catalogVersion")||document.get("catalogVersion").getAsInt()<CATALOG_VERSION)return initial();var list=parse(json);Files.createDirectories(CACHE);Path tmp=Files.createTempFile(CACHE,"catalog-",".part");try{Files.write(tmp,bytes);Files.move(tmp,CACHE.resolve("catalog.json"),StandardCopyOption.REPLACE_EXISTING);}finally{Files.deleteIfExists(tmp);}cachedInitial=list;return list;}catch(Exception e){throw new CompletionException(e);}
  },WORKER);}
- public static List<Entry> initial(){try{Path file=CACHE.resolve("catalog.json");if(Files.isRegularFile(file)&&Files.size(file)<=1024*1024){String json=Files.readString(file);var document=JsonParser.parseString(json).getAsJsonObject();if(document.has("catalogVersion")&&document.get("catalogVersion").getAsInt()>=CATALOG_VERSION)return parse(json);}}catch(Exception ignored){}return bundled();}
+ public static synchronized List<Entry> initial(){if(cachedInitial!=null)return cachedInitial;try{Path file=CACHE.resolve("catalog.json");if(Files.isRegularFile(file)&&Files.size(file)<=1024*1024){String json=Files.readString(file);var document=JsonParser.parseString(json).getAsJsonObject();if(document.has("catalogVersion")&&document.get("catalogVersion").getAsInt()>=CATALOG_VERSION)return cachedInitial=parse(json);}}catch(Exception ignored){}return cachedInitial=bundled();}
 }

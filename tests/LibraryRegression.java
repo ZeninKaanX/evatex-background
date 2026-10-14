@@ -13,8 +13,9 @@ public final class LibraryRegression {
  public static void main(String[] args)throws Exception {
   URL.setURLStreamHandlerFactory(protocol->protocol.equals("https")?new URLStreamHandler(){protected URLConnection openConnection(URL u){return new HttpURLConnection(u){public int getResponseCode(){return 200;}public InputStream getInputStream(){return new ByteArrayInputStream(payload);}public void disconnect(){}public boolean usingProxy(){return false;}public void connect(){}};}}:null);
   String catalogue=Files.readString(Path.of(args[0]));var entries=LibraryCatalog.parse(catalogue);
-  check(entries.size()==250,"250 curated entries");check(entries.stream().filter(LibraryCatalog.Entry::builtin).count()==13,"13 offline originals");check(entries.stream().allMatch(LibraryCatalog.Entry::downloadable),"All entries have direct downloads");
-  check(entries.stream().filter(e->!e.builtin()).allMatch(e->e.pinnedPersonalDownload()&&!e.redistributionAllowed()),"Personal collection downloads do not grant redistribution rights");
+  check(entries.size()==254,"254 curated entries");check(entries.stream().filter(e->e.kind().equals("video")).count()>=4,"Direct MP4 videos are present");check(entries.stream().filter(LibraryCatalog.Entry::builtin).count()==13,"13 offline originals");check(entries.stream().allMatch(LibraryCatalog.Entry::downloadable),"All entries have direct downloads");
+  check(entries.stream().filter(e->e.id().startsWith("community-")).allMatch(e->e.pinnedPersonalDownload()&&!e.redistributionAllowed()),"Personal collection downloads do not grant redistribution rights");
+  check(entries.stream().filter(e->e.id().startsWith("nasa-")).allMatch(e->e.kind().equals("video")&&e.downloadUrl().endsWith(".mp4")&&e.sha256().matches("[a-f0-9]{64}")&&e.bytes()>0&&e.creator().contains("NASA")),"Credited MP4 files have exact size and SHA-256");
   rejects(()->LibraryCatalog.parse(catalogue.replace("\"schemaVersion\": 1","\"schemaVersion\": 2")));
   rejects(()->LibraryCatalog.parse("{\"schemaVersion\":1,\"entries\":[{\"id\":\"../escape\",\"category\":\"anime\",\"kind\":\"video\"}]}"));
   rejects(()->LibraryCatalog.parse("{\"schemaVersion\":1,\"entries\":[{\"id\":\"same\",\"category\":\"anime\",\"kind\":\"video\"},{\"id\":\"same\",\"category\":\"anime\",\"kind\":\"video\"}]}"));
@@ -30,6 +31,6 @@ public final class LibraryRegression {
   var original=entries.stream().filter(LibraryCatalog.Entry::builtin).findFirst().orElseThrow();file=download.download(original).get(20,TimeUnit.SECONDS);var image=ImageIO.read(file.toFile());check(image!=null&&image.getWidth()==1920&&image.getHeight()==1080,"Offline original dimensions/PNG");image.flush();
   download.download(original);download.cancel();try{download.download(good);throw new AssertionError("Overlapping transfer accepted");}catch(IllegalStateException expected){}while(download.busy())Thread.sleep(10);check(download.progress().phase().equals("cancelled"),"Cancellation observed");
   try(var files=Files.list(file.getParent())){check(files.noneMatch(p->p.toString().endsWith(".part")),"Partial files removed");}
-  System.out.println("PASS library: 250 entries, pinned personal downloads and Git blob verification, schema/duplicate/path/address rejection, checksum/size validation, offline 1080p original, cancellation and partial cleanup");
+  System.out.println("PASS library: 254 entries, pinned personal downloads and Git blob verification, schema/duplicate/path/address rejection, checksum/size validation, offline 1080p original, cancellation and partial cleanup");
  }
 }

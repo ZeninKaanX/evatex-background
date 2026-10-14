@@ -220,6 +220,7 @@ public abstract class SmokeMixin {
                 for(var child:screen.method_25396())if(child instanceof net.minecraft.class_4267 list){
                     if(!(list.method_25334() instanceof net.minecraft.class_4267.class_4270 selected) || !selected.method_20133().field_3752.equals("EVATEX Local Test"))
                         throw new AssertionError("Selected server must be available to the details card");
+                    if(selected.method_46426()!=list.method_25342()||selected.method_46426()<list.method_46426())throw new AssertionError("Resized server entries retain a stale x coordinate");
                 }
                 evatexqa$homeGeometry(screen);evatexqa$capture(client,"astral-servers");
                 evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("selectServer.add")));

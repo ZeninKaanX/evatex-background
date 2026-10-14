@@ -58,7 +58,7 @@ public final class AstralMenus {
         boolean primary=screen.getClass()==class_500.class || screen.getClass()==class_526.class || screen.getClass()==class_429.class;
         boolean secondary=screen.getClass().getName().startsWith("net.minecraft.") && (screen instanceof class_4667 || screen.getClass()==class_5375.class || screen.getClass()==class_8219.class || screen.getClass()==class_5235.class || screen.getClass()==class_524.class || screen.getClass()==class_525.class);
         if(!primary && !secondary)return;
-        if(screen.field_22789<360 || screen.field_22790<240) return; // Native compact layout remains usable.
+        if(screen.field_22789<480 || screen.field_22790<270) return; // Native compact layout remains usable.
         var next=new State(screen);next.chromeOnly=!primary;
         for(var child:screen.method_25396()) {
             // Leave layouts owned by another mod untouched.
@@ -75,7 +75,7 @@ public final class AstralMenus {
         if(next.list!=null && !listBounds(next))return;
         next.margin=Math.max(14,(int)(w*.03));next.top=82;next.bottom=h-72;
         if(screen instanceof class_500){next.top=92;next.bottom=h-53;}
-        next.listWidth=(int)(w*.56);next.detailX=next.margin+next.listWidth+16;
+        next.listWidth=(int)(w*.58);next.detailX=next.margin+next.listWidth+16;
         next.detailWidth=w-next.margin-next.detailX;
         state=next;
         if(next.list!=null && !resize(next.list,next.listWidth,next.bottom-next.top,next.margin,next.top,h)){state=null;return;}
@@ -122,8 +122,13 @@ public final class AstralMenus {
     private static boolean resize(class_350<?> list,int width,int height,int x,int y,int screenHeight) {
         try {
             try {
-                list.getClass().getMethod("method_57714",int.class,int.class,int.class).invoke(list,width,height,y);
-                list.getClass().getMethod("method_46421",int.class).invoke(list,x);
+                // Modern entries cache their absolute row positions. Set x before
+                // reflow, otherwise the rows remain at x=0 and icons are clipped.
+                try {list.getClass().getMethod("method_73369",int.class,int.class,int.class,int.class).invoke(list,width,height,x,y);}
+                catch(NoSuchMethodException older) {
+                    list.getClass().getMethod("method_57714",int.class,int.class,int.class).invoke(list,width,height,y);
+                    list.getClass().getMethod("method_46421",int.class).invoke(list,x);
+                }
             } catch(NoSuchMethodException legacy) {
                 list.getClass().getMethod("method_25323",int.class,int.class,int.class,int.class).invoke(list,width,screenHeight,y,y+height);
                 list.getClass().getMethod("method_25333",int.class).invoke(list,x);
@@ -148,7 +153,7 @@ public final class AstralMenus {
             panel(ctx,margin-5,31,screen.field_22789-margin*2+10,Math.max(1,screen.field_22790-65));
         }
     }
-    public static int rowWidth(){return state.listWidth-20;}
+    public static int rowWidth(){return Math.max(32,state.listWidth-32);}
     public static int scrollbarX(){return state.margin+state.listWidth-6;}
     public static boolean nativeButton(class_339 button) {
         return active(class_310.method_1551().field_1755) && button.getClass().getName().startsWith("net.minecraft.");

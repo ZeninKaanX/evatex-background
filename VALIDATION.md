@@ -1,4 +1,14 @@
-## Unified menus and continuous playback (1.8.16, pending release)
+## 1.8.17 local validation
+
+The user superseded the earlier continuous-audio behavior: all Backgrounds screens must pause both picture and PCM, then resume the same player. The 1.8.16 expansion service was stopped; published 1.8.16 files remain immutable. A new presentation regression checks both counters stop and resume without changing decoder/native process/audio sink, over pipe and TCP with no host sound.
+
+Modern list bytecode confirms that `method_57714(width,height,y)` lays out cached entries at x=0; moving x afterward does not reflow entries. The new atomic `method_73369(width,height,x,y)` path sets the final geometry before cached entry layout. Older APIs keep their existing fallback.
+
+Local builds passed against Minecraft 1.20.1, 1.21.4, 1.21.5 and 1.21.11 APIs. The full 1.21.11 decoder/audio/ownership/transport suite passed, including complete picture+PCM pause and same-process resume over both pipe and TCP. The catalogue/download lifecycle and 1,000 rapid-page-change checks passed. Actual 1.21.11 GUI QA verified ten server entries keep their cached x coordinate aligned with the resized list, and captured MP4 Store, settings, library, wordmark and repeated pause/resume transitions. All GUI work was hidden on the secondary display with sound muted, capped to 50% of one CPU core; no extra game was opened on the primary display. Logs/screenshots are in the local `store-review/hotfix17-*` review artifacts. No physical Windows GPU, macOS or every-client runtime validation is claimed.
+
+Four official NASA/Goddard MP4 downloads were fetched and checked for exact SHA-256, byte size and <=1080p video dimensions with ffprobe. No 4K/8K video was played. Source and credit: https://svs.gsfc.nasa.gov/13326/ ; usage: https://www.nasa.gov/nasa-brand-center/images-and-media/ . No NASA endorsement is implied. Downloads remain outside the JAR. A real catalogue MP4 also passed the actual LibraryDownloads HTTP path, SHA-256/size verification, MP4 file extension and installed-state checks in an isolated temporary game directory (`hotfix17-real-download.log`).
+
+## Historical 1.8.16 behavior (superseded in 1.8.17)
 
 Settings now uses the same Astral navigation as My Library and Store, with only Playback, Appearance and Menus preferences. The opaque menu suppresses Java pixel packing, frame publishing and texture uploads while enabled PCM continues; native FFmpeg still drains its shared audio/video pipeline. Muted/no-audio opaque playback and unfocused Minecraft pause completely. No zero-CPU or zero-FPS-cost claim is made.
 

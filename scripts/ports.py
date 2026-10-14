@@ -42,6 +42,7 @@ def sources(root,version):
     if version in LEGACY and version.startswith('1.21'):
         edit('AstralTypography.java','new net.minecraft.class_2960("evatexbackgroundvideo",fontName)','net.minecraft.class_2960.method_60655("evatexbackgroundvideo",fontName)')
         edit('AstralSound.java','new net.minecraft.class_2960("evatexbackgroundvideo","ui.astral_click")','net.minecraft.class_2960.method_60655("evatexbackgroundvideo","ui.astral_click")')
+        edit('AstralWordmark.java','new class_2960("evatexbackgroundvideo","wordmark")','class_2960.method_60655("evatexbackgroundvideo","wordmark")')
         edit('library/LibraryThumbnails.java','new class_2960("evatexbackgroundvideo","library/"+e.id())','class_2960.method_60655("evatexbackgroundvideo","library/"+e.id())')
         edit('video/VideoBackground.java','new class_2960("evatexbackgroundvideo", "video")','class_2960.method_60655("evatexbackgroundvideo", "video")')
     if version in ('1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
@@ -72,16 +73,21 @@ def sources(root,version):
         edit('mixin/RotatingCubeMapRendererMixin.java','IIZ)V','IIFF)V')
         edit('mixin/RotatingCubeMapRendererMixin.java','boolean rotate, CallbackInfo ci','float delta, float rotation, CallbackInfo ci')
     if version in ('1.21.2' ,'1.21.3','1.21.4'):
+        edit('AstralWordmark.java','ctx.method_25293(ID,x,y,w,h,0f,0f,W,H,W,H);','ctx.method_25302(net.minecraft.class_1921::method_62277,ID,x,y,0f,0f,w,h,W,H,W,H);')
         edit('library/LibraryThumbnails.java','ctx.method_25293(id,x+(w-dw)/2,y+(h-dh)/2,dw,dh,0f,0f,768,432,768,432)','ctx.method_25302(net.minecraft.class_1921::method_62277,id,x+(w-dw)/2,y+(h-dh)/2,0f,0f,dw,dh,768,432,768,432)')
         edit('video/VideoBackground.java', 'context.method_25293(TEXTURE_ID, (width-dw)/2, (height-dh)/2, dw, dh,\n                0f, 0f, frame.width, frame.height, frame.width, frame.height);', 'context.method_25302(net.minecraft.class_1921::method_62277, TEXTURE_ID, (width-dw)/2, (height-dh)/2,\n                0f, 0f, dw, dh, frame.width, frame.height, frame.width, frame.height);')
     if version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
         if version in ('1.21.5','1.21.6','1.21.7','1.21.8'):edit('BackgroundLibraryScreen.java','method_73210','method_1854')
+        edit('AstralWordmark.java','field_63613=RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true,false);')
+        edit('AstralWordmark.java','import com.mojang.blaze3d.textures.FilterMode;','')
         edit('library/LibraryThumbnails.java','field_63613=RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true,false);')
         edit('library/LibraryThumbnails.java','import com.mojang.blaze3d.textures.FilterMode;','')
         edit('AstralButton.java','method_75752','method_48579')
         edit('AstralHomeButton.java','method_75752','method_48579')
         edit('video/VideoTexture.java','field_63613 = RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true, false);')
         if version == '1.21.5':
+            edit('AstralWordmark.java','class_10799.field_56883,ID','net.minecraft.class_1921::method_62277,ID')
+            edit('AstralWordmark.java','import net.minecraft.class_10799;','')
             edit('library/LibraryThumbnails.java','class_10799.field_56883,id','net.minecraft.class_1921::method_62277,id')
             edit('library/LibraryThumbnails.java','import net.minecraft.class_10799;','')
             edit('video/VideoBackground.java','class_10799.field_56883, TEXTURE_ID','net.minecraft.class_1921::method_62277, TEXTURE_ID')
