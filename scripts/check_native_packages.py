@@ -13,6 +13,8 @@ for file in files:
   names=archive.namelist()
   assert len(names)==len(set(names)),'Duplicate ZIP entries'
   assert 'fabric.mod.json' not in names,'Fabric metadata in native build'
+  pack=json.loads(archive.read('pack.mcmeta'))['pack']
+  if pack.get('pack_format',0)>=65:assert 'supported_formats' not in pack,'Deprecated modern pack metadata'
   assert not any(n.startswith('evatexqa/') or 'evatexqa.mixins' in n or 'ModMenuBridge.class' in n for n in names),'QA or Fabric API helper leaked'
   assert not any(b'net/fabricmc/' in archive.read(n) for n in names if n.endswith('.class')),'Fabric bytecode dependency'
   for name in names:

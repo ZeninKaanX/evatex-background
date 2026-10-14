@@ -187,7 +187,9 @@ public final class EvatexNative {
     pack_formats={'1.20':15,'1.20.1':15,'1.20.2':18,'1.20.3':22,'1.20.4':22,'1.20.5':32,'1.20.6':32,'1.21':34,'1.21.1':34,'1.21.2':42,'1.21.3':42,'1.21.4':46,'1.21.5':55,'1.21.6':63,'1.21.7':64,'1.21.8':64,'1.21.9':69,'1.21.10':69,'1.21.11':75,'26.1':84,'26.1.1':84,'26.1.2':84,'26.2':88,'26.3':97}
     pf=pack_formats[version]
     format_bound=[97,1] if version=='26.3' else pf
-    (resource/'pack.mcmeta').write_text(json.dumps({'pack':{'description':'EVATEX client resources','pack_format':pf,'supported_formats':[pf,pf],'min_format':format_bound,'max_format':format_bound}}))
+    pack={'description':'EVATEX client resources','pack_format':pf,'min_format':format_bound,'max_format':format_bound}
+    if pf<65:pack['supported_formats']=[pf,pf]
+    (resource/'pack.mcmeta').write_text(json.dumps({'pack':pack}))
     meta=resource/'META-INF';meta.mkdir(exist_ok=True)
     toml='''modLoader="javafml"
 loaderVersion="%s"
@@ -269,7 +271,13 @@ def package_native(loader,version,artifact):
     shutil.copyfile(resource_cache,staged)
     with zipfile.ZipFile(staged,'a',zipfile.ZIP_DEFLATED) as z,zipfile.ZipFile(artifact) as native:
         for item in native.infolist():
-            if not item.filename.startswith('assets/'):z.writestr(item,native.read(item.filename))
+            if not item.filename.startswith('assets/'):
+                data=native.read(item.filename)
+                if item.filename=='pack.mcmeta':
+                    metadata=json.loads(data)
+                    if metadata['pack'].get('pack_format',0)>=65:metadata['pack'].pop('supported_formats',None)
+                    data=json.dumps(metadata).encode()
+                z.writestr(item,data)
     staged.replace(output)
     with output.open('rb') as stream:checksum=hashlib.file_digest(stream,'sha256').hexdigest()
     output.with_suffix('.jar.sha256').write_text(checksum+'  '+output.name+'\n')
