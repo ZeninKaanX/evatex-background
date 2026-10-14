@@ -28,6 +28,9 @@ jobs:
         run: python3 scripts/build.py --minecraft '${{ matrix.minecraft }}' --system-ffmpeg
       - name: Verify playback, frame ownership and configuration
         run: python3 scripts/test.py --minecraft '${{ matrix.minecraft }}'
+      - name: Verify catalogue and download lifecycle
+        if: matrix.minecraft == '1.21.11'
+        run: python3 scripts/test_library.py
       - name: Save verified development jar
         uses: actions/upload-artifact@v4
         with:

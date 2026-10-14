@@ -17,6 +17,9 @@ public final class VideoMenuConfig {
     public int fps = 30;
     public double scale = 1.0;
     public boolean enabled = true;
+    public boolean libraryOnlinePreviews = false;
+    public String libraryCatalogUrl = "";
+    public java.util.List<String> libraryFavorites = new java.util.ArrayList<>();
     public boolean audioEnabled = false;
     public boolean hardwareAcceleration = true;
     public double audioVolume = 1.0;
@@ -38,8 +41,9 @@ public final class VideoMenuConfig {
             config.save();
             return config;
         }
+        JsonObject obj = new JsonObject();
         try {
-            JsonObject obj = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
+            obj = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
             config.worldMenuBackground = getBoolean(obj, "worldMenuBackground", true);
             config.optionsMenuBackground = getBoolean(obj, "optionsMenuBackground", true);
             config.inGameMenuBackground = getBoolean(obj, "inGameMenuBackground", false);
@@ -60,12 +64,17 @@ public final class VideoMenuConfig {
         } catch (Exception e) {
             VideoMenuClient.LOGGER.error("[VideoMenu] evatexbackgroundvideo.json okunamadı, varsayılan ayarlar kullanılıyor.", e);
         }
+        config.libraryOnlinePreviews = getBoolean(obj, "libraryOnlinePreviews", false);
+        var library = obj;
+        config.libraryCatalogUrl = getString(library,"libraryCatalogUrl","");
+        if(library.has("libraryFavorites") && library.get("libraryFavorites").isJsonArray()) for(var id:library.getAsJsonArray("libraryFavorites")) if(id.isJsonPrimitive() && id.getAsString().matches("[a-z0-9-]{1,120}") && config.libraryFavorites.size()<1000)config.libraryFavorites.add(id.getAsString());
         config.validate();
         return config;
     }
 
     public VideoMenuConfig copy() {
         VideoMenuConfig copy = new VideoMenuConfig();
+        copy.libraryOnlinePreviews=libraryOnlinePreviews;copy.libraryCatalogUrl=libraryCatalogUrl;copy.libraryFavorites=new java.util.ArrayList<>(libraryFavorites);
         copy.videoPath = videoPath; copy.fps = fps; copy.scale = scale;
         copy.darkening = darkening; copy.showVignette = showVignette;
         copy.worldMenuBackground = worldMenuBackground;
@@ -84,6 +93,8 @@ public final class VideoMenuConfig {
     public void validate() {
         audioVolume = Double.isFinite(audioVolume) ? Math.max(0,Math.min(1,audioVolume)) : 1.0;
         if (videoPath == null) videoPath = "";
+        if(libraryCatalogUrl==null)libraryCatalogUrl="";
+        if(libraryFavorites==null)libraryFavorites=new java.util.ArrayList<>();
         maxDecodeHeight = Math.max(360, Math.min(4320, maxDecodeHeight));
         fps = Math.max(15, Math.min(120, fps));
         scale = Double.isFinite(scale) ? Math.max(0.25, Math.min(1.0, scale)) : 1.0;
@@ -112,6 +123,9 @@ public final class VideoMenuConfig {
     private String toJson() {
         JsonObject obj = new JsonObject();
         obj.addProperty("_HELP", "EVATEX-Background ayarları. Arka Plan menüsünden video, GIF veya fotoğraf seçebilirsiniz. Dosyaları oyun klasöründeki videos, videolar veya backgrounds klasörüne ekleyin. videoPath seçili arka planın yoludur; eski ayarlar korunur. FFmpeg modla birlikte gelir.");
+        obj.addProperty("libraryOnlinePreviews",libraryOnlinePreviews);
+        obj.addProperty("libraryCatalogUrl",libraryCatalogUrl);
+        obj.add("libraryFavorites",new com.google.gson.Gson().toJsonTree(libraryFavorites));
         obj.addProperty("worldMenuBackground", worldMenuBackground);
         obj.addProperty("optionsMenuBackground", optionsMenuBackground);
         obj.addProperty("inGameMenuBackground", inGameMenuBackground);

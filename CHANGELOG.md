@@ -1,3 +1,11 @@
+## 1.8.14
+
+- Add Discover with 50 curated entries, category filters, search, favourites and responsive detail views.
+- Provide 13 offline EVATEX originals as locally generated 1080p PNGs; link 37 external wallpaper sources without republishing their media.
+- Keep online thumbnail previews optional; cache small still previews and close their textures when leaving the screen.
+- Add lightweight card transitions, catalogue refresh, transfer progress and cancellation. Check file size and SHA-256 before applying eligible downloads; reject private-network destinations.
+- Keep personal wallpapers, playback settings and the independent in-game menu option unchanged.
+
 ## 1.8.13
 
 - Add a separate, default-off in-game options wallpaper setting in the Menus category. Preserve existing settings and title-screen backgrounds.

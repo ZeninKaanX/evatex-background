@@ -67,6 +67,7 @@ public final class VideoSelectScreen extends class_437 {
                 for(int i=0;i<3;i++) {final int category=i;add(right+i*(tab+4),layout.pagerY(),i==2 ? width-2*(tab+4) : tab,18,text("category."+CATEGORY_KEYS[i]),b->{settingsPage=category;rebuild();},settingsPage==i);}
             } else if(settingPages>1)pagination(right,settingPages,true);
         }
+        add(Math.max(8,field_22789-92),8,84,18,class_2561.method_43471("evatex.catalog.discover"),b->field_22787.method_1507(new BackgroundLibraryScreen(parent)),false);
         int total=layout.singleColumn() ? width : width*2+12, third=(total-12)/3, y=layout.footerY();
         add(left,y,third,20,text("folder"),b->{if(!openingFolder)openFolder();},false);
         add(left+third+6,y,third,20,text("refresh"),b->{folderError=null;rebuild();VideoBackground.INSTANCE.reload(config);},false);
@@ -144,7 +145,7 @@ public final class VideoSelectScreen extends class_437 {
         int left=layout.left(),right=layout.right(),width=layout.colWidth(),header=layout.headerY();
         if(!layout.singleColumn()||!showSettings)panel(ctx,left,header,palette.accent());
         if(!layout.singleColumn()||showSettings)panel(ctx,right,header,palette.secondary());
-        AstralTypography.centered(ctx,AstralTypography.fit("EVATEX / ASTRAL",field_22789-12),field_22789/2,8,palette.text());
+        AstralTypography.centered(ctx,AstralTypography.fit("EVATEX / ASTRAL",Math.max(20,field_22789-192)),field_22789/2,8,palette.text());
         AstralTypography.centered(ctx,AstralTypography.fit(text("subtitle").getString(),field_22789-12),field_22789/2,24,palette.muted());
         if(!layout.singleColumn()||!showSettings) {
             AstralTypography.draw(ctx,text("library",videos.size()).getString(),left,header,palette.accent());

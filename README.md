@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.13
+# EVATEX-Background — Astral 1.8.14
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -7,6 +7,12 @@ Replace Minecraft's title screen, multiplayer server selection, world selection,
 [Watch the official showcase](https://youtube.com/shorts/EzglUlDrTkI).
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
+
+## Discover backgrounds
+
+Open **Backgrounds → Discover** to browse 50 curated entries, search, filter by category and save favourites. The first catalogue includes 13 EVATEX originals that can be created and applied as offline 1080p PNGs, plus 37 anime, nature and gaming source pages. External wallpapers are downloaded from their original source by the user and selected under **My Library**; they are not republished or bundled in the mod.
+
+Online thumbnail previews are optional and off by default. Visible cards use small, cached still images; they do not run multiple video decoders. **Refresh** retrieves the small public catalogue from this repository; the bundled catalogue remains available offline. Verified, explicitly redistributable downloads can be added to the catalogue without bundling media in future mod jars.
 
 ## Optional in-game settings backgrounds
 
@@ -34,7 +40,7 @@ EVATEX has native **Forge** and **NeoForge** builds alongside Fabric. The releas
 | Forge | 1.21.11 | 61.2.3 | 21+ |
 | NeoForge | 1.21.11 | 21.11.45 | 21+ |
 
-Release 1.8.13 provides **24 Fabric, 22 Forge and 23 NeoForge builds** across the supported Minecraft releases. The [Modrinth version list](https://modrinth.com/mod/evatex-background/versions) shows the published combinations. The 24-version coverage below describes **Fabric** builds; unavailable upstream loader combinations cannot have native builds.
+The published 1.8.13 release provides **24 Fabric, 22 Forge and 23 NeoForge builds** across the supported Minecraft releases. The [Modrinth version list](https://modrinth.com/mod/evatex-background/versions) shows the published combinations. The 24-version coverage below describes **Fabric** builds; unavailable upstream loader combinations cannot have native builds.
 
 Install Fabric Loader **0.18.4 or later** (Minecraft 26.3 requires **0.19.3 or later**) and the jar matching your exact Minecraft version:
 

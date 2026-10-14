@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'net.neoforged.moddev' version '2.0.148'
 }
-version = providers.gradleProperty('modVersion').getOrElse('1.8.13')
+version = providers.gradleProperty('modVersion').getOrElse('1.8.14')
 group = 'com.videomenu'
 base.archivesName = 'evatex-background-neoforge-mc'+providers.gradleProperty('minecraftVersion').getOrElse('1.21.11')
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)

@@ -1,17 +1,8 @@
-# 1.8.12 — Authenticated playback and support diagnostics
+# 1.8.14 — Discover your next background
 
-- Authenticate local FFmpeg video and PCM uploads with a fresh per-session secret. Bind only to IPv4 loopback on ephemeral ports, reject invalid/incomplete handshakes and close the listener after the legitimate connection.
-- Add **Copy diagnostics** under **Menus** in EVATEX settings. Reports include OS, Java, GPU renderer, active decoder, decoded resolution and configured FPS, excluding private media paths and connection secrets.
-- Provide focused playback-report and volunteer hardware-test issue templates.
-- Align current project source/issues links and Loader requirements, clean the README and add the official YouTube showcase plus an English full-HD vanilla-menu gallery image.
+- Browse 50 curated entries in **Backgrounds → Discover**, with search, categories and favourites.
+- Create and apply 13 offline EVATEX originals. Visit 37 anime, nature and gaming wallpaper source pages and add downloaded files to My Library.
+- Optional cached thumbnail previews and lightweight transitions keep browsing simple. Cards do not run multiple video players.
+- Refresh the small catalogue without downloading a new mod version. Eligible direct downloads use size/SHA-256 verification, progress and cancellation.
 
-Fabric Loader 0.18.4+ is supported; Minecraft 26.3 needs 0.19.3+. Install the jar matching your exact Minecraft version. Existing settings and muted defaults are preserved. This is a stable release.
-
-Physical Windows/macOS GPU behavior and proprietary Lunar runtime remain subject to the documented validation limits. This update does not override Windows execution policies.
-
-## Upload metadata
-
-- Release type: release
-- Loader: Fabric
-- Client only
-- Separate exact-version files; Minecraft 1.21.11 first
+External media is not bundled or republished. Existing background and sound settings are preserved. Install the jar matching your Minecraft version and loader. Stable release.

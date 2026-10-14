@@ -23,7 +23,7 @@ public final class VideoFiles {
     }
     public static List<Path> discover(String selected) {
         java.util.ArrayList<Path> result = new java.util.ArrayList<>();
-        for (String folder : new String[]{"videos", "videolar", "backgrounds"}) {
+        for (String folder : new String[]{"videos", "videolar", "backgrounds", "backgrounds/evatex-library"}) {
             Path dir = EvatexPlatform.gameDir().resolve(folder);
             if (!Files.isDirectory(dir)) continue;
             try (Stream<Path> files = Files.list(dir)) {

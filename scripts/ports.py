@@ -29,6 +29,7 @@ def sources(root,version):
     if version in LEGACY and version not in ('1.20','1.20.1'):
         edit('EvatexTitleScreen.java','method_25420(class_332 ctx)','method_25420(class_332 ctx,int mx,int my,float delta)')
         edit('VideoSelectScreen.java','method_25420(class_332 context)','method_25420(class_332 context, int mouseX, int mouseY, float delta)')
+        edit('BackgroundLibraryScreen.java','method_25420(class_332 c)','method_25420(class_332 c,int mx,int my,float delta)')
         edit('AstralMenus.java','screen.method_25420(ctx)','screen.method_25420(ctx,mx,my,delta)')
         edit('mixin/ServerBackgroundMixin.java','evatex$serverVideo(class_332 context, CallbackInfo ci','evatex$serverVideo(class_332 context, int mouseX, int mouseY, float delta, CallbackInfo ci')
     if version in ('1.20.2','1.20.3','1.20.4'):
@@ -40,6 +41,7 @@ def sources(root,version):
         edit('mixin/ServerListBackgroundMixin.java','method="method_25394"','method="method_48579"')
     if version in LEGACY and version.startswith('1.21'):
         edit('AstralTypography.java','new net.minecraft.class_2960("evatexbackgroundvideo",fontName)','net.minecraft.class_2960.method_60655("evatexbackgroundvideo",fontName)')
+        edit('library/LibraryThumbnails.java','new class_2960("evatexbackgroundvideo","library/"+e.id())','class_2960.method_60655("evatexbackgroundvideo","library/"+e.id())')
         edit('video/VideoBackground.java','new class_2960("evatexbackgroundvideo", "video")','class_2960.method_60655("evatexbackgroundvideo", "video")')
     if version in ('1.20.5','1.20.6','1.21','1.21.1','1.21.2','1.21.3','1.21.4'):
         file=folder/'com/videomenu/mixin/ServerBackgroundMixin.java'
@@ -69,12 +71,18 @@ def sources(root,version):
         edit('mixin/RotatingCubeMapRendererMixin.java','IIZ)V','IIFF)V')
         edit('mixin/RotatingCubeMapRendererMixin.java','boolean rotate, CallbackInfo ci','float delta, float rotation, CallbackInfo ci')
     if version in ('1.21.2' ,'1.21.3','1.21.4'):
+        edit('library/LibraryThumbnails.java','ctx.method_25293(id,x+(w-dw)/2,y+(h-dh)/2,dw,dh,0f,0f,384,216,384,216)','ctx.method_25302(net.minecraft.class_1921::method_62277,id,x+(w-dw)/2,y+(h-dh)/2,0f,0f,dw,dh,384,216,384,216)')
         edit('video/VideoBackground.java', 'context.method_25293(TEXTURE_ID, (width-dw)/2, (height-dh)/2, dw, dh,\n                0f, 0f, frame.width, frame.height, frame.width, frame.height);', 'context.method_25302(net.minecraft.class_1921::method_62277, TEXTURE_ID, (width-dw)/2, (height-dh)/2,\n                0f, 0f, dw, dh, frame.width, frame.height, frame.width, frame.height);')
     if version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
+        if version in ('1.21.5','1.21.6','1.21.7','1.21.8'):edit('BackgroundLibraryScreen.java','method_73210','method_1854')
+        edit('library/LibraryThumbnails.java','field_63613=RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true,false);')
+        edit('library/LibraryThumbnails.java','import com.mojang.blaze3d.textures.FilterMode;','')
         edit('AstralButton.java','method_75752','method_48579')
         edit('AstralHomeButton.java','method_75752','method_48579')
         edit('video/VideoTexture.java','field_63613 = RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true, false);')
         if version == '1.21.5':
+            edit('library/LibraryThumbnails.java','class_10799.field_56883,id','net.minecraft.class_1921::method_62277,id')
+            edit('library/LibraryThumbnails.java','import net.minecraft.class_10799;','')
             edit('video/VideoBackground.java','class_10799.field_56883, TEXTURE_ID','net.minecraft.class_1921::method_62277, TEXTURE_ID')
     if version == '1.20':
         edit('AstralButton.java','protected void method_48579','public void method_48579')
@@ -135,7 +143,7 @@ def sources(root,version):
                     content=content.replace('method="render"','method="extractRenderState"').replace('renderWithTooltipAndSubtitles','extractRenderStateWithTooltipAndSubtitles')
                 if file.name in ('AstralNativeButtonMixin.java','AstralNativeSliderMixin.java'):content=content.replace('renderWidget','extractWidgetRenderState')
                 if file.name=='AstralVolumeSlider.java':content=content.replace('renderWidget','extractWidgetRenderState')
-                if file.name in ('VideoSelectScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java'):
+                if file.name in ('VideoSelectScreen.java','BackgroundLibraryScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java'):
                     content=content.replace('public void render(', 'public void extractRenderState(').replace('super.render(', 'super.extractRenderState(').replace('method = "render"','method = "extractRenderState"').replace(';render(', ';extractRenderState(')
                 if version in ('26.2','26.3'):
                     content=content.replace('method = "destroy"','method = "close"')
@@ -144,6 +152,7 @@ def sources(root,version):
                     if file.name=='FontCoverage.java':content=content.replace('\"core/ui_text\"','\"core/ui_text_262\"')
                     content=content.replace('com.mojang.blaze3d.textures.TextureFormat.RED8','com.mojang.blaze3d.GpuFormat.R8_UNORM')
                 if version=='26.3':
+                    content=content.replace('net.minecraft.util.Util.getPlatform().openUri(LibraryCatalog.https(entry.sourceUrl()));','java.awt.Desktop.getDesktop().browse(LibraryCatalog.https(entry.sourceUrl()));')
                     content=content.replace('com.mojang.blaze3d.textures.FilterMode','com.mojang.renderpearl.api.textures.FilterMode')
                     if file.name=='FontCoverage.java':content=content.replace('\"core/ui_text\"','\"core/ui_text_26\"')
                     content=content.replace('com.mojang.blaze3d.pipeline.RenderPipeline','com.mojang.renderpearl.api.pipeline.RenderPipeline').replace('com.mojang.blaze3d.textures.TextureFormat.RED8','com.mojang.renderpearl.api.GpuFormat.R8_UNORM')

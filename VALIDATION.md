@@ -1,3 +1,11 @@
+## Discover library validation (1.8.14 preparation)
+
+The new library was opened in a real, isolated Minecraft 1.21.11 Fabric client on Linux, using a hidden window confined to the secondary display. Audio was muted at 10% and rendering capped at 15 FPS. Captures cover Turkish/English views, anime search, Astral originals and a compact 960×720 window. A locally generated original was applied from the actual UI; its saved path and discovery by My Library were verified. This is not a Windows/GPU or all-version runtime test.
+
+`tests/LibraryRegression.java` and `scripts/test_library.py` passed schema/version/duplicate/path/HTTPS rejection, third-party source permissions, successful checksum-verified transfer, failed checksum/size cleanup, offline 1920×1080 generation, cancellation and partial-file cleanup. The network transfer fixture uses controlled test data. Catalogue copies and English/Turkish translation keys match. Public DNS/IP validation rejects local/private network destinations on background workers.
+
+The first catalogue has 50 entries: 13 generated EVATEX originals and 37 external source pages. These are not 50 bundled or one-click downloadable videos. Provider media and resolutions have not all been independently viewed or verified. All 24 Fabric API targets compiled in private development packages containing the new library and 50-entry seed. Forge and NeoForge 1.21.11 also compiled. These compile checks do not claim runtime coverage for the other 23 Minecraft versions. The full native compile matrix and publication are recorded separately when completed.
+
 # EVATEX validation — 1.8.13
 
 The 1.8.12 Fabric release's 24 exact-version builds were compiled and their metadata, Java bytecode targets, embedded libraries, bundled engines, archive CRC and SHA-256 sidecars checked. Decoder/audio regression tests include real MP4/GIF playback, native PNG/JPEG/BMP decoding, error classification, bounded buffers, focus behavior, custom-widget bounds and menu ownership. Current 1.8.13 expansion results are recorded separately below.

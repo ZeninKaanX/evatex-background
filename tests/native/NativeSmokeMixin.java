@@ -65,7 +65,9 @@ public abstract class NativeSmokeMixin {
      else mc.setScreen((Screen)((java.util.function.BiFunction)factory).apply(mc,mc.screen));
     }catch(Exception e){throw new RuntimeException("Native config extension failed",e);}
    }
-   case 9 -> {if(!(mc.screen instanceof VideoSelectScreen))throw new AssertionError("Registered config screen missing");
+   case 9 -> {if(!(mc.screen instanceof VideoSelectScreen))throw new AssertionError("Registered config screen missing");mc.setScreen(new BackgroundLibraryScreen(evatexqa$parent));}
+   case 10 -> {if(!(mc.screen instanceof BackgroundLibraryScreen)||bg.isActive()||bg.supportsMenu(mc.screen,false))throw new AssertionError("Discover must release the video decoder");mc.setScreen(new VideoSelectScreen(evatexqa$parent,0));}
+   case 11 -> {if(!(mc.screen instanceof VideoSelectScreen)||!bg.isActive())throw new AssertionError("Returning from Discover must resume settings playback");
     System.out.println("EVATEX_NATIVE_QA COMPLETE "+EvatexPlatform.loaderName()+" "+EvatexPlatform.loaderVersion());mc.stop();}
   }
  }
