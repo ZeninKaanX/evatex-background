@@ -9,6 +9,8 @@ import net.minecraft.class_4185;
 public final class AstralButton extends class_4185 {
     private final boolean selected;
     private boolean surface,emphasized,card;
+    private String visualLabel;
+    public AstralButton caption(String value){visualLabel=value;return this;}
     public AstralButton astralSurface(boolean emphasized){this.surface=true;this.emphasized=emphasized;return this;}
     public AstralButton catalogCard(){this.surface=true;this.card=true;return this;}
     private boolean vertical,clockwise;
@@ -35,7 +37,8 @@ public final class AstralButton extends class_4185 {
             boolean light=field_22763&&!card&&(selected||emphasized);
             int border=selected||method_25370()?0xFFF1F1F1:AstralTheme.blend(0xFF292B2F,0xFF72757B,hoverAmount);
             AstralDraw.rounded(context,x,y,w,h,border);
-            AstralDraw.rounded(context,x+1,y+1,w-2,h-2,light?AstralTheme.blend(0xFFE5E5E5,0xFFFFFFFF,hoverAmount):AstralTheme.blend(0xFF17191C,0xFF2A2D32,hoverAmount));
+            int inner=light?AstralTheme.blend(0xFFE5E5E5,0xFFFFFFFF,hoverAmount):AstralTheme.blend(0xFF17191C,0xFF2A2D32,hoverAmount);
+            AstralDraw.rounded(context,x+1,y+1,w-2,h-2,inner);
             if(card)return;
         }else{
         context.method_25294(x,y,x+w,y+h,surface);
@@ -43,7 +46,7 @@ public final class AstralButton extends class_4185 {
         if(selected)context.method_25294(x,y,x+2,y+h,palette.accent());
         }
         var font = class_310.method_1551().field_1772;
-        String label = AstralTypography.fit(method_25369().getString(), Math.max(0, (vertical ? h : w)-14));
+        String label = AstralTypography.fit(visualLabel==null?method_25369().getString():visualLabel, Math.max(0, (vertical ? h : w)-14));
         int textColor=!field_22763 ? 0xFF777777 : this.surface&&(selected||emphasized)?0xFF121316:palette.text();
         if (vertical) {
             var matrix=context.method_51448();

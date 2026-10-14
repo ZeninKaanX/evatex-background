@@ -38,7 +38,7 @@ public abstract class NativeSmokeMixin {
     if(!bg.audioStatus().equals("muted"))throw new AssertionError("QA audio must stay muted");
     evatexqa$parent=mc.screen;mc.setScreen(new VideoSelectScreen(mc.screen,0));
    }
-   case 1 -> {if(!bg.isActive())throw new AssertionError("Settings video inactive");mc.setScreen(new OptionsScreen(evatexqa$parent,mc.options));}
+   case 1 -> {if(bg.isActive()||!bg.status().equals("paused"))throw new AssertionError("Muted Settings must pause presentation");mc.setScreen(new OptionsScreen(evatexqa$parent,mc.options));}
    case 2 -> {if(!bg.isActive())throw new AssertionError("Options video inactive");mc.setScreen(new SelectWorldScreen(evatexqa$parent));}
    case 3 -> {if(!bg.isActive())throw new AssertionError("World selection video inactive");mc.setScreen(new JoinMultiplayerScreen(evatexqa$parent));}
    case 4 -> {if(!bg.isActive())throw new AssertionError("Multiplayer video inactive");System.setProperty("evatex.qa.unfocused","true");}
@@ -66,8 +66,9 @@ public abstract class NativeSmokeMixin {
     }catch(Exception e){throw new RuntimeException("Native config extension failed",e);}
    }
    case 9 -> {if(!(mc.screen instanceof VideoSelectScreen))throw new AssertionError("Registered config screen missing");mc.setScreen(new BackgroundLibraryScreen(evatexqa$parent));}
-   case 10 -> {if(!(mc.screen instanceof BackgroundLibraryScreen)||bg.isActive()||bg.supportsMenu(mc.screen,false))throw new AssertionError("Discover must release the video decoder");mc.setScreen(new VideoSelectScreen(evatexqa$parent,0));}
-   case 11 -> {if(!(mc.screen instanceof VideoSelectScreen)||!bg.isActive())throw new AssertionError("Returning from Discover must resume settings playback");
+   case 10 -> {if(!(mc.screen instanceof BackgroundLibraryScreen)||bg.isActive()||!bg.status().equals("paused")||!bg.supportsMenu(mc.screen,false))throw new AssertionError("Opaque library must pause without ending the media session");mc.setScreen(new VideoSelectScreen(evatexqa$parent,0));}
+   case 11 -> {if(!(mc.screen instanceof VideoSelectScreen)||!bg.status().equals("paused"))throw new AssertionError("Settings must remain paused");mc.setScreen(evatexqa$parent);}
+   case 12 -> {if(!bg.isActive())throw new AssertionError("Leaving Backgrounds must resume playback");
     System.out.println("EVATEX_NATIVE_QA COMPLETE "+EvatexPlatform.loaderName()+" "+EvatexPlatform.loaderVersion());mc.stop();}
   }
  }

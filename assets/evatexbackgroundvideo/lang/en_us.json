@@ -99,5 +99,10 @@
   "evatex.catalog.category.video": "Videos",
   "evatex.catalog.category.gif": "Animated GIFs",
   "evatex.catalog.direct_description": "Download to your library, then apply. Files stay outside the mod.",
-  "evatex.catalog.local_description": "Ready in your library. Select Apply to use this background."
+  "evatex.catalog.local_description": "Ready in your library. Select Apply to use this background.",
+  "evatex.settings_copy": "Copy",
+  "evatex.settings_description.playback": "Wallpaper playback, quality and sound.",
+  "evatex.settings_description.appearance": "Framing, overlays and transitions.",
+  "evatex.settings_description.menus": "Choose where your background appears.",
+  "evatex.status.audio_only": "Audio continues · video on hold"
 }

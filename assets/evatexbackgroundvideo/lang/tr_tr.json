@@ -99,5 +99,10 @@
   "evatex.catalog.category.video": "Videolar",
   "evatex.catalog.category.gif": "Hareketli GIFler",
   "evatex.catalog.direct_description": "Kütüphanene indir, ardından uygula. Dosyalar modun dışında saklanır.",
-  "evatex.catalog.local_description": "Kütüphanende hazır. Arka planı kullanmak için Uygula seç."
+  "evatex.catalog.local_description": "Kütüphanende hazır. Arka planı kullanmak için Uygula seç.",
+  "evatex.settings_copy": "Kopyala",
+  "evatex.settings_description.playback": "Arka plan oynatma, kalite ve ses.",
+  "evatex.settings_description.appearance": "Kadraj, karartma ve geçişler.",
+  "evatex.settings_description.menus": "Arka planın görüneceği menüleri seç.",
+  "evatex.status.audio_only": "Ses devam ediyor · görüntü beklemede"
 }

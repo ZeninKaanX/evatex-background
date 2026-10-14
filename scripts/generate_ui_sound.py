@@ -6,13 +6,13 @@ ROOT=Path(__file__).resolve().parent.parent
 
 def samples():
     rate=48000;rng=random.Random(86415);previous=0.0;out=[]
-    for n in range(int(rate*.105)):
-        t=n/rate;attack=1-math.exp(-t/.0018)
+    for n in range(int(rate*.055)):
+        t=n/rate;attack=1-math.exp(-t/.0007)
         # Soft low body, a glass-like falling overtone, and a very short tactile edge.
-        body=.13*math.sin(2*math.pi*(330*t-430*t*t))*math.exp(-t/0.014)
-        glass=.075*math.sin(2*math.pi*(1460*t-1500*t*t))*math.exp(-t/.017)
-        noise=rng.uniform(-1,1);edge=.027*(noise-previous)*math.exp(-t/.0028);previous=noise
-        tail=min(1,max(0,(.105-t)/.008))
+        body=.20*math.sin(2*math.pi*(235*t-320*t*t))*math.exp(-t/0.008)
+        glass=.025*math.sin(2*math.pi*(620*t-700*t*t))*math.exp(-t/.005)
+        noise=rng.uniform(-1,1);edge=.018*(noise-previous)*math.exp(-t/.0015);previous=noise
+        tail=min(1,max(0,(.055-t)/.004))
         out.append((body+glass+edge)*attack*tail)
     return rate,out
 

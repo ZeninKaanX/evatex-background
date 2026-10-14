@@ -28,6 +28,7 @@ public abstract class MinecraftClientMixin {
         }
         if (screen instanceof com.videomenu.EvatexTitleScreen home) home.captureLateButtons();
         if (screen instanceof com.videomenu.ShortcutHost host) host.evatex$refreshShortcut();
+        VideoBackground.INSTANCE.setPresentationFor(screen);
         VideoBackground.INSTANCE.setForeground(client.method_1569());
         VideoBackground.INSTANCE.setMenuVisible(VideoBackground.INSTANCE.supportsMenu(screen,
             ((class_310)(Object)this).field_1687 != null));

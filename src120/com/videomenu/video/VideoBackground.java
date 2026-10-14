@@ -40,8 +40,18 @@ public final class VideoBackground {
     public boolean customMainMenu() {var value=config;return value!=null && value.customMainMenu;}
     public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
     private volatile boolean foreground=true;
-    public String status() { return !foreground && decoder!=null ? "paused" : status; }
-    public synchronized void setForeground(boolean value) {if(foreground!=value){foreground=value;if(decoder!=null)decoder.setPaused(!value);}}
+    private boolean presentationSuppressed;
+    public String status(){return !foreground&&decoder!=null?"paused":presentationSuppressed&&decoder!=null?config.audioEnabled&&decoder.hasAudioTrack()?"audio_only":"paused":status;}
+    public synchronized void setForeground(boolean value){foreground=value;updatePlaybackMode();}
+    public synchronized void setPresentationFor(net.minecraft.class_437 screen){
+        presentationSuppressed=(screen instanceof com.videomenu.BackgroundLibraryScreen||screen instanceof com.videomenu.VideoSelectScreen);
+        updatePlaybackMode();
+    }
+    private void updatePlaybackMode(){
+        if(decoder!=null){decoder.setPresentationEnabled(!presentationSuppressed);decoder.setPaused(!foreground||presentationSuppressed&&(!config.audioEnabled||!decoder.hasAudioTrack()));}
+    }
+    public boolean isPresentationSuppressed(){return presentationSuppressed;}
+
     public synchronized String audioStatus() { return decoder == null ? "muted" : decoder.audioStatus(); }
     public synchronized String diagnosticPlayback() {
         VideoDecoder d=decoder;
@@ -50,14 +60,14 @@ public final class VideoBackground {
             +"\nPublished frames: "+(d==null ? 0 : d.publishedFrames())
             +"\nAudio: "+audioStatus()+"\n";
     }
-    public boolean isActive() { return latest != null; }
+    public boolean isActive() { return !presentationSuppressed && latest != null; }
     /** One policy for decoder lifetime, screen backdrop and opaque list suppression. */
     public boolean supportsMenu(net.minecraft.class_437 screen, boolean worldLoaded) {
         if (screen == null) return false;
         return com.videomenu.MenuPlaybackPolicy.allows(worldLoaded,
             config != null && config.inGameMenuBackground,
             screen instanceof net.minecraft.class_442 || screen instanceof net.minecraft.class_500,
-            decoratesMenu(screen), screen instanceof com.videomenu.VideoSelectScreen);
+            decoratesMenu(screen), screen instanceof com.videomenu.VideoSelectScreen || screen instanceof com.videomenu.BackgroundLibraryScreen);
     }
     public boolean decoratesMenu(net.minecraft.class_437 screen) {
         VideoMenuConfig settings = config;
@@ -92,7 +102,7 @@ public final class VideoBackground {
     }
     public synchronized void setMenuVisible(boolean visible) {
         if (menuVisible == visible) {
-            if (visible && decoder != null && config != null) {
+            if (visible && !presentationSuppressed && decoder != null && config != null) {
                 var window = class_310.method_1551().method_22683();
                 int width = window.method_4489(), height = window.method_4506();
                 if (decoder.viewportChanged(width, height, config.fillScreen)) {
@@ -135,7 +145,8 @@ public final class VideoBackground {
                 }
             }
         }, () -> { synchronized (frameLock) { if (session == generation) { latest = null; staging = null; status = "error"; } } }, true, window.method_4489(), window.method_4506());
-        next.setPaused(!foreground);
+        next.setPresentationEnabled(!presentationSuppressed);
+        next.setPaused(!foreground||presentationSuppressed&&(!config.audioEnabled||!next.hasAudioTrack()));
         decoder = next;
         worker.execute(() -> {
             boolean started = next.start();

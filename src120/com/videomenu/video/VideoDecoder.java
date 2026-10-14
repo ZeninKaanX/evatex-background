@@ -36,13 +36,14 @@ public final class VideoDecoder {
     private volatile boolean closed, paused;
     private final Object pauseLock=new Object();
     private volatile Process process;
-    private volatile long publishedFrames;
+    private volatile long publishedFrames,decodedFrames;
+    private volatile boolean presentationEnabled=true;
     private Thread thread;
     private volatile Thread frameReader;
     private volatile VideoAudio audio;
     private volatile boolean audioEnabled;
     private volatile double audioVolume;
-    private boolean hasAudio;
+    private volatile boolean hasAudio;
     private String downloadFormat = "nv12";
     private volatile String decoderBackend = "starting";
     private volatile String lastError = "";
@@ -99,7 +100,7 @@ public final class VideoDecoder {
     }
 
     public void setPaused(boolean value) {
-        synchronized(pauseLock){paused=value;if(audio!=null)audio.paused(value);pauseLock.notifyAll();}
+        synchronized(pauseLock){if(paused==value)return;paused=value;if(audio!=null)audio.paused(value);pauseLock.notifyAll();}
     }
     private long awaitResume() throws InterruptedException {
         if(!paused)return 0;
@@ -108,6 +109,11 @@ public final class VideoDecoder {
         return System.nanoTime()-since;
     }
     public boolean isPaused(){return paused;}
+    public void setPresentationEnabled(boolean value){presentationEnabled=value;}
+    public boolean isPresentationEnabled(){return presentationEnabled;}
+    public boolean hasAudioTrack(){return hasAudio;}
+    public long decodedFrames(){return decodedFrames;}
+
     public void close() {
         this.closed = true;
         synchronized(pauseLock){pauseLock.notifyAll();}
@@ -156,7 +162,7 @@ public final class VideoDecoder {
         int emptyAttempts = 0, audioRestarts = 0;
         while (!closed) {
             Backend backend = candidates.get(attempt);
-            long framesBefore = publishedFrames;
+            long framesBefore = decodedFrames;
             var audioEnded = new java.util.concurrent.atomic.AtomicBoolean();
             try {
                 Process p;
@@ -169,12 +175,12 @@ public final class VideoDecoder {
                         while (!closed && process == p && p.isAlive()) {
                             Thread.sleep(500);
                             if(paused){deadline=System.nanoTime()+12_000_000_000L;continue;}
-                            if (publishedFrames == framesBefore && System.nanoTime() >= deadline) {
+                            if (decodedFrames == framesBefore && System.nanoTime() >= deadline) {
                                 lastError = "Decoder did not produce its first frame within 12 seconds";
                                 p.destroyForcibly(); return;
                             }
                             VideoAudio sink = audio;
-                            if (sink != null && sink.streamEnded() && publishedFrames > framesBefore) {
+                            if (sink != null && sink.streamEnded() && decodedFrames > framesBefore) {
                                 audioEnded.set(true);
                                 lastError = "PCM stream ended while video playback continued";
                                 p.destroyForcibly(); return;
@@ -194,9 +200,9 @@ public final class VideoDecoder {
                     VideoAudio sink = audio; audio = null; if (sink != null) sink.close();
                 }
                 if (closed) return;
-                if (stillImage && publishedFrames > framesBefore) return;
+                if (stillImage && decodedFrames > framesBefore) return;
                 if (audioEnded.get()) {
-                    if (publishedFrames-framesBefore >= config.fps*10L) audioRestarts = 0;
+                    if (decodedFrames-framesBefore >= config.fps*10L) audioRestarts = 0;
                     if (++audioRestarts > 2) {
                         VideoMenuClient.LOGGER.error("Audio output repeatedly ended during video playback: {}", lastError);
                         return;
@@ -211,7 +217,7 @@ public final class VideoDecoder {
                     ++attempt;
                     continue;
                 }
-                if (publishedFrames == framesBefore) {
+                if (decodedFrames == framesBefore) {
                     if (streamLoop) { streamLoop = false; continue; }
                     if (++emptyAttempts >= 2) {
                         VideoMenuClient.LOGGER.error("Cannot decode video {}: {}", config.videoPath, lastError);
@@ -224,7 +230,7 @@ public final class VideoDecoder {
                 if (closed) return;
                 VideoAudio sink = audio; audio = null; if (sink != null) sink.close();
                 if (audioEnded.get()) {
-                    if (publishedFrames-framesBefore >= config.fps*10L) audioRestarts = 0;
+                    if (decodedFrames-framesBefore >= config.fps*10L) audioRestarts = 0;
                     if (++audioRestarts > 2) {
                         VideoMenuClient.LOGGER.error("Audio output repeatedly ended during video playback", e);
                         return;
@@ -236,7 +242,7 @@ public final class VideoDecoder {
                     VideoMenuClient.LOGGER.warn("EVATEX {} unavailable; trying next decoder", backend, e);
                     ++attempt; continue;
                 }
-                if (publishedFrames == framesBefore && ++emptyAttempts >= 2) {
+                if (decodedFrames == framesBefore && ++emptyAttempts >= 2) {
                     VideoMenuClient.LOGGER.error("Cannot decode video {}", config.videoPath, e); return;
                 }
                 VideoMenuClient.LOGGER.warn("Video decoder interrupted; retrying", e);
@@ -368,59 +374,57 @@ public final class VideoDecoder {
         return new int[]{dstW, dstH};
     }
 
-    private void readFrames(InputStream in, int w, int h) throws IOException {
-        // Keep native pipe reads separate from the presentation clock. In particular,
-        // macOS pipe wakeups can otherwise delay several frames after each paced read.
-        var frames=new java.util.concurrent.ArrayBlockingQueue<int[]>(4);
-        var available=new java.util.concurrent.ArrayBlockingQueue<int[]>(6);
-        for (int i=0;i<(stillImage ? 2 : 6);i++) available.add(new int[w*h]);
+    private static final class DecodedFrame {
+        final int[] pixels;boolean visual;
+        DecodedFrame(int[] pixels){this.pixels=pixels;}
+    }
+    private void readFrames(InputStream in,int w,int h)throws IOException {
+        var frames=new java.util.concurrent.ArrayBlockingQueue<DecodedFrame>(4);
+        var available=new java.util.concurrent.ArrayBlockingQueue<DecodedFrame>(6);
+        for(int i=0;i<(stillImage?2:6);i++)available.add(new DecodedFrame(new int[w*h]));
         var finished=new java.util.concurrent.atomic.AtomicBoolean();
         var failure=new java.util.concurrent.atomic.AtomicReference<Throwable>();
         Thread reader=new Thread(()->{
             byte[] rgba=new byte[w*h*4];
             try {
-                while(!closed && !Thread.currentThread().isInterrupted()) {
+                while(!closed&&!Thread.currentThread().isInterrupted()){
                     awaitResume();if(closed)break;
-                    int[] pixels = available.take();
-                    if (!readFully(in, rgba)) { available.offer(pixels); break; }
-                    pack(rgba,w,h,pixels);frames.put(pixels);
+                    DecodedFrame frame=available.take();
+                    if(!readFully(in,rgba)){available.offer(frame);break;}
+                    frame.visual=presentationEnabled;
+                    // Opaque EVATEX menus retain the shared audio timeline without
+                    // packing Java pixels, publishing frames, or uploading textures.
+                    if(frame.visual)pack(rgba,w,h,frame.pixels);
+                    frames.put(frame);
                 }
-            } catch(InterruptedException e) {Thread.currentThread().interrupt();}
-            catch(Throwable e) {if(!closed)failure.set(e);}
-            finally {finished.set(true);}
+            }catch(InterruptedException e){Thread.currentThread().interrupt();}
+            catch(Throwable e){if(!closed)failure.set(e);}
+            finally{finished.set(true);}
         },"EVATEX-FrameReader");
         reader.setDaemon(true);frameReader=reader;reader.start();
         long interval=1_000_000_000L/Math.max(1,config.fps),nextFrameAt=0;
         try {
-            while(!closed) {
-                int[] frame;
+            while(!closed){
+                DecodedFrame frame;
                 try {
                     long waited=awaitResume();if(nextFrameAt!=0)nextFrameAt+=waited;
                     if(closed)return;frame=frames.poll(100,TimeUnit.MILLISECONDS);
                     waited=awaitResume();if(nextFrameAt!=0)nextFrameAt+=waited;
-                }
-                catch(InterruptedException e) {Thread.currentThread().interrupt();if(closed)return;throw new IOException("Video presentation interrupted",e);}
-                if(frame==null) {
-                    if(finished.get()) {if(failure.get()!=null)throw new IOException("Video frame reader failed",failure.get());return;}
-                    continue;
-                }
+                }catch(InterruptedException e){Thread.currentThread().interrupt();if(closed)return;throw new IOException("Video presentation interrupted",e);}
+                if(frame==null){if(finished.get()){if(failure.get()!=null)throw new IOException("Video frame reader failed",failure.get());return;}continue;}
                 if(closed)return;
-                if (decoderBackend.startsWith("starting ")) {
-                    decoderBackend = decoderBackend.substring(9);
-                    VideoMenuClient.LOGGER.info("EVATEX video decoder active: {} ({}x{} at {} FPS; {})", decoderBackend, w, h, config.fps, socketTransport ? "local TCP" : "pipe");
+                if(decoderBackend.startsWith("starting ")){
+                    decoderBackend=decoderBackend.substring(9);
+                    VideoMenuClient.LOGGER.info("EVATEX video decoder active: {} ({}x{} at {} FPS; {})",decoderBackend,w,h,config.fps,socketTransport?"local TCP":"pipe");
                 }
-                try { listener.onFrame(borrowedFrames ? frame : frame.clone(),w,h);++publishedFrames; }
-                finally { available.offer(frame); }
-                long now=System.nanoTime();
-                // Preserve the timeline across ordinary OS timer oversleep rather than
-                // adding that delay to every subsequent frame. Reset only after a
-                // substantial interruption so there is no unbounded catch-up burst.
-                if(nextFrameAt==0)nextFrameAt=now;
-                nextFrameAt+=interval;
-                if(now<nextFrameAt)park(nextFrameAt-now);
-                else if(now-nextFrameAt>250_000_000L)nextFrameAt=now;
+                try {
+                    if(presentationEnabled&&frame.visual){listener.onFrame(borrowedFrames?frame.pixels:frame.pixels.clone(),w,h);++publishedFrames;}
+                    ++decodedFrames;
+                }finally{available.offer(frame);}
+                long now=System.nanoTime();if(nextFrameAt==0)nextFrameAt=now;nextFrameAt+=interval;
+                if(now<nextFrameAt)park(nextFrameAt-now);else if(now-nextFrameAt>250_000_000L)nextFrameAt=now;
             }
-        } finally {reader.interrupt();if(frameReader==reader)frameReader=null;}
+        }finally{reader.interrupt();if(frameReader==reader)frameReader=null;}
     }
 
     private static void pack(byte[] rgba, int w, int h, int[] out) {
@@ -478,7 +482,7 @@ public final class VideoDecoder {
                 for(int i=0;i<frame.length;i++){int argb=frame[i];frame[i]=(argb&0xFF00FF00)|((argb>>>16)&255)|((argb&255)<<16);}
                 if(closed)return false;
                 decodedWidth=target[0];decodedHeight=target[1];decoderBackend="IMAGE_IO";
-                listener.onFrame(frame,target[0],target[1]);++publishedFrames;
+                listener.onFrame(frame,target[0],target[1]);++publishedFrames;++decodedFrames;
                 VideoMenuClient.LOGGER.info("EVATEX photo decoder active: IMAGE_IO ({}x{})",target[0],target[1]);
                 return true;
             }finally{reader.dispose();}

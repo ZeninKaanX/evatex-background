@@ -19,6 +19,7 @@ public final class BackgroundLibraryScreen extends class_437 {
  private AstralButton primary,favorite;private volatile Path ready;private volatile String transferError;private volatile List<LibraryCatalog.Entry> refreshed;
  public BackgroundLibraryScreen(class_437 parent){this(parent,false);}
  public BackgroundLibraryScreen(class_437 parent,boolean localMode){super(text("title"));this.parent=parent;this.localMode=localMode;reloadLocal();}
+ public void openTab(boolean local){localMode=local;category="all";query="";page=0;selected=null;reloadLocal();rebuild();}
  private void reloadLocal(){localFiles=LocalLibrary.discover(config.videoPath);thumbs.localFiles(localFiles);}
  private boolean installed(LibraryCatalog.Entry e){return localFiles.containsKey(e)||downloads.installed(e);}
  private boolean applied(LibraryCatalog.Entry e){Path p=localFiles.getOrDefault(e,downloads.target(e));return p.toAbsolutePath().normalize().equals(VideoFiles.resolve(config.videoPath));}
@@ -35,8 +36,8 @@ public final class BackgroundLibraryScreen extends class_437 {
   if(compact&&field_22790-top-68>=164)cardH=Math.min(cardH,(field_22790-top-78)/2);
   rows=Math.max(1,(field_22790-top-(compact?68:57)+10)/(cardH+10));perPage=columns*rows;
   int navW=Math.min(100,(field_22789-2*margin-16)/3);
-  add(margin,44,navW,24,text("local"),b->{localMode=true;category="all";query="";page=0;selected=null;reloadLocal();rebuild();},localMode);
-  add(margin+navW+8,44,navW,24,text("discover"),b->{localMode=false;category="all";query="";page=0;selected=null;rebuild();},!localMode);
+  add(margin,44,navW,24,text("local"),b->openTab(true),localMode);
+  add(margin+navW+8,44,navW,24,text("discover"),b->openTab(false),!localMode);
   add(margin+2*(navW+8),44,navW,24,text("settings"),b->field_22787.method_1507(new VideoSelectScreen(this,0)),false);
   search=method_37063(new class_342(field_22787.field_1772,gridX,82,gridW,21,text("search")));search.method_1880(120);search.method_1852(query);search.method_47404(AstralTypography.styled(text("search")));search.method_73210((value,offset)->AstralTypography.text(value).method_30937());search.method_1863(value->{query=value;page=0;rebuild();});
   int y=82,categoryStep=Math.max(16,Math.min(29,(field_22790-134)/7));
@@ -49,6 +50,7 @@ public final class BackgroundLibraryScreen extends class_437 {
   }
   int footer=field_22790-36;
   add(margin,footer,left,20,class_2561.method_43471("gui.back"),b->method_25419(),false);
+  if(localMode&&field_22789<660)add(margin,footer-28,left,20,class_2561.method_43471("evatex.folder"),b->FolderOpener.open(VideoFiles.directory()),false);
   if(pages>1){var prev=add(gridX,footer,26,20,class_2561.method_43470("‹"),b->{page--;selected=null;rebuild();},false);prev.field_22763=page>0;var next=add(gridX+gridW-26,footer,26,20,class_2561.method_43470("›"),b->{page++;selected=null;rebuild();},false);next.field_22763=page<pages-1;}
   if(selected!=null){
    int x=compact?gridX:detailX,w=compact?gridW:detailW,buttonY=compact?footer-28:field_22790-75;
@@ -89,7 +91,7 @@ public final class BackgroundLibraryScreen extends class_437 {
   for(int n=page*perPage;n<Math.min(filtered.size(),(page+1)*perPage);n++)visible.add(filtered.get(n).id());
   if(selected!=null&&!compact)visible.add(selected.id());thumbs.retainVisible(visible);
   ctx.method_25296(0,0,field_22789,field_22790,0xFF08090B,0xFF111215);
-  AstralTypography.brand(ctx,margin,14,0xFFF2F2F2);AstralDraw.displayText(ctx,"EVATEX",margin+25,12,1.55f,0xFFF2F2F2);AstralTypography.draw(ctx,label("subtitle"),margin+110,18,0xFF999C9D);
+  AstralTypography.brand(ctx,margin,14,0xFFF2F2F2);AstralDraw.displayText(ctx,"EVATEX",margin+25,12,1.55f,0xFFF2F2F2);if(field_22789>400)AstralTypography.draw(ctx,AstralTypography.fit(label("subtitle"),field_22789-margin-130),margin+110,18,0xFF999C9D);
   AstralDraw.rounded(ctx,margin-3,76,left+6,field_22790-123,0xFF101114);
   if(!compact){AstralDraw.rounded(ctx,detailX-6,76,detailW+12,field_22790-123,0xFF151619);}
   super.method_25394(ctx,mx,my,delta);

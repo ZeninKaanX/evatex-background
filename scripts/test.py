@@ -47,3 +47,9 @@ subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"com.videomenu.video.L
 
 subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/MenuPlaybackRegression.java")],check=True)
 subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"MenuPlaybackRegression"],check=True)
+
+# An audio track is needed to verify that an opaque library holds only visuals.
+av=work/'presentation-av.mp4'
+subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','lavfi','-i','testsrc2=size=160x90:rate=30','-f','lavfi','-i','sine=frequency=440:sample_rate=48000','-t','2','-c:v','libx264','-threads','1','-pix_fmt','yuv420p','-c:a','aac',str(av)],check=True)
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/PresentationRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'PresentationRegression',str(av)],check=True)

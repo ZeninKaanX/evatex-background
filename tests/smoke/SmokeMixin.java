@@ -79,7 +79,10 @@ public abstract class SmokeMixin {
             System.out.println("EVATEX_QA COMPLETE shortcut layout");client.method_1592();return;
         }
         System.out.println("EVATEX_QA stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+VideoBackground.INSTANCE.status());
-        if (evatexqa$stage<8 && !VideoBackground.INSTANCE.status().equals("playing")) throw new AssertionError("Video did not continue in menu");
+        if (evatexqa$stage<8) {
+            var bg=VideoBackground.INSTANCE;boolean opaque=client.field_1755 instanceof VideoSelectScreen || client.field_1755 instanceof com.videomenu.BackgroundLibraryScreen;
+            if(opaque ? bg.isActive() || !(bg.status().equals("paused")||bg.status().equals("audio_only")) : !bg.status().equals("playing"))throw new AssertionError("Incorrect menu playback mode: "+bg.status());
+        }
         if (client.field_1755 instanceof class_442) {
             for (var child : client.field_1755.method_25396()) {
                 if (child instanceof com.videomenu.AstralButton button && button.method_25369().getString().equals(net.minecraft.class_2561.method_43471("evatex.title").getString())) {
@@ -572,6 +575,7 @@ public abstract class SmokeMixin {
             var background=VideoBackground.INSTANCE;
             var decoder=VideoBackground.class.getDeclaredField("decoder"); decoder.setAccessible(true);
             String expected=evatexqa$stage==4 || evatexqa$stage==6 ? "idle" : "playing";
+            if(client.field_1755 instanceof VideoSelectScreen)expected="paused";
             if(!background.status().equals(expected))throw new AssertionError("Menu stage "+evatexqa$stage+" expected "+expected+" got "+background.status()+" screen="+client.field_1755.getClass().getName());
             if(evatexqa$stage==0)evatexqa$decoder=decoder.get(background);
             if(evatexqa$stage>0 && evatexqa$stage<4 && evatexqa$decoder!=decoder.get(background))throw new AssertionError("Decoder restarted during enabled menu transition");
