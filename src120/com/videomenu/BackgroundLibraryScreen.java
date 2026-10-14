@@ -10,7 +10,7 @@ import net.minecraft.class_4185;
 
 /** Curated discovery, with explicit source links and a single verified local download. */
 public final class BackgroundLibraryScreen extends class_437 {
- private final class_437 parent;private boolean localMode;private Map<LibraryCatalog.Entry,Path> localFiles=Map.of();private final VideoMenuConfig config=VideoMenuConfig.load();
+ private final class_437 parent;private boolean localMode;private Map<LibraryCatalog.Entry,Path> localFiles=Map.of();private VideoMenuConfig config=VideoMenuConfig.load();
  private List<LibraryCatalog.Entry> catalogue=LibraryCatalog.initial(),filtered=List.of();
  private LibraryThumbnails thumbs=new LibraryThumbnails();private LibraryDownloads downloads=new LibraryDownloads();
  private String category="all",query="",status="";private LibraryCatalog.Entry selected;private int page;
@@ -26,7 +26,7 @@ public final class BackgroundLibraryScreen extends class_437 {
  private static class_2561 text(String key,Object...args){return class_2561.method_43469("evatex.catalog."+key,args);}
  private static String label(String key){return text(key).getString();}
  @Override protected void method_25426(){
-  if(closed){closed=false;thumbs=new LibraryThumbnails();downloads=new LibraryDownloads();reloadLocal();}
+  if(closed){closed=false;config=VideoMenuConfig.load();refreshing=false;ready=null;transferError=null;refreshed=null;thumbs=new LibraryThumbnails();downloads=new LibraryDownloads();reloadLocal();}
   margin=Math.max(10,Math.min(20,field_22789/40));left=field_22789<600?76:100;compact=field_22789<560;
   detailW=compact?0:Math.max(160,Math.min(230,field_22789/4));detailX=field_22789-margin-detailW;
   gridX=margin+left+14;gridW=field_22789-gridX-margin-(compact?0:detailW+14);top=111;
@@ -35,8 +35,8 @@ public final class BackgroundLibraryScreen extends class_437 {
   if(compact&&field_22790-top-68>=164)cardH=Math.min(cardH,(field_22790-top-78)/2);
   rows=Math.max(1,(field_22790-top-(compact?68:57)+10)/(cardH+10));perPage=columns*rows;
   int navW=Math.min(100,(field_22789-2*margin-16)/3);
-  add(margin,44,navW,24,text("local"),b->{localMode=true;category="all";page=0;reloadLocal();rebuild();},localMode);
-  add(margin+navW+8,44,navW,24,text("discover"),b->{localMode=false;category="all";page=0;rebuild();},!localMode);
+  add(margin,44,navW,24,text("local"),b->{localMode=true;category="all";query="";page=0;selected=null;reloadLocal();rebuild();},localMode);
+  add(margin+navW+8,44,navW,24,text("discover"),b->{localMode=false;category="all";query="";page=0;selected=null;rebuild();},!localMode);
   add(margin+2*(navW+8),44,navW,24,text("settings"),b->field_22787.method_1507(new VideoSelectScreen(this,0)),false);
   search=method_37063(new class_342(field_22787.field_1772,gridX,82,gridW,21,text("search")));search.method_1880(120);search.method_1852(query);search.method_47404(AstralTypography.styled(text("search")));search.method_1854((value,offset)->AstralTypography.text(value).method_30937());search.method_1863(value->{query=value;page=0;rebuild();});
   int y=82,categoryStep=Math.max(16,Math.min(29,(field_22790-134)/7));
@@ -58,7 +58,8 @@ public final class BackgroundLibraryScreen extends class_437 {
   if(field_22789>=660){
    int previewWidth=102;
    var refresh=add(field_22789-margin-previewWidth-76,44,70,24,text("refresh"),b->{thumbs.retry();reloadLocal();if(localMode)rebuild();else refreshCatalogue();},false);refresh.field_22763=!refreshing;
-   add(field_22789-margin-previewWidth,44,previewWidth,24,text(config.libraryOnlinePreviews?"previews_on":"previews_off"),b->{config.libraryOnlinePreviews=!config.libraryOnlinePreviews;config.save();rebuild();},config.libraryOnlinePreviews);
+   if(localMode)add(field_22789-margin-previewWidth,44,previewWidth,24,class_2561.method_43471("evatex.folder"),b->FolderOpener.open(VideoFiles.directory()),false);
+   else add(field_22789-margin-previewWidth,44,previewWidth,24,text(config.libraryOnlinePreviews?"previews_on":"previews_off"),b->{config.libraryOnlinePreviews=!config.libraryOnlinePreviews;config.save();rebuild();},config.libraryOnlinePreviews);
   }
 
  }
@@ -109,7 +110,7 @@ public final class BackgroundLibraryScreen extends class_437 {
   if(filtered.isEmpty())AstralTypography.centered(ctx,label("empty"),gridX+gridW/2,top+35,0xFFB5B5B5);
   if(!compact)AstralTypography.centered(ctx,(page+1)+" / "+Math.max(1,(filtered.size()+perPage-1)/perPage),gridX+gridW/2,field_22790-29,0xFF909799);
   var progress=downloads.progress();if(downloads.busy()){int px=compact?gridX:detailX,pw=compact?gridW:detailW,py=compact?field_22790-39:field_22790-49;ctx.method_25294(px,py,px+pw,py+2,0xFF303537);double fraction=progress.total()>0?Math.min(1,(double)progress.current()/progress.total()):.2+.6*(.5+.5*Math.sin(System.nanoTime()/4e8));ctx.method_25294(px,py,px+(int)(pw*fraction),py+2,0xFFF0F0F0);}
-  String message=downloads.busy()?label("downloading")+" "+(progress.total()>0?progress.current()*100/progress.total()+"%":"…"):status.isEmpty()?text("count",filtered.size(),catalogue.size()).getString():status;
+  String message=downloads.busy()?label("downloading")+" "+(progress.total()>0?progress.current()*100/progress.total()+"%":"…"):status.isEmpty()?text("count",filtered.size(),localMode?localFiles.size():catalogue.size()).getString():status;
   AstralTypography.centered(ctx,AstralTypography.fit(message,field_22789-24),field_22789/2,field_22790-11,0xFF93999B);
  }
  private int wrap(class_332 ctx,String value,int x,int y,int width,int color){String line="";for(String word:value.split(" ")){String next=line.isEmpty()?word:line+" "+word;if(!line.isEmpty()&&AstralTypography.width(next)>width){AstralTypography.draw(ctx,line,x,y,color);y+=13;line=word;}else line=next;}if(!line.isEmpty()){AstralTypography.draw(ctx,AstralTypography.fit(line,width),x,y,color);y+=13;}return y;}

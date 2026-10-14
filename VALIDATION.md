@@ -1,3 +1,9 @@
+## Astral Store and local previews (1.8.15)
+
+Minecraft 1.21.11 Fabric ran on the secondary display with audio muted. Actual screenshots cover Store, a verified direct GIF download and Downloaded/Apply state, My Library with both supplied 1080p60 Reze and NBSPLV video posters, local images/GIFs, and a compact 960×540 window. Original Astral click resources resolved in Minecraft. No 4K/8K video test ran. The library regression suite checks 250 entries, pinned personal-source metadata, valid/invalid Git blob checksums and lengths, cancellation/partial cleanup, offline originals, schema/path/address rejection and locale parity. The catalogue has 238 images and 12 GIFs; all 250 artworks have not been visually reviewed. Source collections do not grant EVATEX ownership or redistribution rights.
+
+Full release compiler and package results are recorded separately after final-source CI completes; prior-version coverage below must not be read as 1.8.15 runtime coverage. No new physical Windows GPU, macOS or proprietary Lunar runtime claim is made.
+
 ## Discover library validation (1.8.14)
 
 The new library was opened in a real, isolated Minecraft 1.21.11 Fabric client on Linux, using a hidden window confined to the secondary display. Audio was muted at 10% and rendering capped at 15 FPS. Captures cover Turkish/English views, anime search, Astral originals and a compact 960×720 window. A locally generated original was applied from the actual UI; its saved path and discovery by My Library were verified. This is not a Windows/GPU or all-version runtime test.

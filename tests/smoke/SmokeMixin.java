@@ -466,7 +466,7 @@ public abstract class SmokeMixin {
 
     @Unique private void evatexqa$collision(class_310 client) {
         if (evatexqa$stage==5 || evatexqa$stage==7) {
-            if (!(client.field_1755 instanceof VideoSelectScreen)) throw new AssertionError("Shortcut action failed");
+            if (!(client.field_1755 instanceof com.videomenu.BackgroundLibraryScreen)) throw new AssertionError("Shortcut action failed");
             evatexqa$capture(client,"layout-settings-"+evatexqa$stage);
             if (evatexqa$stage++==5) {client.method_1507(new evatextest.MainMenuScreen());return;}
             System.out.println("EVATEX_QA COMPLETE adaptive layout: late controls, visibility, resize, uniqueness, custom main menu and actions");

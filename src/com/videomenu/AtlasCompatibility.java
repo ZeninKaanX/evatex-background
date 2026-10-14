@@ -119,7 +119,7 @@ public final class AtlasCompatibility {
             boolean visible = (boolean)Api.BEGIN.invoke(null, "##EVATEX-video-menu", 1|2|4|8|16|32|128|256);
             try {
                 if (visible && (boolean)Api.BUTTON.invoke(null, class_2561.method_43471("evatex.title").getString(), buttonWidth, buttonHeight)) {
-                    Api.AFTER.invoke(null, (Runnable)() -> mc.method_1507(new VideoSelectScreen(mc.field_1755, 0)));
+                    Api.AFTER.invoke(null, (Runnable)() -> mc.method_1507(new BackgroundLibraryScreen(mc.field_1755, true)));
                 }
             } finally { Api.END.invoke(null); }
             } finally { try { if (variables > 0) Api.POP_VARS.invoke(null, variables); } finally { if (pushed > 0) Api.POP.invoke(null, pushed); } }

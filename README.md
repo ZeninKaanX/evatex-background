@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.14
+# EVATEX-Background — Astral 1.8.15
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -8,11 +8,13 @@ Replace Minecraft's title screen, multiplayer server selection, world selection,
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
 
-## Discover backgrounds
+## Store and My Library
 
-Open **Backgrounds → Discover** to browse 50 curated entries, search, filter by category and save favourites. The first catalogue includes 13 EVATEX originals that can be created and applied as offline 1080p PNGs, plus 37 anime, nature and gaming source pages. External wallpapers are downloaded from their original source by the user and selected under **My Library**; they are not republished or bundled in the mod.
+Open **Backgrounds → Store**, choose a background, select **Download**, then **Apply**. The catalogue has **250 entries: 238 photos and 12 animated GIFs**, including 13 offline EVATEX originals. Anime, space, nature, gaming and minimal categories, search and favourites help you browse. Downloaded items appear in **My Library** and show **Downloaded / Apply** in the store.
 
-Online thumbnail previews are optional and off by default. Visible cards use small, cached still images; they do not run multiple video decoders. **Refresh** retrieves the small public catalogue from this repository; the bundled catalogue remains available offline. Verified, explicitly redistributable downloads can be added to the catalogue without bundling media in future mod jars.
+My Library also shows cached covers for your own photos, GIFs and videos. Video covers are silent, single-frame posters generated one at a time; cards do not run multiple video players. Astral navigation, subtle transitions and an original soft click sound keep the interface consistent. UI clicks follow Minecraft's own sound controls independently of wallpaper audio.
+
+Online covers load automatically and can be disabled in Store. Cached covers and the bundled catalogue remain available offline; uncached external downloads require a connection. **Refresh** retrieves the small public catalogue without a new mod download. External files download directly from pinned public source collections into the game directory, with exact-size and Git blob checks. Media is not bundled, mirrored or relicensed by EVATEX; original artist rights apply. The collection is mostly static images, not 250 animated videos.
 
 ## Optional in-game settings backgrounds
 

@@ -64,7 +64,7 @@ public final class EvatexTitleScreen extends class_442 {
         int third=wide ? Math.min((group-12)/3,Math.max(70,(int)(field_22789*.074))) : (group-12)/3;
         class_4185 options=find(original,"menu.options"),quit=find(original,"menu.quit");
         method_37063(new AstralHomeButton(margin,secondaryY,third,smallHeight,class_2561.method_43471("evatex.title"),
-            button -> class_310.method_1551().method_1507(new VideoSelectScreen(this,0))));
+            button -> class_310.method_1551().method_1507(new BackgroundLibraryScreen(this,true))));
         addSmall(margin+third+6,secondaryY,third,smallHeight,class_2561.method_43471("menu.options"),options);
         addSmall(margin+(third+6)*2,secondaryY,third,smallHeight,class_2561.method_43471("menu.quit"),quit);
         original.remove(options);original.remove(quit);

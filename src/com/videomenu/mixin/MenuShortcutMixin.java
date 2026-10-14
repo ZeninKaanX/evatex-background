@@ -30,7 +30,7 @@ public abstract class MenuShortcutMixin implements ShortcutHost {
         if (!MenuShortcut.titleMenu(screen)) return;
         if (evatex$shortcut==null || !screen.method_25396().contains(evatex$shortcut)) {
             evatex$shortcut=method_37063(new AstralButton(4,4,100,14,class_2561.method_43471("evatex.title"),
-                button -> class_310.method_1551().method_1507(new VideoSelectScreen(screen,0)),false));
+                button -> class_310.method_1551().method_1507(new com.videomenu.BackgroundLibraryScreen(screen,true)),false));
             evatex$layout=new MenuShortcut.State();
         }
         if (MenuShortcut.customUi()) {evatex$wasCustom=true;evatex$shortcut.field_22764=false;evatex$shortcut.field_22763=false;return;}
