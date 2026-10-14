@@ -3013,7 +3013,7 @@
     },
     {
       "id": "nasa-20bfd4b2057850a29216",
-      "title": "Black Hole — Wide Orbit",
+      "title": "Wide Accretion Orbit",
       "category": "astral",
       "kind": "video",
       "sourceUrl": "https://svs.gsfc.nasa.gov/13326/",
@@ -3379,7 +3379,7 @@
     },
     {
       "id": "nasa-de7952c4d4596613f4b5",
-      "title": "Black Hole — Event Horizon Loop",
+      "title": "Event Horizon Loop",
       "category": "astral",
       "kind": "video",
       "sourceUrl": "https://svs.gsfc.nasa.gov/13326/",
@@ -6068,5 +6068,5 @@
       ]
     }
   ],
-  "revision": "8b2e130650f722f55a18"
+  "revision": "428dce0dc8eca964701d"
 }
