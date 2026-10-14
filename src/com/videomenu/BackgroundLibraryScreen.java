@@ -25,13 +25,14 @@ public final class BackgroundLibraryScreen extends class_437 {
   detailW=compact?0:Math.max(160,Math.min(230,field_22789/4));detailX=field_22789-margin-detailW;
   gridX=margin+left+14;gridW=field_22789-gridX-margin-(compact?0:detailW+14);top=100;
   columns=Math.max(1,Math.min(3,gridW/150));cardW=Math.max(70,(gridW-(columns-1)*10)/columns);cardH=Math.max(83,Math.min(134,cardW*9/16+39));
-  cardH=Math.max(50,Math.min(cardH,field_22790-top-(compact?88:57)));
-  rows=Math.max(1,(field_22790-top-(compact?88:57))/(cardH+10));perPage=columns*rows;
+  cardH=Math.max(50,Math.min(cardH,field_22790-top-(compact?68:57)));
+  if(compact&&field_22790-top-68>=164)cardH=Math.min(cardH,(field_22790-top-78)/2);
+  rows=Math.max(1,(field_22790-top-(compact?68:57)+10)/(cardH+10));perPage=columns*rows;
   add(margin,44,Math.min(92,field_22789/5),20,text("local"),b->field_22787.method_1507(new VideoSelectScreen(parent,0)),false);
   add(margin+Math.min(92,field_22789/5)+6,44,72,20,text("discover"),b->{},true);
   search=method_37063(new class_342(field_22787.field_1772,gridX,76,gridW,18,text("search")));search.method_1880(120);search.method_1852(query);search.method_47404(AstralTypography.styled(text("search")));search.method_73210((value,offset)->AstralTypography.text(value).method_30937());search.method_1863(value->{query=value;page=0;rebuild();});
-  int y=80;
-  for(String key:List.of("all","anime","astral","nature","games","minimal","favorites")){final String next=key;add(margin,y,left,22,text("category."+key),b->{category=next;page=0;rebuild();},category.equals(key));y+=29;}
+  int y=80,categoryStep=Math.max(16,Math.min(29,(field_22790-134)/7));
+  for(String key:List.of("all","anime","astral","nature","games","minimal","favorites")){final String next=key;add(margin,y,left,Math.min(22,categoryStep-3),text("category."+key),b->{category=next;page=0;rebuild();},category.equals(key));y+=categoryStep;}
   filter();int pages=Math.max(1,(filtered.size()+perPage-1)/perPage);page=Math.max(0,Math.min(page,pages-1));
   if(selected==null || !filtered.contains(selected))selected=filtered.isEmpty()?null:filtered.get(0);
   for(int n=page*perPage;n<Math.min(filtered.size(),(page+1)*perPage);n++){
@@ -43,11 +44,12 @@ public final class BackgroundLibraryScreen extends class_437 {
   if(pages>1){var prev=add(gridX,footer,26,20,class_2561.method_43470("‹"),b->{page--;rebuild();},false);prev.field_22763=page>0;var next=add(gridX+gridW-26,footer,26,20,class_2561.method_43470("›"),b->{page++;rebuild();},false);next.field_22763=page<pages-1;}
   if(selected!=null){
    int x=compact?gridX:detailX,w=compact?gridW:detailW,buttonY=compact?footer-28:field_22790-75;
-   primary=add(x,buttonY,w,22,actionLabel(),b->activate(),false);primary.field_22763=true;
-   if(!compact){favorite=add(x,buttonY-28,w,20,text(config.libraryFavorites.contains(selected.id())?"unfavorite":"favorite"),b->{if(!config.libraryFavorites.remove(selected.id()))config.libraryFavorites.add(selected.id());config.save();rebuild();},config.libraryFavorites.contains(selected.id()));}
+   primary=add(x,buttonY,compact?w-96:w,22,actionLabel(),b->activate(),false);primary.field_22763=true;
+   {favorite=add(compact?x+w-90:x,compact?buttonY:buttonY-28,compact?90:w,compact?22:20,text(config.libraryFavorites.contains(selected.id())?"unfavorite":"favorite"),b->{if(!config.libraryFavorites.remove(selected.id()))config.libraryFavorites.add(selected.id());config.save();rebuild();},config.libraryFavorites.contains(selected.id()));}
   }
-  var refresh=add(field_22789-margin-178,44,70,20,text("refresh"),b->refreshCatalogue(),false);refresh.field_22763=!refreshing;
-  add(field_22789-margin-102,44,102,20,text(config.libraryOnlinePreviews?"previews_on":"previews_off"),b->{config.libraryOnlinePreviews=!config.libraryOnlinePreviews;config.save();rebuild();},config.libraryOnlinePreviews);
+  int previewWidth=field_22789<420?70:102;
+  var refresh=add(field_22789-margin-previewWidth-76,44,70,20,text("refresh"),b->refreshCatalogue(),false);refresh.field_22763=!refreshing;
+  add(field_22789-margin-previewWidth,44,previewWidth,20,text(config.libraryOnlinePreviews?"previews_on":"previews_off"),b->{config.libraryOnlinePreviews=!config.libraryOnlinePreviews;config.save();rebuild();},config.libraryOnlinePreviews);
  }
  private void filter(){String q=query.toLowerCase(Locale.ROOT);filtered=catalogue.stream().filter(e->category.equals("all")||category.equals("favorites")&&config.libraryFavorites.contains(e.id())||category.equals(e.category())).filter(e->q.isBlank()||(e.title()+" "+e.category()+" "+label("category."+e.category())).toLowerCase(Locale.ROOT).contains(q)).toList();}
  private AstralButton add(int x,int y,int w,int h,class_2561 t,class_4185.class_4241 action,boolean selected){return method_37063(new AstralButton(x,y,w,h,t,action,selected));}

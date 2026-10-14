@@ -4,6 +4,9 @@ on:
     paths: ['src/**', 'src120/**', 'loaders/**', 'scripts/build_native*.py', 'scripts/native_projects.py', 'scripts/named_port.py', 'scripts/ports.py', 'fabric.mod.json', '.github/workflows/native-compatibility.yml']
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
