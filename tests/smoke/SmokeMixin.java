@@ -410,8 +410,9 @@ public abstract class SmokeMixin {
                     evatexqa$homeGeometry(screen);evatexqa$capture(client,"home-compact");
                     org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.method_22683().method_4490(),Integer.getInteger("evatex.qa.width",1280),Integer.getInteger("evatex.qa.height",720));
                 }
-                case 9 -> evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.title")));
+                case 9 -> {evatexqa$press(evatexqa$button(screen,net.minecraft.class_2561.method_43471("evatex.title")));if(!(client.field_1755 instanceof com.videomenu.BackgroundLibraryScreen))throw new AssertionError("Backgrounds did not open library");evatexqa$press(evatexqa$button(client.field_1755,net.minecraft.class_2561.method_43471("evatex.catalog.settings")));}
                 case 11 -> {
+                    if(screen instanceof com.videomenu.BackgroundLibraryScreen){screen.method_25419();evatexqa$stage=11;return;}
                     if(!(screen instanceof class_442) || screen instanceof com.videomenu.EvatexTitleScreen || VideoMenuConfig.load().customMainMenu) throw new AssertionError("Home did not disable cleanly");
                     if(net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("atlas-client") && !evatexqa$atlasCustom()) throw new AssertionError("Atlas custom menu mode was not restored");
                     evatexqa$capture(client,"home-disabled");

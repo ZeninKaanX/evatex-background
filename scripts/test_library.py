@@ -12,6 +12,11 @@ with tempfile.TemporaryDirectory(prefix='evatex-library-test-') as directory:
  sources=[*pkg.glob('*.java'),*[ROOT/f'src/com/videomenu/library/{name}.java' for name in ('LibraryCatalog','LibraryDownloads','OriginalBackground')],ROOT/'tests/LibraryRegression.java']
  subprocess.run([str(jdk/'javac'),'-proc:none','--release','21','-cp',cp,'-d',str(work),*map(str,sources)],check=True)
  subprocess.run([str(jdk/'java'),f'-Devatex.test.dir={work}/game','-cp',str(work)+os.pathsep+cp,'com.videomenu.library.LibraryRegression',str(ROOT/'catalog/v1.json')],check=True)
+# Exercise the real thumbnail queue without a display, GPU or media decoder.
+with tempfile.TemporaryDirectory(prefix='evatex-preview-queue-') as directory:
+ runtime=str(ROOT/'build/classes-1.21.11')+os.pathsep+cp
+ subprocess.run([str(jdk/'javac'),'-proc:none','--release','21','-cp',runtime,'-d',directory,str(ROOT/'tests/ThumbnailQueueRegression.java')],check=True)
+ subprocess.run([str(jdk/'java'),'-cp',directory+os.pathsep+runtime,'ThumbnailQueueRegression'],check=True)
 assert (ROOT/'catalog/v1.json').read_bytes()==(ROOT/'assets/evatexbackgroundvideo/catalog/v1.json').read_bytes()
 assert set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/en_us.json').read_text()))==set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/tr_tr.json').read_text()))
 print('PASS embedded/remote seed parity and English/Turkish keys')

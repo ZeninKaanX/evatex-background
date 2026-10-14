@@ -49,7 +49,7 @@ public final class BackgroundLibraryScreen extends class_437 {
   }
   int footer=field_22790-36;
   add(margin,footer,left,20,class_2561.method_43471("gui.back"),b->method_25419(),false);
-  if(pages>1){var prev=add(gridX,footer,26,20,class_2561.method_43470("‹"),b->{page--;rebuild();},false);prev.field_22763=page>0;var next=add(gridX+gridW-26,footer,26,20,class_2561.method_43470("›"),b->{page++;rebuild();},false);next.field_22763=page<pages-1;}
+  if(pages>1){var prev=add(gridX,footer,26,20,class_2561.method_43470("‹"),b->{page--;selected=null;rebuild();},false);prev.field_22763=page>0;var next=add(gridX+gridW-26,footer,26,20,class_2561.method_43470("›"),b->{page++;selected=null;rebuild();},false);next.field_22763=page<pages-1;}
   if(selected!=null){
    int x=compact?gridX:detailX,w=compact?gridW:detailW,buttonY=compact?footer-28:field_22790-75;
    primary=add(x,buttonY,compact?w-96:w,22,actionLabel(),b->activate(),false);primary.astralSurface(true);primary.field_22763=true;
@@ -85,6 +85,9 @@ public final class BackgroundLibraryScreen extends class_437 {
  @Override public boolean method_25421(){return false;}
  @Override public void method_25394(class_332 ctx,int mx,int my,float delta){
   if(ready!=null){ready=null;reloadLocal();status=label("downloaded");rebuild();}if(transferError!=null){refreshing=false;status=transferError;transferError=null;rebuild();}if(refreshed!=null){refreshing=false;status=label("updated");catalogue=refreshed;refreshed=null;page=0;rebuild();}
+  Set<String> visible=new HashSet<>();
+  for(int n=page*perPage;n<Math.min(filtered.size(),(page+1)*perPage);n++)visible.add(filtered.get(n).id());
+  if(selected!=null&&!compact)visible.add(selected.id());thumbs.retainVisible(visible);
   ctx.method_25296(0,0,field_22789,field_22790,0xFF08090B,0xFF111215);
   AstralTypography.brand(ctx,margin,14,0xFFF2F2F2);AstralDraw.displayText(ctx,"EVATEX",margin+25,12,1.55f,0xFFF2F2F2);AstralTypography.draw(ctx,label("subtitle"),margin+110,18,0xFF999C9D);
   AstralDraw.rounded(ctx,margin-3,76,left+6,field_22790-123,0xFF101114);

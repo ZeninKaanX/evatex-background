@@ -23,6 +23,12 @@ public final class LibraryThumbnails implements AutoCloseable {
  public void localFiles(Map<LibraryCatalog.Entry,Path> files){files.forEach((entry,path)->local.put(entry.id(),path));}
  public String state(LibraryCatalog.Entry entry){return failed.contains(entry.id())?"preview_error":"loading";}
  public void retry(){failed.clear();}
+ /** Keep only the visible page and detail card queued, even after rapid paging. */
+ public void retainVisible(Set<String> visible){
+  var iterator=pending.entrySet().iterator();
+  while(iterator.hasNext()){var item=iterator.next();if(!visible.contains(item.getKey())){item.getValue().cancel(true);iterator.remove();}}
+ }
+
 
  public boolean draw(class_332 ctx,LibraryCatalog.Entry e,int x,int y,int w,int h,boolean online){
   class_2960 id=textures.get(e.id());
