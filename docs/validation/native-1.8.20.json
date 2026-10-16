@@ -1,0 +1,40 @@
+[
+  {
+    "version": "1.8.20",
+    "minecraft": "1.21.11",
+    "loader": "forge",
+    "os": "Linux x64",
+    "source_commit": "3ba9016",
+    "runtime": "isolated development client from same source; published cloud package separately statically verified",
+    "checks": [
+      "native menus",
+      "video playback",
+      "focus pause and resume",
+      "Astral home",
+      "native mod list",
+      "Backgrounds navigation"
+    ],
+    "audio": "muted; volume preference 10%",
+    "display": "secondary, minimized",
+    "log_sha256": "058cb54cc192c35fcfbf19066aee49d19efb098febe0dfd02573440250726945"
+  },
+  {
+    "version": "1.8.20",
+    "minecraft": "1.21.11",
+    "loader": "neoforge",
+    "os": "Linux x64",
+    "source_commit": "3ba9016",
+    "runtime": "isolated development client from same source; published cloud package separately statically verified",
+    "checks": [
+      "native menus",
+      "video playback",
+      "focus pause and resume",
+      "Astral home",
+      "native mod list",
+      "Backgrounds navigation"
+    ],
+    "audio": "muted; volume preference 10%",
+    "display": "secondary, minimized",
+    "log_sha256": "f22ba087b2466a8408a4c6bf18dae97239d2765b5bafdac51b37300b42319d2d"
+  }
+]
