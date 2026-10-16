@@ -1,7 +1,7 @@
 name: Minecraft compatibility builds
 on:
   push:
-    paths: ['src/**', 'src120/**', 'scripts/build.py', 'scripts/ports.py', 'scripts/named_port.py', 'scripts/test.py', 'scripts/test_desktop.py', 'tests/**', 'assets/evatexbackgroundvideo/**', 'fabric.mod.json', 'videomenu.mixins.json', '.github/workflows/compatibility.yml']
+    paths: ['src/**', 'src120/**', 'scripts/build.py', 'scripts/loader_policy.py', 'scripts/ports.py', 'scripts/named_port.py', 'scripts/test.py', 'scripts/test_desktop.py', 'tests/**', 'assets/evatexbackgroundvideo/**', 'fabric.mod.json', 'videomenu.mixins.json', '.github/workflows/compatibility.yml']
   pull_request:
   workflow_dispatch:
 concurrency:
@@ -27,6 +27,8 @@ jobs:
           python-version: '3.12'
       - name: Install decoder test dependency
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Verify Loader compatibility policy guards
+        run: python3 tests/test_loader_policy.py
       - name: Compile exact Minecraft API (development jar)
         run: python3 scripts/build.py --minecraft '${{ matrix.minecraft }}' --system-ffmpeg
       - name: Verify playback, frame ownership and configuration

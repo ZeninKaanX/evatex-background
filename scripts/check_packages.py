@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import zipfile
 from build import VERSIONS, MOD_VERSION
+from loader_policy import minimum_loader, check_embedded_loader_requirement
 ROOT=Path(__file__).resolve().parent.parent
 parser=argparse.ArgumentParser()
 parser.add_argument('--minecraft',choices=VERSIONS)
@@ -24,11 +25,12 @@ for version in ([args.minecraft] if args.minecraft else VERSIONS):
         mixins=json.loads(archive.read('videomenu.mixins.json'))
         assert mixins['compatibilityLevel']=='JAVA_'+str(VERSIONS[version][1])
         assert len(meta['jars'])==(4 if version in ('1.21.9','1.21.10') else 3)
-        assert meta['depends']['fabricloader']==('>=0.19.3' if version=='26.3' else '>=0.18.4')
+        assert meta['depends']['fabricloader']=='>='+minimum_loader(version)
         assert not any('evatexqa' in name or name.startswith('net/minecraft/') or name.endswith('atlas-client.jar') for name in names)
         for nested in meta['jars']:
             assert nested['file'] in names
             with zipfile.ZipFile(io.BytesIO(archive.read(nested['file']))) as module:
+                check_embedded_loader_requirement(json.loads(module.read('fabric.mod.json')), version)
                 for entry in module.namelist():
                     if entry.endswith('.class') and not entry.startswith('META-INF/versions/'):
                         assert int.from_bytes(module.read(entry)[6:8],'big')<=44+VERSIONS[version][1], 'Embedded module needs newer Java'

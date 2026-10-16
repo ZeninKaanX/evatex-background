@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "evatexbackgroundvideo",
-  "version": "1.8.18",
+  "version": "1.8.19",
   "name": "EVATEX-Background",
   "description": "Video, GIF and photo backgrounds with an original black-and-white Astral interface and configurable menu wallpapers.",
   "authors": [
@@ -34,7 +34,7 @@
     }
   },
   "depends": {
-    "fabricloader": ">=0.18.4",
+    "fabricloader": ">=0.17.3",
     "minecraft": "1.21.11",
     "java": ">=21"
   }

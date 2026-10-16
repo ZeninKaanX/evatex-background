@@ -3,12 +3,14 @@
 import argparse,hashlib,json,shutil,zipfile
 from pathlib import Path
 from build import ROOT,MOD_VERSION,VERSIONS
+from loader_policy import minimum_loader
 
 def package_fabric(version,artifact):
     with zipfile.ZipFile(artifact) as archive:
         metadata=json.loads(archive.read('fabric.mod.json'))
         assert metadata['version']==MOD_VERSION and metadata['depends']['minecraft']==version
         assert metadata['id']=='evatexbackgroundvideo'
+        assert metadata['depends']['fabricloader']=='>='+minimum_loader(version)
         assert not any(name.startswith('evatexqa/') for name in archive.namelist())
     files=[file for file in sorted((ROOT/'assets').rglob('*')) if file.is_file()]
     digest=hashlib.sha256()

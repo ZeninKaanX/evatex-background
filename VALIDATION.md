@@ -1,3 +1,17 @@
+## Fabric Loader compatibility (1.8.19)
+
+The Fabric build no longer imposes the 26.x Loader floor on older games. Packaging checks the declared minimum against every embedded module. The isolated `--loader` test now uses the release JAR unchanged instead of rewriting its requirement.
+
+Real Linux clients, muted audio at a saved 10% volume, hidden windows confined to the secondary display, original supplied 1080p60 Reze input:
+
+- Minecraft 1.21.11 / Loader 0.17.3: startup, video playback, Settings pause and return/resume passed.
+- Minecraft 1.20.1 / Loader 0.16.14: the same checks passed.
+- Minecraft 1.21.11 / Loader 0.19.3: the same checks passed with bundled MixinExtras 0.5.5.
+
+All 24 embedded-module combinations satisfy the new advertised floors. Compile/package checks cover the full Fabric matrix; these are not 24 new GUI tests or a Windows hardware validation. Other installed mods may impose stricter requirements. The initial broad GUI test stopped at a stale volume-slider lookup after the settings redesign; the targeted Loader test does not claim that unrelated regression sequence passed.
+
+Machine-readable release checks: [Loader validation](docs/validation/loader-1.8.19.json).
+
 ## 1.8.18 validation
 
 - Minecraft 1.21.11 Fabric development API compilation: passed.

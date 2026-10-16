@@ -1,10 +1,10 @@
-# EVATEX-Background — Astral 1.8.18
+# EVATEX-Background — Astral 1.8.19
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
 **Add a file to `videos` or `backgrounds`, open Backgrounds, select it.**
 
-[Watch the official showcase](https://youtube.com/shorts/EzglUlDrTkI).
+[Storm showcase](https://youtube.com/shorts/8T6LuZ1WGZk) · [Cinematic trailer](https://youtube.com/shorts/g33no30jfzI) · [Official showcase](https://youtube.com/shorts/EzglUlDrTkI).
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
 
@@ -44,7 +44,19 @@ EVATEX has native **Forge** and **NeoForge** builds alongside Fabric. The releas
 
 EVATEX supports **24 Fabric, 22 Forge and 23 NeoForge builds** across the supported Minecraft releases. The [Modrinth version list](https://modrinth.com/mod/evatex-background/versions) shows the published combinations. The 24-version coverage below describes **Fabric** builds; unavailable upstream loader combinations cannot have native builds.
 
-Install Fabric Loader **0.18.4 or later** (Minecraft 26.3 requires **0.19.3 or later**) and the jar matching your exact Minecraft version:
+Choose the JAR matching your exact Minecraft version. EVATEX's minimum Fabric Loader depends on the game version:
+
+| Minecraft | Minimum Fabric Loader |
+| --- | --- |
+| 1.20–1.21.8 | 0.16.14 |
+| 1.21.9–1.21.10 | 0.17.0 |
+| 1.21.11 | 0.17.3 |
+| 26.1–26.2 | 0.18.4 |
+| 26.3 | 0.19.3 |
+
+Newer stable Loader versions are supported. Other installed mods may independently require a newer Loader. EVATEX cannot bypass those requirements. Remove older EVATEX JARs before installing the update.
+
+Minecraft also requires the matching Java runtime:
 
 | Minecraft releases | Java |
 | --- | --- |

@@ -34,7 +34,8 @@ parser.add_argument('--collision-layout',action='store_true',help='Inject compet
 parser.add_argument('--review-diagnostics',action='store_true',help='Verify local diagnostic copy and capture a vanilla menu without audible playback')
 parser.add_argument('--shortcut-only',action='store_true',help='Check and capture the title shortcut without replaying audio/settings regression scenes')
 parser.add_argument('--atlas-dependencies',type=Path)
-parser.add_argument('--loader',help='Test this actual Fabric Loader and its matching ASM/Mixin libraries; lower only the isolated QA jar requirement')
+parser.add_argument('--loader',help='Test the unchanged release JAR with this actual Fabric Loader and its matching ASM/Mixin libraries')
+parser.add_argument('--loader-compatibility',action='store_true',help='Verify startup, decoded frames and settings pause/resume without enabling audio')
 parser.add_argument('--minecraft',default='1.21.11',choices=VERSIONS)
 args=parser.parse_args()
 args.assets=args.assets.resolve()
@@ -56,6 +57,8 @@ if version in ('1.20','1.20.1','1.20.2','1.20.3','1.20.4','1.20.5','1.20.6','1.2
     source.parent.mkdir(parents=True,exist_ok=True)
     # Legacy screenshot API is synchronous and returns the NativeImage.
     text=(ROOT/'tests/smoke/SmokeMixin.java').read_text()
+    # Entry-position caches only exist on modern list entries.
+    text='\n'.join(line for line in text.split('\n') if 'Resized server entries retain a stale x coordinate' not in line)
     if version in ('1.20','1.20.1'):
         text=text.replace('net.minecraft.class_642.class_8678.field_45611','false')
     start=text.index('        class_318.method_1663(')
@@ -146,16 +149,6 @@ with zipfile.ZipFile(mods/'evatex-qa.jar','w') as z:
             z.writestr(f'assets/evatexbackgroundvideo/font/ui/probe{density}.json',json.dumps({'providers':[{'type':'ttf','file':'evatexbackgroundvideo:ui.ttf','size':9,'oversample':density,'shift':[0,0]}]}))
 suffix='' if args.bundled else '-system-ffmpeg'
 shutil.copyfile(ROOT/'build/dist'/f'evatex-background-video-{MOD_VERSION}-mc{version}{suffix}.jar',mods/'evatex.jar')
-if args.loader:
-    fixture=mods/'evatex.jar';temporary=mods/'evatex-loader-fixture.tmp'
-    with zipfile.ZipFile(fixture) as src,zipfile.ZipFile(temporary,'w') as dest:
-        for item in src.infolist():
-            raw=src.read(item.filename)
-            if item.filename=='fabric.mod.json':
-                meta=json.loads(raw);meta['depends']['fabricloader']='>='+args.loader;raw=json.dumps(meta).encode()
-            dest.writestr(item,raw)
-    temporary.replace(fixture)
-
 if args.sodium: shutil.copyfile(args.sodium,mods/'sodium.jar')
 if args.atlas:
     shutil.copyfile(args.atlas,mods/'atlas-client.jar')
@@ -209,7 +202,7 @@ if args.loader:
         runtime_parts.append(str(fetch(lib.get('url','https://maven.fabricmc.net/')+path,ROOT/'build/dependencies'/path)))
     runtime_cp=os.pathsep.join(runtime_parts)
     print('QA actual Fabric Loader:',args.loader,flush=True)
-command=[str(java),'-Xmx2G','-Dfabric.log.disableAnsi=true','-Devatex.qa.reviewDiagnostics='+str(args.review_diagnostics).lower(),'-Devatex.qa.fontProbe='+str(args.font_probe).lower(),'-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Xmx2G','-Devatex.qa.loaderCompatibility='+str(args.loader_compatibility).lower(),'-Dfabric.log.disableAnsi=true','-Devatex.qa.reviewDiagnostics='+str(args.review_diagnostics).lower(),'-Devatex.qa.fontProbe='+str(args.font_probe).lower(),'-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

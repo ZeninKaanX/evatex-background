@@ -1,0 +1,53 @@
+[
+  {
+    "minecraft": "1.20.1",
+    "fabric_loader": "0.16.14",
+    "release": "1.8.19",
+    "sha256": "db5bfa43bc5725a436a0057efd31c14a69eb051643bd83caff51069cbfa63c13",
+    "checks": [
+      "startup",
+      "video-playing",
+      "settings-paused",
+      "return-resumed",
+      "clean-exit"
+    ],
+    "os": "Linux x64",
+    "hidden_secondary_display": true,
+    "audio_enabled": false,
+    "configured_volume": 0.1
+  },
+  {
+    "minecraft": "1.21.11",
+    "fabric_loader": "0.17.3",
+    "release": "1.8.19",
+    "sha256": "eeef124b44f76c8e9e9fc919c70a9f16c6174d94dc9c4b2e4116c43820fdd160",
+    "checks": [
+      "startup",
+      "video-playing",
+      "settings-paused",
+      "return-resumed",
+      "clean-exit"
+    ],
+    "os": "Linux x64",
+    "hidden_secondary_display": true,
+    "audio_enabled": false,
+    "configured_volume": 0.1
+  },
+  {
+    "minecraft": "1.21.11",
+    "fabric_loader": "0.19.3",
+    "release": "1.8.19",
+    "sha256": "eeef124b44f76c8e9e9fc919c70a9f16c6174d94dc9c4b2e4116c43820fdd160",
+    "checks": [
+      "startup",
+      "video-playing",
+      "settings-paused",
+      "return-resumed",
+      "clean-exit"
+    ],
+    "os": "Linux x64",
+    "hidden_secondary_display": true,
+    "audio_enabled": false,
+    "configured_volume": 0.1
+  }
+]

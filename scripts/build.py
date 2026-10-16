@@ -11,6 +11,8 @@ import subprocess
 import urllib.request
 import zipfile
 from ports import sources, API
+from loader_policy import minimum_loader, check_embedded_loader_requirement
+import io
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / 'build' / 'dependencies'
@@ -114,7 +116,10 @@ def build(version, system_ffmpeg, prepare_only=False):
     config=json.loads((ROOT/'fabric.mod.json').read_text())
     config['depends']['minecraft']=version
     config['depends']['java']='>='+str(release)
-    config['depends']['fabricloader']='>=0.19.3' if version=='26.3' else '>=0.18.4'
+    config['depends']['fabricloader']='>='+minimum_loader(version)
+    for data in nested.values():
+        with zipfile.ZipFile(io.BytesIO(data)) as module:
+            check_embedded_loader_requirement(json.loads(module.read('fabric.mod.json')), version)
     config['depends'][resource_module]='*'
     config['jars']=[{'file':name} for name in nested]
     dist=ROOT/'build/dist'; dist.mkdir(parents=True,exist_ok=True)

@@ -69,6 +69,23 @@ public abstract class SmokeMixin {
             else {evatexqa$capture(client,"font-probe");System.out.println("EVATEX_QA COMPLETE font probe");client.method_1592();}
             return;
         }
+        if (Boolean.getBoolean("evatex.qa.loaderCompatibility")) {
+            var bg=VideoBackground.INSTANCE;
+            System.out.println("EVATEX_QA loader stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+bg.status());
+            if(evatexqa$stage==0) {
+                if(!bg.status().equals("playing"))throw new AssertionError("No decoded wallpaper frames: "+bg.status());
+                evatexqa$title=client.field_1755;
+                client.method_1507(new VideoSelectScreen(evatexqa$title,0));
+            } else if(evatexqa$stage==1) {
+                if(!bg.status().equals("paused"))throw new AssertionError("Settings did not pause playback");
+                client.field_1755.method_25419();
+            } else {
+                if(!bg.status().equals("playing"))throw new AssertionError("Wallpaper did not resume");
+                System.out.println("EVATEX_QA COMPLETE Loader startup, video frames, settings pause/resume");
+                client.method_1592();
+            }
+            evatexqa$stage++;return;
+        }
         if (Boolean.getBoolean("evatex.qa.astralMenus")) { evatexqa$astralMenus(client); return; }
         if (Boolean.getBoolean("evatex.qa.homeMenu")) { evatexqa$home(client); return; }
         if (Boolean.getBoolean("evatex.qa.collisionLayout")) { evatexqa$collision(client); return; }
