@@ -36,6 +36,8 @@ public final class EvatexTitleScreen extends class_442 {
     }
     public EvatexTitleScreen() {super(false);}
     @Override protected void method_25426() {
+  if(EvatexRecovery.suspended())return;
+  try {
         super.method_25426();
         settings=VideoMenuConfig.load();
         List<class_4185> original=new ArrayList<>();
@@ -79,7 +81,9 @@ public final class EvatexTitleScreen extends class_442 {
         extraSources=new ArrayList<>(original);footerMargin=margin;footerStart=secondaryY+smallHeight;
         footerWidgets.clear();buildFooter();
         ownWidgets.clear();ownWidgets.addAll(method_25396());
-    }
+
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("EvatexTitleScreen",failure);}
+ }
     /** Native/mod buttons added after screen initialization join the secondary menu. */
     public void captureLateButtons() {
         boolean changed=false;
@@ -145,9 +149,15 @@ public final class EvatexTitleScreen extends class_442 {
         button.field_22763=source!=null && source.field_22763;
         if(source!=null)nativeSources.put(button,source);
     }
-    @Override public void method_25393() {} // Native notification panels must not paint over this home.
+    @Override public void method_25393() {
+  if(EvatexRecovery.suspended())return;
+  try {
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("EvatexTitleScreen",failure);}
+ } // Native notification panels must not paint over this home.
     @Override public void method_25420(class_332 ctx,int mx,int my,float delta) {}
     @Override public void method_25394(class_332 ctx,int mx,int my,float delta) {
+  if(EvatexRecovery.suspended())return;
+  try {
         boolean video=VideoBackground.INSTANCE.render(ctx,field_22789,field_22790);
         // The wallpaper renderer already applies the user's dimming and vignette.
         AstralBackdrop.render(ctx,field_22789,field_22790,video,settings.menuMeteors && settings.themeTransitions);
@@ -173,9 +183,15 @@ public final class EvatexTitleScreen extends class_442 {
         AstralDraw.wallpaperText(ctx,"Minecraft "+EvatexPlatform.modVersion("minecraft"),margin+20,Math.max(12,(int)(field_22790*.06))+2,1f,0xFFE5E7EB);
         String credits="© Mojang Studios";
         AstralDraw.wallpaperText(ctx,credits,Math.max(margin,field_22789-margin-AstralTypography.width(credits)),field_22790-10,1f,0xFFE8E8E8);
-    }
+
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("EvatexTitleScreen",failure);}
+ }
     @Override public boolean method_25422() {return moreOpen;}
     @Override public void method_25419() {
+  if(EvatexRecovery.suspended())return;
+  try {
         if(moreOpen){moreOpen=false;footerPage=0;rebuildSecondary();}
-    }
+
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("EvatexTitleScreen",failure);}
+ }
 }

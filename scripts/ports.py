@@ -83,6 +83,7 @@ def sources(root,version):
         edit('library/LibraryThumbnails.java','field_63613=RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true,false);')
         edit('library/LibraryThumbnails.java','import com.mojang.blaze3d.textures.FilterMode;','')
         edit('AstralButton.java','method_75752','method_48579')
+        edit('EvatexRecoveryScreen.java','method_75752','method_48579')
         edit('AstralHomeButton.java','method_75752','method_48579')
         edit('video/VideoTexture.java','field_63613 = RenderSystem.getSamplerCache().method_75297(FilterMode.LINEAR);','method_4527(true, false);')
         if version == '1.21.5':
@@ -93,6 +94,7 @@ def sources(root,version):
             edit('video/VideoBackground.java','class_10799.field_56883, TEXTURE_ID','net.minecraft.class_1921::method_62277, TEXTURE_ID')
     if version == '1.20':
         edit('AstralButton.java','protected void method_48579','public void method_48579')
+        edit('EvatexRecoveryScreen.java','protected void method_48579','public void method_48579')
         edit('AstralHomeButton.java','protected void method_48579','public void method_48579')
     if version in ('1.21.5','1.21.6','1.21.7','1.21.8','1.21.9','1.21.10'):
         (folder/'com/videomenu/mixin/SplashManagerMixin.java').write_text((root/'src120/com/videomenu/mixin/SplashManagerMixin.java').read_text())
@@ -149,8 +151,8 @@ def sources(root,version):
                 if file.name in ('AstralMenusMixin.java','AstralLegacyMenusMixin.java'):
                     content=content.replace('method="render"','method="extractRenderState"').replace('renderWithTooltipAndSubtitles','extractRenderStateWithTooltipAndSubtitles')
                 if file.name in ('AstralNativeButtonMixin.java','AstralNativeSliderMixin.java'):content=content.replace('renderWidget','extractWidgetRenderState')
-                if file.name=='AstralVolumeSlider.java':content=content.replace('renderWidget','extractWidgetRenderState')
-                if file.name in ('VideoSelectScreen.java','BackgroundLibraryScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java'):
+                if file.name in ('AstralVolumeSlider.java','EvatexRecoveryScreen.java'):content=content.replace('renderWidget','extractWidgetRenderState')
+                if file.name in ('VideoSelectScreen.java','BackgroundLibraryScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java','EvatexRecoveryScreen.java'):
                     content=content.replace('public void render(', 'public void extractRenderState(').replace('super.render(', 'super.extractRenderState(').replace('method = "render"','method = "extractRenderState"').replace(';render(', ';extractRenderState(')
                 if version in ('26.2','26.3'):
                     content=content.replace('method = "destroy"','method = "close"')

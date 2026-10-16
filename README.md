@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.19
+# EVATEX-Background — Astral 1.8.20
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -31,6 +31,12 @@ EVATEX requests D3D11 hardware video decoding and GPU downscaling on Windows. Un
 The log records `EVATEX video decoder active: D3D11_SCALE`, `D3D11` or `SOFTWARE` after actual frames arrive. GPU work appears in Windows Task Manager's **Video Decode** graph; the **3D** graph alone does not measure video decoding. If a driver causes trouble, set `hardwareAcceleration` to `false` in `config/evatexbackgroundvideo.json` while the game is closed.
 
 GPU decoding still involves CPU colour conversion, frame copies, audio and Minecraft rendering. Performance depends on the source and hardware. See [validation records](VALIDATION.md) for tested configurations and remaining platform limits.
+
+## Recoverable errors
+
+An unexpected EVATEX interface or rendering failure pauses EVATEX for the current session and shows a quiet Astral notice. Choose **Continue without EVATEX** to return to Minecraft, or **Copy diagnostic report** to collect a local report without background paths, account names or exception messages. Your selected files and saved settings are preserved. The failed feature does not automatically retry; restarting Minecraft starts a new session.
+
+This handles failures inside EVATEX's protected interface, startup and rendering paths. It does not override Fabric's pre-launch dependency checks, other mods' crash handlers, fatal JVM errors or graphics-driver crashes. In-world continuation returns to the same loaded world; it does not save/reload or disconnect from a server.
 
 ## Installation
 

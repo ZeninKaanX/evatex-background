@@ -52,6 +52,7 @@ public final class AstralMenus {
         for(var child:screen.method_25396())if(!state.originalChildren.contains(child)){restore();return;}
     }
     public static void prepare(class_437 screen) {
+        if(EvatexRecovery.suspended())return;
         state=null;
         var client=class_310.method_1551();
         if(client.field_1687!=null || !VideoMenuConfig.load().customMainMenu) return;
@@ -138,7 +139,7 @@ public final class AstralMenus {
             VideoMenuClient.LOGGER.warn("Keeping native menu layout: unsupported list geometry",error);return false;
         }
     }
-    public static boolean active(class_437 screen){return state!=null && state.screen==screen && class_310.method_1551().field_1687==null;}
+    public static boolean active(class_437 screen){return !EvatexRecovery.suspended() && state!=null && state.screen==screen && class_310.method_1551().field_1687==null;}
     public static boolean ownsList(Object list){return state!=null && !state.chromeOnly && state.list==list && active(class_310.method_1551().field_1755);}
     public static boolean nativeText(){return nativeText && active(class_310.method_1551().field_1755);}
     public static void beginFrame(class_437 screen){

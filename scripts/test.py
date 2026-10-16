@@ -53,3 +53,7 @@ av=work/'presentation-av.mp4'
 subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','lavfi','-i','testsrc2=size=160x90:rate=30','-f','lavfi','-i','sine=frequency=440:sample_rate=48000','-t','2','-c:v','libx264','-threads','1','-pix_fmt','yuv420p','-c:a','aac',str(av)],check=True)
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/PresentationRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'PresentationRegression',str(av)],check=True)
+
+# Fatal JVM errors must not be treated as recoverable mod failures.
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/RecoveryCircuitRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'RecoveryCircuitRegression'],check=True)

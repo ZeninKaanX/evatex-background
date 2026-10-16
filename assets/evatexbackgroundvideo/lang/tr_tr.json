@@ -104,5 +104,11 @@
   "evatex.settings_description.playback": "Arka plan oynatma, kalite ve ses.",
   "evatex.settings_description.appearance": "Kadraj, karartma ve geçişler.",
   "evatex.settings_description.menus": "Arka planın görüneceği menüleri seç.",
-  "evatex.status.audio_only": "Ses devam ediyor · görüntü beklemede"
+  "evatex.status.audio_only": "Ses devam ediyor · görüntü beklemede",
+  "evatex.recovery.title": "Arka plan duraklatıldı",
+  "evatex.recovery.body": "Bir EVATEX özelliği beklenmedik biçimde durdu.",
+  "evatex.recovery.saved": "Dosyaların ve ayarların korundu.",
+  "evatex.recovery.continue": "EVATEX olmadan devam et",
+  "evatex.recovery.copy": "Tanı raporunu kopyala",
+  "evatex.recovery.copied": "Rapor kopyalandı. Ayrıntılar latest.log içinde."
 }

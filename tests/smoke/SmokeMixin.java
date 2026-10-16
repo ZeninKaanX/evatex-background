@@ -69,6 +69,39 @@ public abstract class SmokeMixin {
             else {evatexqa$capture(client,"font-probe");System.out.println("EVATEX_QA COMPLETE font probe");client.method_1592();}
             return;
         }
+        if (Boolean.getBoolean("evatex.qa.recovery")) {
+            System.out.println("EVATEX_QA recovery stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName());
+            switch(evatexqa$stage++) {
+                case 0 -> {
+                    if(!VideoBackground.INSTANCE.status().equals("playing"))throw new AssertionError("No baseline video");
+                    if(System.getProperty("evatex.qa.recoveryKind","action").equals("render")) {
+                        client.method_1507(new com.videomenu.VideoSelectScreen(client.field_1755,0));
+                        try {var config=com.videomenu.VideoSelectScreen.class.getDeclaredField("config");config.setAccessible(true);config.set(client.field_1755,null);}
+                        catch(ReflectiveOperationException error){throw new RuntimeException(error);}
+                    }else{
+                    evatexqa$press(new com.videomenu.AstralButton(0,0,100,20,net.minecraft.class_2561.method_43470("QA action"),button->{throw new IllegalStateException("Injected EVATEX action failure");},false));
+                    if(!com.videomenu.EvatexRecovery.suspended())throw new AssertionError("Failed action did not trip session breaker");
+                    }
+                }
+                case 1 -> {
+                    if(!(client.field_1755 instanceof com.videomenu.EvatexRecoveryScreen))throw new AssertionError("Missing calm recovery screen");
+                    if(VideoBackground.INSTANCE.isActive()||!VideoBackground.INSTANCE.audioStatus().equals("muted"))throw new AssertionError("Media resources still active");
+                    evatexqa$capture(client,"recovery-warning");
+                    client.field_1755.method_25419();
+                }
+                case 2 -> {
+                    if(client.field_1755.getClass()!=class_442.class)throw new AssertionError("Continue did not restore native title");
+                    if(!com.videomenu.EvatexRecovery.suspended())throw new AssertionError("Failed feature resumed automatically");
+                    evatexqa$capture(client,"recovery-native-title");
+                }
+                default -> {
+                    if(client.field_1755.getClass()!=class_442.class)throw new AssertionError("Recovery loop reopened");
+                    System.out.println("EVATEX_QA COMPLETE EVATEX-owned failure, calm screen, media shutdown and continued native menu");
+                    client.method_1592();
+                }
+            }
+            return;
+        }
         if (Boolean.getBoolean("evatex.qa.loaderCompatibility")) {
             var bg=VideoBackground.INSTANCE;
             System.out.println("EVATEX_QA loader stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName()+" status="+bg.status());

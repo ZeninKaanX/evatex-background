@@ -1,3 +1,11 @@
+## Calm recovery (1.8.20)
+
+Linux x64 hidden clients on the secondary display, audio muted at a saved 10% volume, supplied original 1080p60 Reze input. Injecting an EVATEX button exception on Minecraft 1.21.11 / Loader 0.17.3 and 1.20.1 / Loader 0.16.14 showed the calm recovery screen, stopped video/audio resources, and continued to a native title without reopening the warning. A separate 1.21.11 rendering fault injected into the EVATEX settings screen also recovered through the same notice and continued native title. The pure Java circuit test verifies one-shot handling, preservation of the original cause, and exclusion of JVM-fatal errors.
+
+Recovery catches RuntimeException and LinkageError only at protected EVATEX boundaries. It leaves pre-launch Loader/Mixin failures, third-party crash handlers and fatal JVM errors alone. In-world continuation selects the already-loaded world instead of reconnecting/reloading; that branch has not yet received a fresh world-loaded GUI test. Native text and a static opaque surface avoid relying on a failed wallpaper or custom font. No 4K/8K playback or physical Windows recovery GUI was tested.
+
+The first generic GUI sequence remains stale at its redesigned volume-slider lookup, as recorded below. It is not counted as a passing recovery test.
+
 ## Fabric Loader compatibility (1.8.19)
 
 The Fabric build no longer imposes the 26.x Loader floor on older games. Packaging checks the declared minimum against every embedded module. The isolated `--loader` test now uses the release JAR unchanged instead of rewriting its requirement.

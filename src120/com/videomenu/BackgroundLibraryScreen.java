@@ -27,6 +27,8 @@ public final class BackgroundLibraryScreen extends class_437 {
  private static class_2561 text(String key,Object...args){return class_2561.method_43469("evatex.catalog."+key,args);}
  private static String label(String key){return text(key).getString();}
  @Override protected void method_25426(){
+  if(EvatexRecovery.suspended())return;
+  try {
   if(closed){closed=false;config=VideoMenuConfig.load();catalogue=LibraryCatalog.initial();nextAutoCheck=0;refreshing=false;ready=null;transferError=null;refreshed=null;thumbs=new LibraryThumbnails();downloads=new LibraryDownloads();reloadLocal();}
   margin=Math.max(10,Math.min(20,field_22789/40));left=field_22789<600?76:100;compact=field_22789<560;
   detailW=compact?0:Math.max(160,Math.min(230,field_22789/4));detailX=field_22789-margin-detailW;
@@ -64,6 +66,8 @@ public final class BackgroundLibraryScreen extends class_437 {
    else add(field_22789-margin-previewWidth,44,previewWidth,24,text(config.libraryOnlinePreviews?"previews_on":"previews_off"),b->{config.libraryOnlinePreviews=!config.libraryOnlinePreviews;config.save();rebuild();},config.libraryOnlinePreviews);
   }
 
+
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("BackgroundLibraryScreen",failure);}
  }
  private void filter(){String q=query.toLowerCase(Locale.ROOT);filtered=(localMode?new ArrayList<>(localFiles.keySet()):catalogue).stream().filter(e->category.equals("all")||category.equals("video")&&e.kind().equals("video")||category.equals("favorites")&&config.libraryFavorites.contains(e.id())||category.equals(localMode?e.kind():e.category())).filter(e->q.isBlank()||(e.title()+" "+e.category()+" "+label("category."+e.category())).toLowerCase(Locale.ROOT).contains(q)).toList();}
  private AstralButton add(int x,int y,int w,int h,class_2561 t,class_4185.class_4241 action,boolean selected){return method_37063(new AstralButton(x,y,w,h,t,action,selected).astralSurface(false));}
@@ -87,12 +91,18 @@ public final class BackgroundLibraryScreen extends class_437 {
   var task=LibraryCatalog.refreshIfDue(catalogueAddress());if(task==null)return;
   refreshing=true;task.whenComplete((list,error)->{if(!closed){if(error==null)refreshed=list;else automaticFinished=true;}});
  }
- @Override public void method_25419(){closed=true;downloads.cancel();thumbs.close();field_22787.method_1507(parent);}
+ @Override public void method_25419(){
+  if(EvatexRecovery.suspended())return;
+  try {closed=true;downloads.cancel();thumbs.close();field_22787.method_1507(parent);
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("BackgroundLibraryScreen",failure);}
+ }
  @Override public void method_25432(){closed=true;downloads.cancel();thumbs.close();}
  @Override public void method_25420(class_332 c){}
  @Override public boolean method_25422(){return false;}
  @Override public boolean method_25421(){return false;}
  @Override public void method_25394(class_332 ctx,int mx,int my,float delta){
+  if(EvatexRecovery.suspended())return;
+  try {
   if(ready!=null){ready=null;reloadLocal();status=label("downloaded");rebuild();}if(transferError!=null){refreshing=false;status=transferError;transferError=null;rebuild();}if(automaticFinished){automaticFinished=false;refreshing=false;}
   if(refreshed!=null){var incoming=refreshed;refreshed=null;refreshing=false;boolean changed=!catalogue.equals(incoming);catalogue=incoming;if(selected!=null){String id=selected.id();selected=catalogue.stream().filter(e->e.id().equals(id)).findFirst().orElse(selected);}if(changed||status.equals(label("refreshing"))){status=label("updated");rebuild();}}
   autoRefreshCatalogue();
@@ -126,6 +136,8 @@ public final class BackgroundLibraryScreen extends class_437 {
   var progress=downloads.progress();if(downloads.busy()){int px=compact?gridX:detailX,pw=compact?gridW:detailW,py=compact?field_22790-39:field_22790-49;ctx.method_25294(px,py,px+pw,py+2,0xFF303537);double fraction=progress.total()>0?Math.min(1,(double)progress.current()/progress.total()):.2+.6*(.5+.5*Math.sin(System.nanoTime()/4e8));ctx.method_25294(px,py,px+(int)(pw*fraction),py+2,0xFFF0F0F0);}
   String message=downloads.busy()?label("downloading")+" "+(progress.total()>0?progress.current()*100/progress.total()+"%":"…"):status.isEmpty()?text("count",filtered.size(),localMode?localFiles.size():catalogue.size()).getString():status;
   AstralTypography.centered(ctx,AstralTypography.fit(message,field_22789-24),field_22789/2,field_22790-11,0xFF93999B);
+
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("BackgroundLibraryScreen",failure);}
  }
  private int wrap(class_332 ctx,String value,int x,int y,int width,int color){String line="";for(String word:value.split(" ")){String next=line.isEmpty()?word:line+" "+word;if(!line.isEmpty()&&AstralTypography.width(next)>width){AstralTypography.draw(ctx,line,x,y,color);y+=13;line=word;}else line=next;}if(!line.isEmpty()){AstralTypography.draw(ctx,AstralTypography.fit(line,width),x,y,color);y+=13;}return y;}
 }

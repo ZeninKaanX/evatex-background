@@ -24,6 +24,8 @@ public final class VideoSelectScreen extends class_437 {
  private static class_2561 onOff(boolean value){return class_2561.method_43471(value?"options.on":"options.off");}
  private static class_2561 catalog(String key){return class_2561.method_43471("evatex.catalog."+key);}
  @Override protected void method_25426(){
+  if(EvatexRecovery.suspended())return;
+  try {
   if(config==null)config=VideoMenuConfig.load();cards.clear();
   margin=Math.max(10,Math.min(20,field_22789/40));side=field_22789<600?76:100;
   contentX=margin+side+14;contentW=field_22789-contentX-margin;columns=contentW>=440?2:1;cardW=(contentW-(columns-1)*12)/columns;
@@ -50,6 +52,8 @@ public final class VideoSelectScreen extends class_437 {
    var previous=add(contentX,footer,26,20,class_2561.method_43470("‹"),b->{settingsPage--;rebuild();},false);previous.field_22763=settingsPage>0;
    var next=add(contentX+contentW-26,footer,26,20,class_2561.method_43470("›"),b->{settingsPage++;rebuild();},false);next.field_22763=settingsPage<settingGroups().size()-1;
   }
+
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("VideoSelectScreen",failure);}
  }
  private void openLibrary(boolean local){if(volumeDirty){config.save();volumeDirty=false;}if(parent instanceof BackgroundLibraryScreen library){field_22787.method_1507(library);library.openTab(local);}else field_22787.method_1507(new BackgroundLibraryScreen(parent,local));}
  private List<int[]> settingGroups(){var groups=new ArrayList<int[]>();int capacity=Math.max(1,Math.min(6,columns*rows));for(var section:CATEGORIES)for(int start=0;start<section.length;start+=capacity)groups.add(Arrays.copyOfRange(section,start,Math.min(section.length,start+capacity)));return groups;}
@@ -97,11 +101,17 @@ public final class VideoSelectScreen extends class_437 {
  private AstralButton add(int x,int y,int w,int h,class_2561 label,class_4185.class_4241 action,boolean selected){return method_37063(new AstralButton(x,y,w,h,label,action,selected).astralSurface(false));}
  private void rebuild(){int focus=method_25396().indexOf(method_25399());method_37067();method_25426();if(focus>=0&&focus<method_25396().size())method_48265(method_25396().get(focus));}
  private void apply(){config.save();AstralTheme.animations(config.themeTransitions);VideoBackground.INSTANCE.reload(config);rebuild();}
- @Override public void method_25419(){if(volumeDirty)config.save();field_22787.method_1507(parent);}
+ @Override public void method_25419(){
+  if(EvatexRecovery.suspended())return;
+  try {if(volumeDirty)config.save();field_22787.method_1507(parent);
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("VideoSelectScreen",failure);}
+ }
  @Override public void method_25420(class_332 context,int mx,int my,float delta){}
  @Override public boolean method_25421(){return false;}
  @Override public boolean method_25422(){return false;}
  @Override public void method_25394(class_332 ctx,int mx,int my,float delta){
+  if(EvatexRecovery.suspended())return;
+  try {
   if(volumeDirty&&System.nanoTime()-volumeChangedAt>250_000_000L){config.save();volumeDirty=false;}
   ctx.method_25296(0,0,field_22789,field_22790,0xFF08090B,0xFF111215);
   AstralTypography.brand(ctx,margin,14,0xFFF2F2F2);AstralDraw.displayText(ctx,"EVATEX",margin+25,12,1.55f,0xFFF2F2F2);
@@ -118,6 +128,8 @@ public final class VideoSelectScreen extends class_437 {
   super.method_25394(ctx,mx,my,delta);
   if(settingGroups().size()>3)AstralTypography.centered(ctx,(settingsPage+1)+" / "+settingGroups().size(),contentX+contentW/2,field_22790-29,0xFF999C9D);
   AstralTypography.centered(ctx,AstralTypography.fit("EVATEX · "+EvatexPlatform.modVersion("evatexbackgroundvideo"),field_22789-24),field_22789/2,field_22790-11,0xFF93999B);
+
+  }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("VideoSelectScreen",failure);}
  }
     private static int cycle(int[] values,int current) {for(int value:values)if(value>current)return value;return values[0];}
     private static double cycle(double[] values,double current) {for(double value:values)if(value>current+0.001)return value;return values[0];}

@@ -37,7 +37,7 @@ public final class VideoBackground {
 
     private record Frame(int[] pixels, int width, int height) {}
     private VideoBackground() {}
-    public boolean customMainMenu() {var value=config;return value!=null && value.customMainMenu;}
+    public boolean customMainMenu() {var value=config;return !com.videomenu.EvatexRecovery.suspended() && value!=null && value.customMainMenu;}
     public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
     private volatile boolean foreground=true;
     private boolean presentationSuppressed;
@@ -63,7 +63,7 @@ public final class VideoBackground {
     public boolean isActive() { return !presentationSuppressed && latest != null; }
     /** One policy for decoder lifetime, screen backdrop and opaque list suppression. */
     public boolean supportsMenu(net.minecraft.class_437 screen, boolean worldLoaded) {
-        if (screen == null) return false;
+        if (screen == null || com.videomenu.EvatexRecovery.suspended()) return false;
         return com.videomenu.MenuPlaybackPolicy.allows(worldLoaded,
             config != null && config.inGameMenuBackground,
             screen instanceof net.minecraft.class_442 || screen instanceof net.minecraft.class_500,
@@ -71,7 +71,7 @@ public final class VideoBackground {
     }
     public boolean decoratesMenu(net.minecraft.class_437 screen) {
         VideoMenuConfig settings = config;
-        return settings != null && settings.enabled
+        return !com.videomenu.EvatexRecovery.suspended() && settings != null && settings.enabled
             && (class_310.method_1551().field_1687 == null || settings.inGameMenuBackground) &&
             (settings.worldMenuBackground && (screen instanceof net.minecraft.class_526 || screen instanceof net.minecraft.class_525 || screen instanceof net.minecraft.class_524 || screen instanceof net.minecraft.class_5235)
              || settings.optionsMenuBackground && (screen instanceof net.minecraft.class_429 || screen instanceof net.minecraft.class_4667
@@ -133,7 +133,7 @@ public final class VideoBackground {
         synchronized (frameLock) { latest = null; staging = null; }
         releaseTexture();
         status = "idle";
-        if (!menuVisible || config == null || !config.enabled || config.videoPath.isBlank()) return;
+        if (com.videomenu.EvatexRecovery.suspended() || !menuVisible || config == null || !config.enabled || config.videoPath.isBlank()) return;
         status = "loading";
         var window = class_310.method_1551().method_22683();
         VideoDecoder next = new VideoDecoder(config, (data, w, h) -> {
@@ -203,12 +203,11 @@ public final class VideoBackground {
                 context.method_25296(0, height-edge, width, height, 0x00000000, 0x80000000);
             }
             return true;
-        } catch (RuntimeException e) {
-            VideoMenuClient.LOGGER.error("Cannot render video texture", e);
+        } catch (RuntimeException | LinkageError e) {
+            com.videomenu.EvatexRecovery.report("video rendering",e);
             synchronized (this) {
-                generation++; if (decoder != null) decoder.close(); latest = null; status = "error";
+                generation++; latest = null; status = "error";
             }
-            releaseTexture();
             return false;
         }
     }

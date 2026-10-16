@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'net.minecraftforge.gradle' version '[7.0.3,8)'
 }
-version = providers.gradleProperty('modVersion').getOrElse('1.8.19')
+version = providers.gradleProperty('modVersion').getOrElse('1.8.20')
 group = 'com.videomenu'
 def mcVersion = providers.gradleProperty('minecraftVersion').getOrElse('1.21.11')
 def forgeVersion = providers.gradleProperty('loaderVersion').getOrElse('61.2.3')

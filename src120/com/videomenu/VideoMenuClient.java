@@ -13,8 +13,10 @@ public final class VideoMenuClient implements ClientModInitializer {
     @Override public void onInitializeClient() {
         try { Files.createDirectories(VideoFiles.directory()); }
         catch (IOException e) { LOGGER.warn("Cannot create videos folder", e); }
+        EvatexRecovery.run("initialization", () -> {
         VideoMenuConfig config = VideoMenuConfig.load();
         AstralTheme.animations(config.themeTransitions);
         VideoBackground.INSTANCE.init(config);
+        });
     }
 }

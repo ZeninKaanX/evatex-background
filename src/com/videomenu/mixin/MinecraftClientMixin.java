@@ -15,6 +15,12 @@ public abstract class MinecraftClientMixin {
     @Inject(method = "method_1574", at = @At("HEAD"))
     private void evatex$menuLifecycle(CallbackInfo ci) {
         var client=(class_310)(Object)this;
+        com.videomenu.EvatexRecovery.tick(client);
+        if(com.videomenu.EvatexRecovery.suspended()) return;
+        try {evatex$updateMenus(client);}
+        catch(RuntimeException|LinkageError failure){com.videomenu.EvatexRecovery.report("menu lifecycle",failure);}
+    }
+    @org.spongepowered.asm.mixin.Unique private void evatex$updateMenus(class_310 client) {
         var screen = client.field_1755;
         boolean custom=VideoBackground.INSTANCE.customMainMenu();
         var kind=screen instanceof com.videomenu.EvatexTitleScreen ? com.videomenu.MenuOwnership.Kind.EVATEX

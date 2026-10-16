@@ -1,0 +1,34 @@
+[
+  {
+    "minecraft": "1.21.11",
+    "release": "1.8.20",
+    "fault": "render",
+    "checks": [
+      "calm recovery screen",
+      "video/audio stopped",
+      "native title continuation",
+      "no repeated recovery"
+    ],
+    "sha256": "63107ec4416d56a5a00b687ff1a8d635db9f3c668f37ba6b38b72d5f0043549d",
+    "os": "Linux x64",
+    "secondary_display": true,
+    "hidden_window": true,
+    "audio": false
+  },
+  {
+    "minecraft": "1.20.1",
+    "release": "1.8.20",
+    "fault": "action",
+    "checks": [
+      "calm recovery screen",
+      "video/audio stopped",
+      "native title continuation",
+      "no repeated recovery"
+    ],
+    "sha256": "b53b011296598be2eafcf0bca999766cdb8867f4a0c821ff1b2dea22439b2459",
+    "os": "Linux x64",
+    "secondary_display": true,
+    "hidden_window": true,
+    "audio": false
+  }
+]

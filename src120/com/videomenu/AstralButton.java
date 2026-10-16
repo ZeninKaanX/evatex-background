@@ -21,7 +21,7 @@ public final class AstralButton extends class_4185 {
     private double hoverAmount;
     private long hoverAt;
     public AstralButton(int x, int y, int width, int height, class_2561 text, class_4241 action, boolean selected) {
-        super(x, y, width, height, text, action, field_40754);
+        super(x, y, width, height, text, button -> EvatexRecovery.run("button action", () -> action.onPress(button)), field_40754);
         this.selected = selected;
     }
     @Override public void method_25354(net.minecraft.class_1144 manager){pressedUntil=System.nanoTime()+110_000_000L;AstralSound.click(manager);}

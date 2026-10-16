@@ -20,6 +20,7 @@ public abstract class TitleScreenMixin extends class_437 {
 
     @Inject(method = {"method_25426"}, at = {@At(value = "TAIL")})
     private void videomenu$addVideoMenuButton(CallbackInfo ci) {
+        com.videomenu.EvatexRecovery.run("title footer", () -> {
         // PressableTextWidget caches its rendered text: replace it rather than
         // changing its message. Preserve the original credits action and notice.
         for (var child : java.util.List.copyOf(this.method_25396())) {
@@ -32,6 +33,8 @@ public abstract class TitleScreenMixin extends class_437 {
                 this.method_37063(compact);
             }
         }
+
+        });
     }
 
 }

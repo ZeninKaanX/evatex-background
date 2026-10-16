@@ -104,5 +104,11 @@
   "evatex.settings_description.playback": "Wallpaper playback, quality and sound.",
   "evatex.settings_description.appearance": "Framing, overlays and transitions.",
   "evatex.settings_description.menus": "Choose where your background appears.",
-  "evatex.status.audio_only": "Audio continues · video on hold"
+  "evatex.status.audio_only": "Audio continues · video on hold",
+  "evatex.recovery.title": "Background paused",
+  "evatex.recovery.body": "An EVATEX feature stopped unexpectedly.",
+  "evatex.recovery.saved": "Your media and settings are safe.",
+  "evatex.recovery.continue": "Continue without EVATEX",
+  "evatex.recovery.copy": "Copy diagnostic report",
+  "evatex.recovery.copied": "Report copied. Full details are in latest.log."
 }

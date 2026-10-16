@@ -24,8 +24,12 @@ public abstract class MenuShortcutMixin implements ShortcutHost {
     @Unique private MenuShortcut.State evatex$layout;
     @Unique private boolean evatex$wasCustom;
     @Inject(method="method_25423",at=@At("TAIL"))
-    private void evatex$afterMenuInit(CallbackInfo ci) { evatex$refreshShortcut(); }
+    private void evatex$afterMenuInit(CallbackInfo ci) { com.videomenu.EvatexRecovery.run("shortcut initialization",this::evatex$refreshShortcut); }
     @Override public void evatex$refreshShortcut() {
+        if(com.videomenu.EvatexRecovery.suspended()) {
+            if(evatex$shortcut!=null){evatex$shortcut.field_22764=false;evatex$shortcut.field_22763=false;}
+            return;
+        }
         class_437 screen=(class_437)(Object)this;
         if (!MenuShortcut.titleMenu(screen)) return;
         if (evatex$shortcut==null || !screen.method_25396().contains(evatex$shortcut)) {
