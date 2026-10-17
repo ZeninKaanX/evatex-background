@@ -1,9 +1,10 @@
 """Exercise both production config implementations in an isolated directory."""
-import os,subprocess,tempfile
+import os,subprocess,tempfile,argparse
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 jdk=Path(os.environ['JAVA_HOME'])/'bin'
-cp=(ROOT/'build/classpath-1.21.11.txt').read_text()
+parser=argparse.ArgumentParser();parser.add_argument('--minecraft',default='1.21.11');args=parser.parse_args()
+cp=(ROOT/('build/classpath-'+args.minecraft+'.txt')).read_text()
 for tree in ('src','src120'):
  with tempfile.TemporaryDirectory(prefix='evatex-config-') as directory:
   work=Path(directory);pkg=work/'com/videomenu';pkg.mkdir(parents=True)

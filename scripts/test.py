@@ -59,4 +59,4 @@ subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'PresentationRegressio
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/RecoveryCircuitRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'RecoveryCircuitRegression'],check=True)
 
-subprocess.run([sys.executable,str(ROOT/'scripts/test_config.py')],check=True)
+subprocess.run([sys.executable,str(ROOT/'scripts/test_config.py'),'--minecraft',version],check=True)
