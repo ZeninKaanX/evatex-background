@@ -17,6 +17,7 @@ import net.minecraft.class_8021;
 public final class MenuShortcut {
     private MenuShortcut() {}
     public static boolean customUi() { return false; }
+    public static boolean optionsMenu(class_437 screen) { return screen instanceof net.minecraft.class_429; }
     public static boolean titleMenu(class_437 screen) {
         if (screen==null || class_310.method_1551().field_1687 != null) return false;
         if (screen instanceof EvatexTitleScreen) return false;
@@ -29,7 +30,8 @@ public final class MenuShortcut {
         List<ShortcutLayout.Rect> result=widgets(screen,shortcut);
         // Logos/splashes and text-only footer notices are not registered widgets.
         int w=screen.field_22789,h=screen.field_22790;
-        result.add(new ShortcutLayout.Rect(w/5,4,w*3/5,Math.min(85,h/3)));
+        if(titleMenu(screen))result.add(new ShortcutLayout.Rect(w/5,4,w*3/5,Math.min(85,h/3)));
+        else result.add(new ShortcutLayout.Rect(0,0,w,32));
         result.add(new ShortcutLayout.Rect(0,Math.max(0,h-8),w,8));
         return result;
     }

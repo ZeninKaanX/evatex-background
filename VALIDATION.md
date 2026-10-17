@@ -1,3 +1,10 @@
+## 1.8.21 validation scope
+
+- Exact-API Fabric 1.21.11 compilation and shared decoder, audio, authenticated local media pipe, focus pause/resume, opaque menu pause/resume and recovery regression checks run locally on Linux.
+- Both config implementations are tested with mixed malformed/duplicate favorites, saved preference round-trips and malformed JSON fallback in temporary directories.
+- Options shortcut UI is checked in an isolated, muted hidden client; see docs/validation/settings-1.8.21.json for the recorded result. No user instance is modified.
+- Build/package matrices and platform upload receipts are recorded separately from runtime checks. New physical Windows/macOS/Lunar or every-version in-world runtime coverage is not claimed.
+
 ## Calm recovery (1.8.20)
 
 Linux x64 hidden clients on the secondary display, audio muted at a saved 10% volume, supplied original 1080p60 Reze input. Injecting an EVATEX button exception on Minecraft 1.21.11 / Loader 0.17.3 and 1.20.1 / Loader 0.16.14 showed the calm recovery screen, stopped video/audio resources, and continued to a native title without reopening the warning. A separate 1.21.11 rendering fault injected into the EVATEX settings screen also recovered through the same notice and continued native title. The pure Java circuit test verifies one-shot handling, preservation of the original cause, and exclusion of JVM-fatal errors.

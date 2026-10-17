@@ -107,7 +107,7 @@ public final class VideoSelectScreen extends class_437 {
   }catch(RuntimeException|LinkageError failure){EvatexRecovery.report("VideoSelectScreen",failure);}
  }
  @Override public void method_25420(class_332 context){}
- @Override public boolean method_25421(){return false;}
+ @Override public boolean method_25421(){return parent!=null && parent.method_25421();}
  @Override public boolean method_25422(){return false;}
  @Override public void method_25394(class_332 ctx,int mx,int my,float delta){
   if(EvatexRecovery.suspended())return;

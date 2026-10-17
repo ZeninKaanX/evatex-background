@@ -53,7 +53,7 @@ Title subclasses and main menu screens with names ending in MainMenu/MainMenuScr
 
 The optional Astral home remains disabled for new and existing installations. When enabled, title screens are replaced through the client lifecycle while no world is loaded. It delegates game operations to captured native title buttons, preserves their disabled state and retains extra title actions. It uses only EVATEX widgets and native rendering, with independent legacy/modern matrix adapters.
 
-## Astral 1.8.20 UI validation
+## Astral 1.8.21 UI validation
 
 All 24 exact-version targets compile. Native-menu actions, return paths, opt-out, compact fallback and restoration after a late foreign control were checked on 1.21.11 and 1.20.1. Home ownership and focus pause/resume were checked on 1.21.11; GUI scales 2 and 3 have 1920×1080 renderer captures. Atlas 3.0.3, Sodium and Mod Menu were checked together on 1.21.11. No physical Windows performance claim is made by these Linux UI checks.
 

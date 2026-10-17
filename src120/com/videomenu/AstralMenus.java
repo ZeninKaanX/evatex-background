@@ -49,7 +49,7 @@ public final class AstralMenus {
     }
     private static void checkOwner(class_437 screen){
         if(!active(screen))return;
-        for(var child:screen.method_25396())if(!state.originalChildren.contains(child)){restore();return;}
+        for(var child:screen.method_25396())if(!state.originalChildren.contains(child) && !(screen instanceof ShortcutHost host && host.evatex$isShortcut(child))){restore();return;}
     }
     public static void prepare(class_437 screen) {
         if(EvatexRecovery.suspended())return;
@@ -62,6 +62,7 @@ public final class AstralMenus {
         if(screen.field_22789<480 || screen.field_22790<270) return; // Native compact layout remains usable.
         var next=new State(screen);next.chromeOnly=!primary;
         for(var child:screen.method_25396()) {
+            if(screen instanceof ShortcutHost host && host.evatex$isShortcut(child))continue;
             // Leave layouts owned by another mod untouched.
             if(!child.getClass().getName().startsWith("net.minecraft."))return;
             next.originalChildren.add(child);

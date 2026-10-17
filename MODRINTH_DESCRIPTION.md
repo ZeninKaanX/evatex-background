@@ -16,7 +16,7 @@ Menu backgrounds also cover credits, game rules and supported Sodium video setti
 
 ## Store and My Library
 
-**Choose a background → Download → Apply.** Version **1.8.20** includes the redesigned Astral Store with **254 backgrounds: 238 photos, 12 animated GIFs and 4 MP4 videos**, including 13 offline EVATEX originals. Browse anime, space, nature, gaming and minimal categories, search and save favourites.
+**Choose a background → Download → Apply.** Version **1.8.21** includes the redesigned Astral Store with **254 backgrounds: 238 photos, 12 animated GIFs and 4 MP4 videos**, including 13 offline EVATEX originals. Browse anime, space, nature, gaming and minimal categories, search and save favourites.
 
 - Download directly into **My Library**. Installed entries show **Downloaded / Apply**; opening a source page is not required.
 - See cached covers for your local videos, GIFs and photos. Video covers are silent single-frame posters generated one at a time.
@@ -26,6 +26,10 @@ Menu backgrounds also cover credits, game rules and supported Sodium video setti
 - Media stays outside the mod JAR. External files download from pinned public source collections with size and Git blob checks; original artist rights apply. This catalogue is mostly still images, not 254 animated videos.
 
 Choose the latest available file matching your Minecraft version and loader from the Versions tab.
+
+## Wallpaper settings while playing
+
+Open Minecraft **Options → Wallpaper settings** from the title or while a world is loaded. The shortcut remains available when in-game wallpapers are disabled. Back returns to the same Options screen; settings and My Library inherit their parent menu’s pause behavior.
 
 ## Recovery
 

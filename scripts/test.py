@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 ROOT=Path(__file__).resolve().parent.parent
 java_home=os.environ.get('JAVA_HOME')
 java=str(Path(java_home)/'bin/java') if java_home else shutil.which('java')
@@ -57,3 +58,5 @@ subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'PresentationRegressio
 # Fatal JVM errors must not be treated as recoverable mod failures.
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/RecoveryCircuitRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'RecoveryCircuitRegression'],check=True)
+
+subprocess.run([sys.executable,str(ROOT/'scripts/test_config.py')],check=True)

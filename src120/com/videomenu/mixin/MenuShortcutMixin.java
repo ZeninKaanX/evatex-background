@@ -25,19 +25,24 @@ public abstract class MenuShortcutMixin implements ShortcutHost {
     @Unique private boolean evatex$wasCustom;
     @Inject(method="method_25423",at=@At("TAIL"))
     private void evatex$afterMenuInit(CallbackInfo ci) { com.videomenu.EvatexRecovery.run("shortcut initialization",this::evatex$refreshShortcut); }
+    @Override public boolean evatex$isShortcut(Object widget) { return widget==evatex$shortcut; }
     @Override public void evatex$refreshShortcut() {
         if(com.videomenu.EvatexRecovery.suspended()) {
             if(evatex$shortcut!=null){evatex$shortcut.field_22764=false;evatex$shortcut.field_22763=false;}
             return;
         }
         class_437 screen=(class_437)(Object)this;
-        if (!MenuShortcut.titleMenu(screen)) return;
+        boolean options=MenuShortcut.optionsMenu(screen);
+        if (!options && !MenuShortcut.titleMenu(screen)) {
+            if(evatex$shortcut!=null){evatex$shortcut.field_22764=false;evatex$shortcut.field_22763=false;}
+            return;
+        }
         if (evatex$shortcut==null || !screen.method_25396().contains(evatex$shortcut)) {
-            evatex$shortcut=method_37063(new AstralButton(4,4,100,14,class_2561.method_43471("evatex.title"),
-                button -> class_310.method_1551().method_1507(new com.videomenu.BackgroundLibraryScreen(screen,true)),false));
+            evatex$shortcut=method_37063(new AstralButton(4,4,100,14,class_2561.method_43471(options ? "evatex.wallpaper_settings" : "evatex.title"),
+                button -> class_310.method_1551().method_1507(options ? new VideoSelectScreen(screen,0) : new com.videomenu.BackgroundLibraryScreen(screen,true)),false));
             evatex$layout=new MenuShortcut.State();
         }
-        if (MenuShortcut.customUi()) {evatex$wasCustom=true;evatex$shortcut.field_22764=false;evatex$shortcut.field_22763=false;return;}
+        if (!options && MenuShortcut.customUi()) {evatex$wasCustom=true;evatex$shortcut.field_22764=false;evatex$shortcut.field_22763=false;return;}
         // Force recovery after a custom UI toggle even when native geometry did not change.
         if (evatex$wasCustom) {evatex$layout=new MenuShortcut.State();evatex$wasCustom=false;}
         evatex$layout.place(screen,evatex$shortcut);

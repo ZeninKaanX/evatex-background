@@ -110,5 +110,6 @@
   "evatex.recovery.saved": "Your media and settings are safe.",
   "evatex.recovery.continue": "Continue without EVATEX",
   "evatex.recovery.copy": "Copy diagnostic report",
-  "evatex.recovery.copied": "Report copied. Full details are in latest.log."
+  "evatex.recovery.copied": "Report copied. Full details are in latest.log.",
+  "evatex.wallpaper_settings": "Wallpaper settings"
 }

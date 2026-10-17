@@ -67,7 +67,7 @@ public final class VideoMenuConfig {
         config.libraryOnlinePreviews = getInt(obj,"libraryPreviewPreferenceVersion",0)<1 || getBoolean(obj, "libraryOnlinePreviews", true);
         var library = obj;
         config.libraryCatalogUrl = getString(library,"libraryCatalogUrl","");
-        if(library.has("libraryFavorites") && library.get("libraryFavorites").isJsonArray()) for(var id:library.getAsJsonArray("libraryFavorites")) if(id.isJsonPrimitive() && id.getAsString().matches("[a-z0-9-]{1,120}") && config.libraryFavorites.size()<1000)config.libraryFavorites.add(id.getAsString());
+        if(library.has("libraryFavorites") && library.get("libraryFavorites").isJsonArray()) for(var id:library.getAsJsonArray("libraryFavorites")) if(id.isJsonPrimitive() && id.getAsJsonPrimitive().isString() && id.getAsString().matches("[a-z0-9-]{1,120}") && config.libraryFavorites.size()<1000 && !config.libraryFavorites.contains(id.getAsString()))config.libraryFavorites.add(id.getAsString());
         config.validate();
         return config;
     }
@@ -148,7 +148,8 @@ public final class VideoMenuConfig {
     }
 
     private static String getString(JsonObject obj, String key, String def) {
-        return obj.has(key) && obj.get(key).isJsonPrimitive() ? obj.get(key).getAsString() : def;
+        try { return obj.has(key) && obj.get(key).isJsonPrimitive() ? obj.get(key).getAsString() : def; }
+        catch (RuntimeException malformed) { return def; }
     }
 
     private static int getInt(JsonObject obj, String key, int def) {

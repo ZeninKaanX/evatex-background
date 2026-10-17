@@ -1,0 +1,17 @@
+{
+  "version": "1.8.21",
+  "minecraft": "1.21.11",
+  "loader": "fabric",
+  "os": "Linux x64",
+  "runtime": "isolated hidden client, muted; no user profile modified",
+  "checks": [
+    "wallpaper settings shortcut in native options",
+    "collision-free shortcut geometry",
+    "Astral options layout retained",
+    "open settings and Back returns to same Options",
+    "parent pause policy retained"
+  ],
+  "world_loaded_runtime_test": false,
+  "note": "World-independent eligibility is implemented without a world-loaded gate; no new in-world runtime claim.",
+  "log_sha256": "b6f2cabf8f62b8269ab175878e9cf2a9fc906187bc37d48b7cc0b82e30d5115e"
+}

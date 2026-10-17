@@ -110,5 +110,6 @@
   "evatex.recovery.saved": "Dosyaların ve ayarların korundu.",
   "evatex.recovery.continue": "EVATEX olmadan devam et",
   "evatex.recovery.copy": "Tanı raporunu kopyala",
-  "evatex.recovery.copied": "Rapor kopyalandı. Ayrıntılar latest.log içinde."
+  "evatex.recovery.copied": "Rapor kopyalandı. Ayrıntılar latest.log içinde.",
+  "evatex.wallpaper_settings": "Duvar kağıdı ayarları"
 }

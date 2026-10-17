@@ -99,7 +99,7 @@ public final class BackgroundLibraryScreen extends class_437 {
  @Override public void method_25432(){closed=true;downloads.cancel();thumbs.close();}
  @Override public void method_25420(class_332 c,int x,int y,float delta){}
  @Override public boolean method_25422(){return false;}
- @Override public boolean method_25421(){return false;}
+ @Override public boolean method_25421(){return parent!=null && parent.method_25421();}
  @Override public void method_25394(class_332 ctx,int mx,int my,float delta){
   if(EvatexRecovery.suspended())return;
   try {

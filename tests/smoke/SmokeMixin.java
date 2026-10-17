@@ -69,6 +69,37 @@ public abstract class SmokeMixin {
             else {evatexqa$capture(client,"font-probe");System.out.println("EVATEX_QA COMPLETE font probe");client.method_1592();}
             return;
         }
+        if(Boolean.getBoolean("evatex.qa.settingsShortcut")) {
+            switch(evatexqa$stage++) {
+                case 0 -> client.method_1507(new net.minecraft.class_429(client.field_1755,client.field_1690));
+                case 1,4 -> {
+                    var options=client.field_1755;
+                    if(!(options instanceof net.minecraft.class_429))throw new AssertionError("Missing native options");
+                    var host=(com.videomenu.ShortcutHost)options;
+                    var shortcut=options.method_25396().stream().filter(host::evatex$isShortcut).findFirst().orElseThrow();
+                    var button=(net.minecraft.class_339)shortcut;
+                    if(!button.field_22764||!button.field_22763)throw new AssertionError("Wallpaper settings shortcut hidden");
+                    var rect=new com.videomenu.ShortcutLayout.Rect(button.method_46426(),button.method_46427(),button.method_25368(),button.method_25364());
+                    if(!com.videomenu.ShortcutLayout.clear(rect,options.field_22789,options.field_22790,com.videomenu.MenuShortcut.occupied(options,button),2))throw new AssertionError("Shortcut overlaps native settings");
+                    if(evatexqa$stage==5 && !com.videomenu.AstralMenus.active(options))throw new AssertionError("Shortcut disabled custom options layout");
+                    evatexqa$capture(client,"wallpaper-shortcut-"+evatexqa$stage);
+                    evatexqa$press((net.minecraft.class_4185)button);
+                    if(!(client.field_1755 instanceof com.videomenu.VideoSelectScreen))throw new AssertionError("Shortcut did not open settings");
+                    if(client.field_1755.method_25421()!=options.method_25421())throw new AssertionError("Settings changed parent pause policy");
+                }
+                case 2,5 -> {
+                    evatexqa$capture(client,"wallpaper-settings-"+evatexqa$stage);
+                    client.field_1755.method_25419();
+                    if(!(client.field_1755 instanceof net.minecraft.class_429))throw new AssertionError("Back did not restore options");
+                }
+                case 3 -> {
+                    var config=com.videomenu.VideoMenuConfig.load();config.customMainMenu=true;config.save();VideoBackground.INSTANCE.reload(config);
+                    client.method_1507(new net.minecraft.class_429(new class_442(),client.field_1690));
+                }
+                default -> {System.out.println("EVATEX_QA COMPLETE options shortcut, collision-free layout, custom styling, settings open/back and inherited pause policy");client.method_1592();}
+            }
+            return;
+        }
         if (Boolean.getBoolean("evatex.qa.recovery")) {
             System.out.println("EVATEX_QA recovery stage="+evatexqa$stage+" screen="+client.field_1755.getClass().getName());
             switch(evatexqa$stage++) {
