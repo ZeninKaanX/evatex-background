@@ -25,6 +25,7 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--versions', nargs='*')
     parser.add_argument('--jobs',type=int,choices=(1,2),default=1)
+    parser.add_argument('--allow-source-preparation',action='store_true',help='Allow early NeoForge SDK source preparation on this machine')
     parser.add_argument('--quota-child',action='store_true',help=argparse.SUPPRESS)
     args=parser.parse_args()
     if args.jobs>1 and not args.quota_child:
@@ -56,6 +57,7 @@ def main():
             print('Building',key,flush=True)
             with log.open('w') as output:
                 command=[sys.executable,str(ROOT/'scripts/build_native.py'),'--loader',loader,'--minecraft',version]
+                if args.allow_source_preparation:command.append('--allow-source-preparation')
                 if args.jobs==1:command=['systemd-run','--user','--scope','--quiet','-p','CPUQuota=70%','-p','MemoryHigh=2200M','nice','-n','19',*command]
                 task=subprocess.run(command,cwd=ROOT,env=env,stdout=output,stderr=subprocess.STDOUT)
             save(key,{'status':'compiled' if task.returncode==0 else 'failed','mod_version':MOD_VERSION,'inputs_sha256':fingerprint,'seconds':round(time.time()-started),'log':str(log),'artifact':str(artifact) if task.returncode==0 else None})

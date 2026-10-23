@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.21
+# EVATEX-Background — Astral 1.8.22
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -7,6 +7,12 @@ Replace Minecraft's title screen, multiplayer server selection, world selection,
 [Storm showcase](https://youtube.com/shorts/8T6LuZ1WGZk) · [Cinematic trailer](https://youtube.com/shorts/g33no30jfzI) · [Official showcase](https://youtube.com/shorts/EzglUlDrTkI).
 
 ![Own black-and-white Astral interface in Minecraft](docs/astral-interface.png)
+
+## Discord activity
+
+With desktop Discord running, EVATEX can show **Using EVATEX Background** automatically. Its activity offers a **View on Modrinth** link to [EVATEX Background](https://modrinth.com/mod/evatex-background). Turn activity on or off in the **Menus** settings. No player application ID, Discord user ID or token is required.
+
+With **Volt 0.7.1 or newer** installed, the two mods coordinate: **EVATEX in menus, Clipped with Volt in a world or server**, then EVATEX again after disconnecting. With EVATEX alone, its activity can remain visible while playing. Discord must allow activity sharing; image links and buttons may appear differently in each Discord client view.
 
 ## Store and My Library
 

@@ -60,3 +60,6 @@ subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'test
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'RecoveryCircuitRegression'],check=True)
 
 subprocess.run([sys.executable,str(ROOT/'scripts/test_config.py'),'--minecraft',version],check=True)
+
+subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/DiscordPresenceRegression.java")],check=True)
+subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"com.videomenu.DiscordPresenceRegression"],check=True)

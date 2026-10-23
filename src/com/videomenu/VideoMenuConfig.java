@@ -17,6 +17,7 @@ public final class VideoMenuConfig {
     public int fps = 30;
     public double scale = 1.0;
     public boolean enabled = true;
+    public boolean discordPresence = true;
     public boolean libraryOnlinePreviews = true;
     public String libraryCatalogUrl = "";
     public java.util.List<String> libraryFavorites = new java.util.ArrayList<>();
@@ -54,6 +55,7 @@ public final class VideoMenuConfig {
             config.hardwareAcceleration = getBoolean(obj, "hardwareAcceleration", true);
             config.audioVolume = getDouble(obj,"audioVolume",1.0);
             config.maxDecodeHeight = getInt(obj, "maxDecodeHeight", 1080);
+            config.discordPresence = getBoolean(obj,"discordPresence",true);
             config.enabled = getBoolean(obj, "enabled", true);
             config.fillScreen = getBoolean(obj, "fillScreen", true);
             config.videoPath = VideoMenuConfig.getString(obj, "videoPath", config.videoPath);
@@ -85,6 +87,7 @@ public final class VideoMenuConfig {
         copy.themeTransitions = themeTransitions;
         copy.audioEnabled = audioEnabled; copy.audioVolume=audioVolume; copy.maxDecodeHeight = maxDecodeHeight;
         copy.hardwareAcceleration = hardwareAcceleration;
+        copy.discordPresence=discordPresence;
         copy.enabled = enabled; copy.fillScreen = fillScreen;
         copy.validate();
         return copy;
@@ -134,6 +137,7 @@ public final class VideoMenuConfig {
         obj.addProperty("customMainMenu", customMainMenu);
         obj.addProperty("themeTransitions", themeTransitions);
         obj.addProperty("enabled", enabled);
+        obj.addProperty("discordPresence",discordPresence);
         obj.addProperty("audioEnabled", audioEnabled);
         obj.addProperty("hardwareAcceleration", hardwareAcceleration);
             obj.addProperty("audioVolume", audioVolume);

@@ -12,7 +12,7 @@ public final class VideoSelectScreen extends class_437 {
  private static final double[] QUALITY={.25,.5,.75,1};
  private static final int[] FPS={15,24,30,45,60,90,120},LIMITS={720,1080,1440,2160,4320};
  private static final double[] DARK={0,.15,.25,.4,.6,.8};
- private static final int[][] CATEGORIES={{0,1,2,3,4,5},{6,7,8,9},{10,11,15,12,13,14}};
+ private static final int[][] CATEGORIES={{0,1,2,3,4,5},{6,7,8,9},{10,11,15,12,13,16,14}};
  private static final String[] CATEGORY_KEYS={"playback","appearance","menus"};
  private final class_437 parent;private VideoMenuConfig config;private int settingsPage;
  private int margin,side,contentX,contentW,columns,cardW,rows,cardH,top;
@@ -74,6 +74,7 @@ public final class VideoSelectScreen extends class_437 {
             case 11 -> text("options_background",onOff(config.optionsMenuBackground));
             case 12 -> text("menu_meteors",onOff(config.menuMeteors));
             case 13 -> text("custom_main_menu",onOff(config.customMainMenu));
+            case 16 -> text("discord_activity",onOff(config.discordPresence));
             case 15 -> text("ingame_background",onOff(config.inGameMenuBackground));
             case 14 -> text(diagnosticCopied ? "diagnostics_copied" : "diagnostics_copy");
             default -> text("volume",Math.round(config.audioVolume*100));
@@ -94,13 +95,14 @@ public final class VideoSelectScreen extends class_437 {
             case 11 -> config.optionsMenuBackground=!config.optionsMenuBackground;
             case 12 -> config.menuMeteors=!config.menuMeteors;
             case 13 -> config.customMainMenu=!config.customMainMenu;
+            case 16 -> config.discordPresence=!config.discordPresence;
             case 15 -> config.inGameMenuBackground=!config.inGameMenuBackground;
         }
     }
 
  private AstralButton add(int x,int y,int w,int h,class_2561 label,class_4185.class_4241 action,boolean selected){return method_37063(new AstralButton(x,y,w,h,label,action,selected).astralSurface(false));}
  private void rebuild(){int focus=method_25396().indexOf(method_25399());method_37067();method_25426();if(focus>=0&&focus<method_25396().size())method_48265(method_25396().get(focus));}
- private void apply(){config.save();AstralTheme.animations(config.themeTransitions);VideoBackground.INSTANCE.reload(config);rebuild();}
+ private void apply(){config.save();EvatexDiscord.configure(config);AstralTheme.animations(config.themeTransitions);VideoBackground.INSTANCE.reload(config);rebuild();}
  @Override public void method_25419(){
   if(EvatexRecovery.suspended())return;
   try {if(volumeDirty)config.save();field_22787.method_1507(parent);

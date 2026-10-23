@@ -40,5 +40,5 @@ public abstract class MinecraftClientMixin {
             ((class_310)(Object)this).field_1687 != null));
     }
     @Inject(method = "method_1490", at = @At("HEAD"))
-    private void evatex$shutdown(CallbackInfo ci) { VideoBackground.INSTANCE.close(); }
+    private void evatex$shutdown(CallbackInfo ci) { com.videomenu.EvatexDiscord.close(); VideoBackground.INSTANCE.close(); }
 }

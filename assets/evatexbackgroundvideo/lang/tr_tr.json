@@ -111,5 +111,6 @@
   "evatex.recovery.continue": "EVATEX olmadan devam et",
   "evatex.recovery.copy": "Tanı raporunu kopyala",
   "evatex.recovery.copied": "Rapor kopyalandı. Ayrıntılar latest.log içinde.",
-  "evatex.wallpaper_settings": "Duvar kağıdı ayarları"
+  "evatex.wallpaper_settings": "Duvar kağıdı ayarları",
+  "evatex.discord_activity": "Discord etkinliği: %s"
 }

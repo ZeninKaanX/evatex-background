@@ -1,0 +1,5 @@
+[22:05:27] [Render thread/INFO]: [STDOUT]: VOLT_RUNTIME fullscreen=true framebuffer=1280x800
+[22:05:38] [Render thread/INFO]: [STDOUT]: VOLT_DISCORD_HANDOFF initial menu volt=volt.discord.menu evatex=evatex.discord.connected owner=evatex:0b3a565d-ca25-43fc-876a-7ff147c0538a
+[22:05:47] [Render thread/INFO]: [STDOUT]: VOLT_DISCORD_HANDOFF world volt=volt.discord.connected evatex=evatex.discord.waiting owner=volt:2dab913b-49a7-46f7-a05c-35a55ca6ece2
+[22:05:57] [Render thread/INFO]: [STDOUT]: VOLT_SESSION_SAFETY saved after disconnect, world=Volt Smoke seconds=3.3133024979999997 encoder=h264_vaapi
+[22:05:57] [Render thread/INFO]: [STDOUT]: VOLT_DISCORD_HANDOFF returned menu volt=volt.discord.menu evatex=evatex.discord.connected owner=evatex:0b3a565d-ca25-43fc-876a-7ff147c0538a

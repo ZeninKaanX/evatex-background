@@ -1,3 +1,14 @@
+# 1.8.22 — Discord activity and black-hole identity (pending user validation)
+
+- Show EVATEX Background in desktop Discord automatically using the publisher application. Players never enter an application ID, user ID or token.
+- Add a Discord activity toggle in the Menus settings and retain the choice across updates.
+- When paired with Volt 0.7.1 or newer, show EVATEX in menus and Clipped with Volt inside a world/server. Return to EVATEX after disconnecting; EVATEX also works while playing when Volt is absent or its activity is disabled.
+- Link the EVATEX activity image/details and View on Modrinth button to the project page.
+- Use the approved detailed black-hole icon for the mod and Discord application.
+- Keep IPC and reconnect work in daemon background workers; clear activity before handing it to the other mod or shutting down.
+
+Compatibility builds and validation are in progress. Release publication waits for the user's Minecraft 1.21.11 test and approval.
+
 ## 1.8.21 — Wallpaper settings wherever you play
 
 - Open **Wallpaper settings** directly from Minecraft's **Options** screen, including while a world is loaded. Access stays available when in-game wallpapers are disabled.

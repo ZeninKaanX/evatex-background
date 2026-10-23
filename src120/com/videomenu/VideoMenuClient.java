@@ -17,6 +17,7 @@ public final class VideoMenuClient implements ClientModInitializer {
         VideoMenuConfig config = VideoMenuConfig.load();
         AstralTheme.animations(config.themeTransitions);
         VideoBackground.INSTANCE.init(config);
+        EvatexDiscord.configure(config);
         });
     }
 }
