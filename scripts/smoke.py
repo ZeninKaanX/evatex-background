@@ -12,6 +12,8 @@ from named_port import symbols, translate
 ROOT=Path(__file__).resolve().parent.parent
 parser=argparse.ArgumentParser()
 parser.add_argument('--assets',required=True,type=Path)
+parser.add_argument('--engine-setup',action='store_true')
+parser.add_argument('--external-engine',action='store_true')
 parser.add_argument('--atlas',type=Path)
 parser.add_argument('--video',type=Path,help='Use supplied video as-is, without generating/resizing a fixture')
 parser.add_argument('--video-fps',type=int,choices=(15,24,30,45,60,90,120),default=30)
@@ -153,7 +155,7 @@ with zipfile.ZipFile(mods/'evatex-qa.jar','w') as z:
         for density in (1,2,3,4,8,16):
             z.writestr(f'assets/evatexbackgroundvideo/font/ui/probe{density}.json',json.dumps({'providers':[{'type':'ttf','file':'evatexbackgroundvideo:ui.ttf','size':9,'oversample':density,'shift':[0,0]}]}))
 suffix='' if args.bundled else '-system-ffmpeg'
-shutil.copyfile(ROOT/'build/dist'/f'evatex-background-video-{MOD_VERSION}-mc{version}{suffix}.jar',mods/'evatex.jar')
+shutil.copyfile(ROOT/('build/curseforge-dist' if args.external_engine else 'build/dist')/f'evatex-background-video-{MOD_VERSION}-mc{version}{"" if args.external_engine else suffix}.jar',mods/'evatex.jar')
 if args.sodium: shutil.copyfile(args.sodium,mods/'sodium.jar')
 if args.atlas:
     shutil.copyfile(args.atlas,mods/'atlas-client.jar')
@@ -207,7 +209,7 @@ if args.loader:
         runtime_parts.append(str(fetch(lib.get('url','https://maven.fabricmc.net/')+path,ROOT/'build/dependencies'/path)))
     runtime_cp=os.pathsep.join(runtime_parts)
     print('QA actual Fabric Loader:',args.loader,flush=True)
-command=[str(java),'-Xmx2G','-Devatex.qa.settingsShortcut='+str(args.settings_shortcut).lower(),'-Devatex.qa.recovery='+str(args.recovery).lower(),'-Devatex.qa.recoveryKind='+args.recovery_kind,'-Devatex.qa.loaderCompatibility='+str(args.loader_compatibility).lower(),'-Dfabric.log.disableAnsi=true','-Devatex.qa.reviewDiagnostics='+str(args.review_diagnostics).lower(),'-Devatex.qa.fontProbe='+str(args.font_probe).lower(),'-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
+command=[str(java),'-Devatex.qa.engineSetup='+str(args.engine_setup).lower(),'-Xmx2G','-Devatex.qa.settingsShortcut='+str(args.settings_shortcut).lower(),'-Devatex.qa.recovery='+str(args.recovery).lower(),'-Devatex.qa.recoveryKind='+args.recovery_kind,'-Devatex.qa.loaderCompatibility='+str(args.loader_compatibility).lower(),'-Dfabric.log.disableAnsi=true','-Devatex.qa.reviewDiagnostics='+str(args.review_diagnostics).lower(),'-Devatex.qa.fontProbe='+str(args.font_probe).lower(),'-Devatex.qa.language='+args.language,'-Devatex.qa.extendedMenus='+str(args.extended_menus).lower(),'-Devatex.qa.reportedMenus='+str(args.reported_menus).lower(),'-Devatex.qa.hiddenWindow='+str(args.hidden_window).lower(),'-Devatex.qa.homeMenu='+str(args.home_menu).lower(),'-Devatex.qa.collisionLayout='+str(args.collision_layout).lower(),'-Devatex.qa.shortcutOnly='+str(args.shortcut_only).lower(),'-Devatex.qa.width='+str(args.width),'-Devatex.qa.height='+str(args.height),'-Devatex.qa.stageTicks='+('30' if args.quick else '100'),'-cp',runtime_cp,'net.fabricmc.loader.impl.launch.knot.KnotClient','--username',args.username,'--version',version,'--gameDir',str(run),'--assetsDir',str(args.assets),'--assetIndex',index,'--accessToken','0','--uuid','00000000000000000000000000000000','--userType','legacy','--versionType','release','--width',str(args.width),'--height',str(args.height)]
 log=run/'launch.log'
 print('Launching isolated test:',run,flush=True)
 with log.open('w') as output:

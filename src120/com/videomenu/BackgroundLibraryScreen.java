@@ -82,7 +82,7 @@ public final class BackgroundLibraryScreen extends class_437 {
   }
   downloads.download(entry).whenComplete((path,error)->{if(!closed){if(error==null)ready=path;else transferError=label(downloads.progress().phase().equals("cancelled")?"cancelled":"download_error");}});rebuild();
  }
- private void apply(Path path){config.videoPath=path.toString();config.save();com.videomenu.video.VideoBackground.INSTANCE.reload(config);status=label("applied");}
+ private void apply(Path path){config.videoPath=path.toString();config.save();if(!VideoFiles.isStillImage(path)&&com.videomenu.video.ExternalVideoEngine.needsSetup(EvatexPlatform.gameDir())){field_22787.method_1507(new VideoEngineScreen(this));return;}com.videomenu.video.VideoBackground.INSTANCE.reload(config);status=label("applied");}
  private String catalogueAddress(){return config.libraryCatalogUrl.isBlank()?LibraryCatalog.DEFAULT_URL:config.libraryCatalogUrl;}
  public void refreshCatalogue(){if(refreshing)return;refreshing=true;status=label("refreshing");rebuild();LibraryCatalog.refresh(catalogueAddress()).whenComplete((list,error)->{if(!closed){if(error==null)refreshed=list;else transferError=label("catalog_error");}});}
  private void autoRefreshCatalogue(){

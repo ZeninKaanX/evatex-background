@@ -1,0 +1,48 @@
+{
+  "win64": {
+    "url": "https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip",
+    "archive_sha256": "60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba",
+    "binary_sha256": "3256173f3f8bffd7df12227c68adf68025edb1832273a9530688a7bb1ed8edec",
+    "size": 114768076,
+    "format": "zip",
+    "entry": "ffmpeg-9.0.2-essentials_build/bin/ffmpeg.exe",
+    "source": "https://www.gyan.dev/ffmpeg/builds/",
+    "license": "GPL-3.0-or-later",
+    "source_code": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
+    "legacy_sha256": "227af0691433b703ffc5725e47f7d06eefc34b4a72e7870e73d30e2cda483ecf"
+  },
+  "darwin-arm64": {
+    "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-darwin-arm64.gz",
+    "archive_sha256": "8923876afa8db5585022d7860ec7e589af192f441c56793971276d450ed3bbfa",
+    "binary_sha256": "a90e3db6a3fd35f6074b013f948b1aa45b31c6375489d39e572bea3f18336584",
+    "format": "gzip",
+    "source": "https://github.com/eugeneware/ffmpeg-static",
+    "license": "GPL-3.0-or-later"
+  },
+  "darwin-x64": {
+    "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-darwin-x64.gz",
+    "archive_sha256": "929b375c1182d956c51f7ac25e0b2b0411fb01f6f407aa15c9758efeb4242106",
+    "binary_sha256": "ebdddc936f61e14049a2d4b549a412b8a40deeff6540e58a9f2a2da9e6b18894",
+    "format": "gzip",
+    "source": "https://github.com/eugeneware/ffmpeg-static",
+    "license": "GPL-3.0-or-later"
+  },
+  "linux-arm64": {
+    "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-linux-arm64.gz",
+    "archive_sha256": "754a678672298bc68156adff58aa7385a592c2b30b1d0ae8750c45c915c4bac0",
+    "binary_sha256": "6bb182d0d75d23028db82e9e4f723ca69b853d055698486e6984ddb2c06fb8ce",
+    "format": "gzip",
+    "source": "https://github.com/eugeneware/ffmpeg-static",
+    "license": "GPL-3.0-or-later"
+  },
+  "linux64": {
+    "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-linux-x64.gz",
+    "archive_sha256": "bfe8a8fc511530457b528c48d77b5737527b504a3797a9bc4866aeca69c2dffa",
+    "binary_sha256": "e7e7fb30477f717e6f55f9180a70386c62677ef8a4d4d1a5d948f4098aa3eb99",
+    "size": 29354986,
+    "format": "gzip",
+    "source": "https://github.com/eugeneware/ffmpeg-static",
+    "license": "GPL-3.0-or-later",
+    "legacy_sha256": "2b26abaeae8ee4604544d02d4e0e1becfbbfffda45338f9466313b26c1b4fb25"
+  }
+}

@@ -32,6 +32,8 @@ subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.R
 
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/AudioRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.AudioRegression'],check=True)
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/ExternalVideoEngineRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.ExternalVideoEngineRegression'],check=True)
 # Check resource namespace and parity; Minecraft supplies built-in gui/options labels.
 keys=set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/en_us.json').read_text()))
 assert keys==set(json.loads((ROOT/'assets/evatexbackgroundvideo/lang/tr_tr.json').read_text()))

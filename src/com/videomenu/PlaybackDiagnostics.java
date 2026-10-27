@@ -18,6 +18,8 @@ final class PlaybackDiagnostics {
             +"Java: "+System.getProperty("java.version")+"\nGPU renderer: "+gpu+"\n"
             +VideoBackground.INSTANCE.diagnosticPlayback()
             +EvatexDiscord.diagnostics()
+            +"Video engine distribution: "+(com.videomenu.video.ExternalVideoEngine.externalDistribution()?"external":"bundled")+"\n"
+            +"Video engine setup: "+com.videomenu.video.ExternalVideoEngine.state+"\n"
             +"Configured FPS: "+config.fps+"\nDecode height limit: "+config.maxDecodeHeight
             +"\nResolution scale: "+config.scale+"\nHardware acceleration requested: "+config.hardwareAcceleration
             +"\nInstalled mod count: "+EvatexPlatform.modCount()+"\n"

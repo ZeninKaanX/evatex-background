@@ -47,7 +47,7 @@
   "evatex.category.appearance": "Görünüm",
   "evatex.category.menus": "Menüler",
   "evatex.status.engine_blocked": "İşletim sistemi oynatma motorunu engelledi; günlüğü kontrol edin",
-  "evatex.status.engine_missing": "Oynatma motoru bulunamadı; günlüğü kontrol edin",
+  "evatex.status.engine_missing": "FFmpeg kurmak için EVATEX Ayarları > Video motoru",
   "evatex.diagnostics_copy": "Tanı raporunu kopyala",
   "evatex.diagnostics_copied": "Tanı raporu kopyalandı",
   "evatex.ingame_background": "Oyun içi ayarlarda arka plan: %s",
@@ -112,5 +112,17 @@
   "evatex.recovery.copy": "Tanı raporunu kopyala",
   "evatex.recovery.copied": "Rapor kopyalandı. Ayrıntılar latest.log içinde.",
   "evatex.wallpaper_settings": "Duvar kağıdı ayarları",
-  "evatex.discord_activity": "Discord etkinliği: %s"
+  "evatex.discord_activity": "Discord etkinliği: %s",
+  "evatex.engine.title": "Video motoru",
+  "evatex.engine.body": "Video ve GIF oynatmak için FFmpeg gerekir.",
+  "evatex.engine.consent": "İsteğe bağlı doğrulanan indirme: en fazla 115 MB.",
+  "evatex.engine.manual": "Alternatif: .evatex-ffmpeg/bin veya sistem PATH.",
+  "evatex.engine.download": "Motoru indir",
+  "evatex.engine.idle": "İsteğe bağlı kurulum · fotoğraflar FFmpeg gerektirmez",
+  "evatex.engine.downloading": "İndiriliyor ve doğrulanıyor",
+  "evatex.engine.failed": "Kurulum başarısız. Bağlantını kontrol edip tekrar dene.",
+  "evatex.engine.ready": "Video motoru hazır",
+  "evatex.engine.setting": "Video motoru",
+  "evatex.engine.open": "Kur",
+  "evatex.engine.source": "Kaynak: GitHub üzerinde Gyan / ffmpeg-static."
 }

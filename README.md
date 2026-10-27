@@ -1,4 +1,6 @@
-# EVATEX-Background — Astral 1.8.25
+# EVATEX-Background — Astral 1.8.26
+
+**CurseForge distribution:** FFmpeg is installed separately with an optional, checksum-verified Download engine button. Photos work without it. See [Video engine setup](docs/VIDEO-ENGINE.md). The JAR contains no bundled executable. Modrinth bundled packages retain their existing behavior.
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 

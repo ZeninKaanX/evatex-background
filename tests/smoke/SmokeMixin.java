@@ -64,6 +64,27 @@ public abstract class SmokeMixin {
         int stageTicks=Integer.getInteger("evatex.qa.stageTicks",100);
         if (++evatexqa$ticks<(evatexqa$stage==0 ? stageTicks*3 : stageTicks)) return;
         evatexqa$ticks=0;
+        if(Boolean.getBoolean("evatex.qa.engineSetup")) {
+            switch(evatexqa$stage++) {
+                case 0 -> client.method_1507(new com.videomenu.VideoEngineScreen(new class_442()));
+                case 1 -> {
+                    if(!(client.field_1755 instanceof com.videomenu.VideoEngineScreen))throw new AssertionError("Missing engine screen");
+                    if(!com.videomenu.video.ExternalVideoEngine.externalDistribution())throw new AssertionError("Missing external-engine marker");
+                    if(!com.videomenu.video.ExternalVideoEngine.state.equals("idle"))throw new AssertionError("Engine download started without a click");
+                    evatexqa$capture(client,"engine-setup");
+                    if(Boolean.getBoolean("evatex.qa.engineInstall"))evatexqa$press((net.minecraft.class_4185)client.field_1755.method_25396().stream().filter(x->x instanceof net.minecraft.class_4185).findFirst().orElseThrow());
+                    else client.field_1755.method_25419();
+                }
+                case 2 -> {
+                    if(Boolean.getBoolean("evatex.qa.engineInstall")){
+                        if(!com.videomenu.video.ExternalVideoEngine.state.equals("ready"))throw new AssertionError("Engine setup did not complete");
+                        evatexqa$capture(client,"engine-ready");client.field_1755.method_25419();
+                    }
+                }
+                default -> {if(!(client.field_1755 instanceof class_442))throw new AssertionError("Engine Back failed");System.out.println("EVATEX_QA COMPLETE external-engine setup, opt-in boundary and Back");client.method_1592();}
+            }
+            return;
+        }
         if(Boolean.getBoolean("evatex.qa.fontProbe")) {
             if(evatexqa$stage++==0)try {client.method_1507((class_437)Class.forName("evatextest.FontProbeScreen").getConstructor().newInstance());}catch(Exception e){throw new RuntimeException(e);}
             else {evatexqa$capture(client,"font-probe");System.out.println("EVATEX_QA COMPLETE font probe");client.method_1592();}

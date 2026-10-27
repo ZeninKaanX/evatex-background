@@ -12,7 +12,7 @@ public final class VideoSelectScreen extends class_437 {
  private static final double[] QUALITY={.25,.5,.75,1};
  private static final int[] FPS={15,24,30,45,60,90,120},LIMITS={720,1080,1440,2160,4320};
  private static final double[] DARK={0,.15,.25,.4,.6,.8};
- private static final int[][] CATEGORIES={{0,1,2,3,4,5},{6,7,8,9},{10,11,15,12,13,16,14}};
+ private static final int[][] CATEGORIES={com.videomenu.video.ExternalVideoEngine.externalDistribution()?new int[]{0,1,2,3,4,5,17}:new int[]{0,1,2,3,4,5},{6,7,8,9},{10,11,15,12,13,16,14}};
  private static final String[] CATEGORY_KEYS={"playback","appearance","menus"};
  private final class_437 parent;private VideoMenuConfig config;private int settingsPage;
  private int margin,side,contentX,contentW,columns,cardW,rows,cardH,top;
@@ -43,8 +43,8 @@ public final class VideoSelectScreen extends class_437 {
    if(setting==2){
     int sliderW=Math.max(80,cardW/2);method_37063(new AstralVolumeSlider(x+cardW-sliderW-8,cy,sliderW,24,config.audioVolume,value->{config.audioVolume=value;volumeDirty=true;volumeChangedAt=System.nanoTime();VideoBackground.INSTANCE.reload(config);}));
    }else{
-    String label=settingLabel(setting).getString();int colon=label.lastIndexOf(":");String value=colon>=0?label.substring(colon+1).strip():text(diagnosticCopied?"diagnostics_copied":"settings_copy").getString();
-    add(x+cardW-chipW-8,cy,chipW,24,settingLabel(setting),b->{if(setting==14){field_22787.field_1774.method_1455(PlaybackDiagnostics.report(config));diagnosticCopied=true;rebuild();}else{changeSetting(setting);apply();}},false).caption(value);
+    String label=settingLabel(setting).getString();int colon=label.lastIndexOf(":");String value=colon>=0?label.substring(colon+1).strip():text(setting==17?"engine.open":diagnosticCopied?"diagnostics_copied":"settings_copy").getString();
+    add(x+cardW-chipW-8,cy,chipW,24,settingLabel(setting),b->{if(setting==14){field_22787.field_1774.method_1455(PlaybackDiagnostics.report(config));diagnosticCopied=true;rebuild();}else if(setting==17){field_22787.method_1507(new VideoEngineScreen(this));}else{changeSetting(setting);apply();}},false).caption(value);
    }
   }
   int footer=field_22790-36;add(margin,footer,side,20,class_2561.method_43471("gui.back"),b->method_25419(),false);
@@ -58,7 +58,7 @@ public final class VideoSelectScreen extends class_437 {
  private void openLibrary(boolean local){if(volumeDirty){config.save();volumeDirty=false;}if(parent instanceof BackgroundLibraryScreen library){field_22787.method_1507(library);library.openTab(local);}else field_22787.method_1507(new BackgroundLibraryScreen(parent,local));}
  private List<int[]> settingGroups(){var groups=new ArrayList<int[]>();int capacity=Math.max(1,Math.min(6,columns*rows));for(var section:CATEGORIES)for(int start=0;start<section.length;start+=capacity)groups.add(Arrays.copyOfRange(section,start,Math.min(section.length,start+capacity)));return groups;}
  private int pageForSetting(int target){var groups=settingGroups();for(int i=0;i<groups.size();i++)for(int setting:groups.get(i))if(setting==target)return i;return 0;}
- private String categoryKey(){int first=settingGroups().get(settingsPage)[0];return CATEGORY_KEYS[first<6?0:first<10?1:2];}
+ private String categoryKey(){int first=settingGroups().get(settingsPage)[0];return CATEGORY_KEYS[first<6||first==17?0:first<10?1:2];}
     private class_2561 settingLabel(int i) {
         return switch(i) {
             case 0 -> text("enabled",onOff(config.enabled));
@@ -75,6 +75,7 @@ public final class VideoSelectScreen extends class_437 {
             case 12 -> text("menu_meteors",onOff(config.menuMeteors));
             case 13 -> text("custom_main_menu",onOff(config.customMainMenu));
             case 16 -> text("discord_activity",onOff(config.discordPresence));
+            case 17 -> text("engine.setting");
             case 15 -> text("ingame_background",onOff(config.inGameMenuBackground));
             case 14 -> text(diagnosticCopied ? "diagnostics_copied" : "diagnostics_copy");
             default -> text("volume",Math.round(config.audioVolume*100));

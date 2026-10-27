@@ -140,3 +140,17 @@ See [the review](docs/verification/playback-1.8.23/README.md) and [coverage reco
 ## 1.8.24 Windows Discord transport
 
 The native Windows named-pipe regression passed in [GitHub run 40427109564](https://github.com/ZeninKaanX/evatex-background-video-1.8.2/actions/runs/40427109564) for source commit `12c6668`. It exercises the production Java transport against a unique Win32 byte-mode pipe using fragmented READY messages, activity acknowledgements, ping/pong, disable/clear and reconnect. Linux IPC ownership/handoff and the full playback regression suite also pass locally. This is transport validation, not a screenshot of the Discord UI or a physical Windows GPU benchmark.
+
+## 1.8.26 CurseForge external-engine distribution
+
+The previous 1.8.25 CurseForge submissions were rejected because the JAR included FFmpeg executables. Upload/hash verification had not established moderation approval. The corrected packaging profile removes the entire bundled-engine directory, does not hide engines inside compressed resources, and recursively checks nested JARs for executable payloads.
+
+Validation performed 28 October 2026:
+
+- Full decoder/IPC regression suites passed for Minecraft 1.21.11 and 1.20.1 source variants, including the new external-engine ZIP/gzip, hostile URL, archive/binary checksum, interruption cleanup and existing-file preservation checks.
+- Actual Windows 11 / Java 21.0.9: a fresh instance downloaded the pinned Gyan FFmpeg 9.0.2 engine, launched it and processed a one-second test source. `scale_d3d11` was present. A second setup reused the cache with zero downloaded bytes. This is a real Windows process test, not a physical-GPU benchmark or a complete Windows Minecraft session.
+- Actual Minecraft 1.21.11 hidden-window GUI checks rendered the external-engine setup in English and Turkish, confirmed opening the screen did not download anything, exercised the explicit button against a verified cache, and returned through Back. Software rendering was used; host sound was disabled and the host game was not controlled. Routine offline-login/Realms and missing optional narrator messages are unrelated to this feature.
+- Package checker rejects `.exe`, scripts, native libraries, compressed engines, executable magic and nested executable files. The primary Fabric CurseForge package is approximately 2.2 MiB.
+- Modrinth's bundled-engine path remains available; external installation is activated only by the explicit CurseForge distribution resource marker.
+
+Evidence: sibling `curseforge-engine-release-20261028` logs, `windows-discord-live-20261027/results/engine-result.json`, and the isolated smoke screenshots. An upload is not reported as approved; the corrected first package must pass moderation before the remaining packages are submitted.

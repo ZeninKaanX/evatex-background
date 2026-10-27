@@ -42,7 +42,7 @@ public final class VideoBackground {
     public String status(){return !foreground&&decoder!=null?"paused":presentationSuppressed&&decoder!=null?"paused":status;}
     public synchronized void setForeground(boolean value){foreground=value;updatePlaybackMode();}
     public synchronized void setPresentationFor(net.minecraft.class_437 screen){
-        presentationSuppressed=(screen instanceof com.videomenu.BackgroundLibraryScreen||screen instanceof com.videomenu.VideoSelectScreen);
+        presentationSuppressed=(screen instanceof com.videomenu.BackgroundLibraryScreen||screen instanceof com.videomenu.VideoEngineScreen || screen instanceof com.videomenu.VideoSelectScreen);
         updatePlaybackMode();
     }
     private void updatePlaybackMode(){
@@ -67,7 +67,7 @@ public final class VideoBackground {
         return com.videomenu.MenuPlaybackPolicy.allows(worldLoaded,
             config != null && config.inGameMenuBackground,
             screen instanceof net.minecraft.class_442 || screen instanceof net.minecraft.class_500,
-            decoratesMenu(screen), screen instanceof com.videomenu.VideoSelectScreen || screen instanceof com.videomenu.BackgroundLibraryScreen);
+            decoratesMenu(screen), screen instanceof com.videomenu.VideoEngineScreen || screen instanceof com.videomenu.VideoSelectScreen || screen instanceof com.videomenu.BackgroundLibraryScreen);
     }
     public boolean decoratesMenu(net.minecraft.class_437 screen) {
         VideoMenuConfig settings = config;
@@ -126,6 +126,7 @@ public final class VideoBackground {
         if (restart) restart();
         else if (decoder != null) {decoder.setAudioEnabled(next.audioEnabled);decoder.setAudioVolume(next.audioVolume);}
     }
+    public synchronized void retryPlayback() { restart(); }
     private void restart() {
         long session = ++generation;
         pendingWidth = pendingHeight = 0; viewportChangedAt = 0;

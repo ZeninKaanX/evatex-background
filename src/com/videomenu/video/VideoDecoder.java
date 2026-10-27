@@ -505,7 +505,7 @@ public final class VideoDecoder {
         if(message.contains("error=5") || error instanceof java.nio.file.AccessDeniedException || message.contains("permission denied"))return "engine_blocked";
         for(Throwable suppressed:error.getSuppressed())if(engineFailure(suppressed,depth+1).equals("engine_blocked"))return "engine_blocked";
         if(engineFailure(error.getCause(),depth+1).equals("engine_blocked"))return "engine_blocked";
-        return message.contains("cannot run program") || message.contains("error=2") ? "engine_missing" : "error";
+        return message.contains("video engine not installed") || message.contains("cannot run program") || message.contains("error=2") ? "engine_missing" : "error";
     }
     private int[] probeSize(Path file) {
         return this.probeWithFfmpeg(file);
@@ -573,7 +573,8 @@ public final class VideoDecoder {
             catch(IOException missing){missing.addSuppressed(e);throw missing;}
         }
     }
-    private static synchronized String ffmpegPath() {
+    private static synchronized String ffmpegPath() throws IOException {
+        if (ExternalVideoEngine.externalDistribution()) return ExternalVideoEngine.resolve(EvatexPlatform.gameDir()).toString();
         if (systemOnly) return "ffmpeg";
         Path bundled = VideoDecoder.bundledFfmpeg;
         if (bundled == null) {
