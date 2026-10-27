@@ -27,6 +27,9 @@ for extension in ['png','jpg','bmp']:
 classpath=os.pathsep.join([str(classes),cp.read_text()])
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/DecoderRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'DecoderRegression',str(video)],check=True)
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/RenderingFailureCleanupRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.RenderingFailureCleanupRegression',str(video)],check=True)
+
 subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/AudioRegression.java')],check=True)
 subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.AudioRegression'],check=True)
 # Check resource namespace and parity; Minecraft supplies built-in gui/options labels.
@@ -63,6 +66,9 @@ subprocess.run([sys.executable,str(ROOT/'scripts/test_config.py'),'--minecraft',
 
 subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/DiscordPresenceRegression.java")],check=True)
 subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"com.videomenu.DiscordPresenceRegression"],check=True)
+subprocess.run([javac,'-proc:none','-cp',str(work)+os.pathsep+classpath,'-d',str(work),str(ROOT/'tests/DiscordPresenceFailureRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.DiscordPresenceFailureRegression'],check=True)
+
 
 # High display/video ceilings must retain native cadence without duplicate full RGBA frames.
 fixtures=[]

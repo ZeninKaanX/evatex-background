@@ -11,6 +11,12 @@ public final class AstralTypography {
     private static final class_2583 BRAND_STYLE=fontStyle("brand");
     private static final class_2583 METEOR_STYLE=fontStyle("meteor");
     private static final class_2561[] BRAND_FRAMES=brandFrames();
+    private static final class_2561 METEOR=class_2561.method_43470("\uE003").method_10862(METEOR_STYLE);
+    private static final class_2561[] ICONS={
+        class_2561.method_43470("\uE000").method_10862(ICON_STYLE),
+        class_2561.method_43470("\uE001").method_10862(ICON_STYLE),
+        class_2561.method_43470("\uE002").method_10862(ICON_STYLE)
+    };
     private static double brandPhase;
     private static long brandTick;
     private static class_2561[] brandFrames(){
@@ -27,7 +33,7 @@ public final class AstralTypography {
         brandTick=now;
         ctx.method_51439(client.field_1772,BRAND_FRAMES[(int)brandPhase],x,y,color,false);
     }
-    public static void meteor(net.minecraft.class_332 ctx,int x,int y,int color){ctx.method_51439(net.minecraft.class_310.method_1551().field_1772,class_2561.method_43470("\uE003").method_10862(METEOR_STYLE),x,y,color,false);}
+    public static void meteor(net.minecraft.class_332 ctx,int x,int y,int color){ctx.method_51439(net.minecraft.class_310.method_1551().field_1772,METEOR,x,y,color,false);}
     private static class_2583 fontStyle(String fontName) {
         try {
             var id=net.minecraft.class_2960.method_60655("evatexbackgroundvideo",fontName);
@@ -47,7 +53,7 @@ public final class AstralTypography {
         return class_2583.field_24360;
     }
     public static void icon(net.minecraft.class_332 ctx,int type,int x,int y,int color){
-        var label=class_2561.method_43470(switch(type){case 1 -> "\uE001";case 2 -> "\uE002";default -> "\uE000";}).method_10862(ICON_STYLE);
+        var label=ICONS[type==1 ? 1 : type==2 ? 2 : 0];
         ctx.method_51439(net.minecraft.class_310.method_1551().field_1772,label,x,y,color,false);
     }
     private static class_2583 samplingStyle(float scale){

@@ -15,5 +15,6 @@ public final class EvatexDiscord {
         presence.setEnabled(config.discordPresence);
     }
     public static synchronized String status(){return presence==null?"evatex.discord.off":presence.status;}
+    public static synchronized String diagnostics(){return presence==null?"Discord activity: inactive\n":presence.diagnostics();}
     public static synchronized void close(){if(presence!=null){presence.close();presence=null;}}
 }

@@ -155,11 +155,10 @@ public final class VideoBackground {
         worker.shutdownNow();
     }
     private void releaseTexture() {
-        if (texture != null) {
-            class_310.method_1551().method_1531().method_4615(TEXTURE_ID);
-            texture = null;
-        }
-        pixels = null; uploaded = null;
+        boolean registered = texture != null;
+        // Clear Java references even when a broken renderer rejects disposal.
+        texture = null; pixels = null; uploaded = null;
+        if (registered) class_310.method_1551().method_1531().method_4615(TEXTURE_ID);
     }
     public synchronized boolean prepareFrame() {
         if(presentationSuppressed)return false;
@@ -214,8 +213,16 @@ public final class VideoBackground {
     }
     private void fail(Throwable e) {
         com.videomenu.EvatexRecovery.report("video rendering",e);
+        VideoDecoder failed;
         synchronized (this) {
             generation++; mailbox = new FrameMailbox(); status = "error";
+            failed = decoder; decoder = null;
+        }
+        // Stop media immediately even if Minecraft cannot deliver another tick.
+        if (failed != null) failed.close();
+        try { releaseTexture(); }
+        catch (RuntimeException | LinkageError cleanup) {
+            VideoMenuClient.LOGGER.warn("EVATEX failed texture cleanup",cleanup);
         }
     }
 }

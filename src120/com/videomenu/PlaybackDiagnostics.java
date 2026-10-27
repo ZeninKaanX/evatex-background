@@ -17,6 +17,7 @@ final class PlaybackDiagnostics {
             +"OS: "+System.getProperty("os.name")+" "+System.getProperty("os.version")+" "+System.getProperty("os.arch")+"\n"
             +"Java: "+System.getProperty("java.version")+"\nGPU renderer: "+gpu+"\n"
             +VideoBackground.INSTANCE.diagnosticPlayback()
+            +EvatexDiscord.diagnostics()
             +"Configured FPS: "+config.fps+"\nDecode height limit: "+config.maxDecodeHeight
             +"\nResolution scale: "+config.scale+"\nHardware acceleration requested: "+config.hardwareAcceleration
             +"\nInstalled mod count: "+EvatexPlatform.modCount()+"\n"

@@ -61,19 +61,47 @@ final class LocalMediaPipe implements AutoCloseable {
     private static final class Chunked extends InputStream {
         private final InputStream in;private long remaining;private boolean ended,delimiter;
         Chunked(InputStream in){this.in=in;}
-        @Override public int read() throws IOException {byte[] b=new byte[1];return read(b,0,1)<0 ? -1 : b[0]&255;}
+        private boolean readable() throws IOException {
+            if(ended)return false;
+            if(remaining!=0)return true;
+            if(delimiter && (in.read()!='\r' || in.read()!='\n'))throw new IOException("Invalid media chunk delimiter");
+            remaining=chunkLength(in);
+            if(remaining==0){ended=true;return false;}
+            delimiter=true;return true;
+        }
+        @Override public int read() throws IOException {
+            if(!readable())return -1;
+            int value=in.read();if(value<0)throw new EOFException("Truncated media chunk");
+            remaining--;return value;
+        }
         @Override public int read(byte[] b,int off,int len) throws IOException {
-            java.util.Objects.checkFromIndexSize(off,len,b.length);if(len==0)return 0;if(ended)return -1;
-            if(remaining==0) {
-                if(delimiter && !line(in,2).isEmpty())throw new IOException("Invalid media chunk delimiter");
-                String size=line(in,128);int extension=size.indexOf(';');if(extension>=0)size=size.substring(0,extension);
-                if(!size.matches("[0-9a-fA-F]{1,8}"))throw new IOException("Invalid media chunk length");
-                remaining=Long.parseLong(size,16);
-                if(remaining==0){ended=true;return -1;}delimiter=true;
-            }
+            java.util.Objects.checkFromIndexSize(off,len,b.length);if(len==0)return 0;
+            if(!readable())return -1;
             int count=in.read(b,off,(int)Math.min(len,remaining));if(count<0)throw new EOFException("Truncated media chunk");remaining-=count;return count;
         }
         @Override public void close() throws IOException {in.close();}
+    }
+    /** Parse bounded ASCII framing without allocating a String/regex per chunk. */
+    private static long chunkLength(InputStream in) throws IOException {
+        long size=0;int digits=0;boolean extension=false;
+        for(int i=0;i<128;i++) {
+            int c=in.read();if(c<0)throw new EOFException("Truncated media chunk header");
+            if(c=='\r') {
+                if(i+1>=128 || in.read()!='\n')throw new IOException("Invalid media framing");
+                if(digits==0)throw new IOException("Invalid media chunk length");
+                return size;
+            }
+            if(c=='\n')throw new IOException("Invalid media framing");
+            if(extension)continue;
+            if(c==';') {
+                if(digits==0)throw new IOException("Invalid media chunk length");
+                extension=true;continue;
+            }
+            int digit=c>='0'&&c<='9' ? c-'0' : c>='a'&&c<='f' ? c-'a'+10 : c>='A'&&c<='F' ? c-'A'+10 : -1;
+            if(digit<0 || ++digits>8)throw new IOException("Invalid media chunk length");
+            size=(size<<4)|digit;
+        }
+        throw new IOException("Oversized media chunk header");
     }
     @Override public void close() {
         closed=true;try{server.close();}catch(IOException ignored){}

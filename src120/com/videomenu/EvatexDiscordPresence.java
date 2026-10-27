@@ -16,6 +16,14 @@ public final class EvatexDiscordPresence implements AutoCloseable {
     public volatile String status = "evatex.discord.unconfigured";
     public volatile String acceptedDetails="";
     public volatile int acceptedDisplayType=-1;
+    private volatile String transport="none",lastError="none";
+    private volatile boolean acknowledged;
+    public String diagnostics() {
+        return "Discord activity: "+status+"\nDiscord enabled: "+enabled
+            +"\nDiscord publisher configured: "+configured()+"\nDiscord IPC: "+transport
+            +"\nDiscord acknowledged current connection: "+acknowledged
+            +"\nDiscord last error: "+lastError+"\n";
+    }
     private volatile boolean enabled=true;
     private final String applicationId;
     private final DiscordActivityCoordinator coordinator=new DiscordActivityCoordinator("evatex");
@@ -56,6 +64,10 @@ public final class EvatexDiscordPresence implements AutoCloseable {
             if (!applicationId.equals(connectedId)) disconnect();
             if(connection!=null&&!ready&&System.nanoTime()-handshakeAt>10_000_000_000L)disconnect();
             if (connection == null){if(System.nanoTime()<nextConnectAt)return;connect();}
+            if (ready && !pendingNonce.isEmpty() && System.nanoTime()-lastPublished>10_000_000_000L) {
+                lastError="activity-ack-timeout";nextConnectAt=System.nanoTime()+5_000_000_000L;
+                disconnect();coordinator.release();status="evatex.discord.unavailable";return;
+            }
             if (ready) {
                 JsonObject a = new JsonObject(); a.addProperty("details", activity.get()); a.addProperty("state", "Minecraft · Astral");
                 a.addProperty("type",0);a.addProperty("status_display_type",2);
@@ -67,7 +79,7 @@ public final class EvatexDiscordPresence implements AutoCloseable {
                 String snapshot=a.toString();
                 if(!snapshot.equals(lastActivity)||System.nanoTime()-lastPublished>=12_000_000_000L){setActivity(a);lastActivity=snapshot;lastPublished=System.nanoTime();if(!status.equals("evatex.discord.connected"))status="evatex.discord.connecting";}
             }
-        } catch (Exception e) { disconnect();coordinator.release();nextConnectAt=System.nanoTime()+5_000_000_000L; status = "evatex.discord.unavailable"; }
+        } catch (Exception e) { lastError="ipc-"+e.getClass().getSimpleName();disconnect();coordinator.release();nextConnectAt=System.nanoTime()+5_000_000_000L; status = "evatex.discord.unavailable"; }
     }
     /** Include private Flatpak runtime sockets when its exported relay is absent.
      * Permission boundaries stay intact: inaccessible paths simply fail to connect. */
@@ -98,7 +110,7 @@ public final class EvatexDiscordPresence implements AutoCloseable {
         } else if (isWindows(System.getProperty("os.name"))) {
             for (int i = 0; i < 10; i++) {
                 try {
-                    useWindowsPipe("\\\\.\\pipe\\discord-ipc-" + i);
+                    useWindowsPipe("\\\\.\\pipe\\discord-ipc-" + i);transport="Windows pipe "+i;
                     break;
                 } catch (FileNotFoundException ignored) { }
             }
@@ -127,15 +139,20 @@ public final class EvatexDiscordPresence implements AutoCloseable {
                     int opcode = b.getInt(), length = b.getInt();
                     if (length < 0 || length > 65536) break;
                     byte[] payload = input.readNBytes(length);
-                    if (payload.length != length) break;
+                    if (payload.length != length || connection != active) break;
                     if (opcode == 3) send(4, payload);
-                    else if (opcode == 2) break;
+                    else if (opcode == 2) {
+                        lastError=rpcError("close",payload);break;
+                    }
                     else if (opcode == 1) {
                         JsonObject response = JsonParser.parseString(new String(payload, StandardCharsets.UTF_8)).getAsJsonObject();
                         if (response.has("evt") && !response.get("evt").isJsonNull() && "READY".equals(response.get("evt").getAsString())) { ready = true; worker.execute(this::update); }
-                        if(response.has("evt")&&!response.get("evt").isJsonNull()&&"ERROR".equals(response.get("evt").getAsString())){status="evatex.discord.rejected";lastActivity="";}
+                        if(response.has("evt")&&!response.get("evt").isJsonNull()&&"ERROR".equals(response.get("evt").getAsString())){
+                            lastError=rpcError("error",payload);nextConnectAt=System.nanoTime()+30_000_000_000L;
+                            disconnect();coordinator.release();status="evatex.discord.rejected";break;
+                        }
                         else if(response.has("nonce")&&!response.get("nonce").isJsonNull()&&pendingNonce.equals(response.get("nonce").getAsString())&&response.has("cmd")&&"SET_ACTIVITY".equals(response.get("cmd").getAsString())){
-                            status="evatex.discord.connected";
+                            status="evatex.discord.connected";acknowledged=true;pendingNonce="";lastError="none";
                             if(response.has("data")&&response.get("data").isJsonObject()){
                                 JsonObject data=response.getAsJsonObject("data");
                                 if(data.has("details")&&!data.get("details").isJsonNull())acceptedDetails=data.get("details").getAsString();
@@ -144,19 +161,28 @@ public final class EvatexDiscordPresence implements AutoCloseable {
                         }
                     }
                 }
-            } catch (Exception ignored) { }
-            finally { if (connection == active){disconnect();coordinator.release();} }
+            } catch (Exception failure) {if(connection==active)lastError="read-"+failure.getClass().getSimpleName();}
+            finally { if (connection == active){
+                nextConnectAt=System.nanoTime()+5_000_000_000L;disconnect();coordinator.release();status="evatex.discord.unavailable";
+            } }
         },"EVATEX-Discord-read");reader.setDaemon(true);reader.start();
+    }
+    private static String rpcError(String kind,byte[] payload) {
+        try {
+            JsonObject message=JsonParser.parseString(new String(payload,StandardCharsets.UTF_8)).getAsJsonObject();
+            JsonObject data=message.has("data")&&message.get("data").isJsonObject()?message.getAsJsonObject("data"):message;
+            if(data.has("code"))return "rpc-"+kind+"-"+data.get("code").getAsInt();
+        }catch(RuntimeException ignored){}
+        return "rpc-"+kind;
     }
     static boolean isWindows(String name) {
         return name != null && name.toLowerCase(Locale.ROOT).startsWith("windows");
     }
     private void useWindowsPipe(String path) throws IOException {
         WindowsDiscordPipe pipe = new WindowsDiscordPipe(path);
-        in = pipe.in; out = pipe.out; connection = pipe;
+        in = pipe.in; out = pipe.out;transport="Windows named pipe";connection = pipe;
     }
     private void useChannel(SocketChannel channel) {
-        connection = channel;
         // Direct read/write use separate channel locks; Channels streams share blockingLock.
         in = new InputStream() {
             public int read() throws IOException { byte[] b = new byte[1]; return read(b, 0, 1) < 0 ? -1 : b[0] & 255; }
@@ -166,6 +192,7 @@ public final class EvatexDiscordPresence implements AutoCloseable {
             public void write(int b) throws IOException { write(new byte[]{(byte) b}); }
             public void write(byte[] b) throws IOException { ByteBuffer buffer = ByteBuffer.wrap(b); while (buffer.hasRemaining()) channel.write(buffer); }
         };
+        transport="Unix socket";connection=channel;
     }
     private void setActivity(JsonElement activity) throws IOException {
         JsonObject args = new JsonObject(); args.addProperty("pid", ProcessHandle.current().pid()); args.add("activity", activity);
@@ -176,8 +203,8 @@ public final class EvatexDiscordPresence implements AutoCloseable {
         if (out == null) throw new IOException("Disconnected");
         out.write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putInt(opcode).putInt(payload.length).array()); out.write(payload); out.flush();
     }
-    private void disconnect() {
-        ready = false;lastActivity="";pendingNonce=""; Closeable old = connection; connection = null;
+    private synchronized void disconnect() {
+        ready = false;acknowledged=false;lastActivity="";pendingNonce=""; Closeable old = connection; connection = null;
         try { if (old != null) old.close(); } catch (IOException ignored) { }
     }
     private void relinquish(){
