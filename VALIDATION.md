@@ -1,3 +1,7 @@
+## 1.8.25 Windows live validation and recovery
+
+See [the live Windows report](docs/WINDOWS-DISCORD-2026-10-27.md) for real Discord profile evidence, regression coverage, privacy boundaries and remaining limits. Both source variants passed the complete decoder/IPC suite before the release version bump.
+
 ## 1.8.21 validation scope
 
 - Exact-API Fabric 1.21.11 compilation and shared decoder, audio, authenticated local media pipe, focus pause/resume, opaque menu pause/resume and recovery regression checks run locally on Linux.

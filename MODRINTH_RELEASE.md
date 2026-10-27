@@ -1,14 +1,16 @@
-## 1.8.24 — Windows Discord activity
+## 1.8.25 — Discord diagnostics and media recovery
 
-- Avoid an empty blocking read on the synchronous Windows Discord pipe. The reader checks buffered bytes using the Windows JDK's `PeekNamedPipe` path before reading; idle reads no longer hold up activity publication or clearing.
-- Keep Windows pipe reads and writes serialized only while data is ready, and close the idle reader promptly when activity is disabled. Reconnect remains on the daemon worker.
-- Distinguish Windows from Darwin when choosing IPC transport; macOS continues to use Unix sockets.
-- Retain the high-FPS frame handoff and per-Minecraft Fabric Loader fixes from 1.8.23.
+- Add Discord connection details to Copy diagnostics: transport, acknowledgement and safe numeric failure codes, without account information or private error text.
+- Back off after rejected activity requests and reconnect when an activity acknowledgement times out. Ignore replies from obsolete connections.
+- Stop the video decoder immediately after rendering fails, even if the next Minecraft recovery tick cannot run.
+- Reduce temporary allocations in local media chunk parsing and reuse constant Astral icon text. Keep authenticated loopback-only media transport.
+- Preserve per-Minecraft Fabric Loader requirements and the previous high-FPS playback improvements.
 
-Validation: isolated native Win32 pipe regression covers fragmented READY packets, concurrent publication, acknowledgements, ping/pong, clearing and reconnect. The test uses a unique local pipe, never a user's Discord account. Native Windows CI passed: run 40427109564 (commit 12c6668). Physical Windows Discord UI and GPU playback still need player confirmation; Discord activity privacy settings remain under the player's control.
+Validation: real Windows 11 Discord Desktop displayed the EVATEX name, black-hole asset and elapsed timer using the published 1.8.24 transport; the 1.8.25 development code also received an activity acknowledgement. Full decoder/IPC regression suites passed for both 1.21.11 and 1.20.1 source variants, including immediate FFmpeg cleanup and RPC rejection backoff. This does not establish the cause of every player's missing activity, or benchmark full-resolution Windows GPU playback. See `docs/WINDOWS-DISCORD-2026-10-27.md`.
 
 ### Türkçe
 
-- Windows Discord bağlantısında boş boruyu bekleyen okumanın etkinlik göndermeyi engellemesi giderildi.
-- Etkinliği kapatma ve yeniden bağlanma davranışı gerçek Windows named pipe testiyle kontrol edilir.
-- 1.8.23 içindeki FPS ve Fabric Loader düzeltmeleri korunur.
+- Tanı raporuna Discord bağlantısı, etkinlik onayı ve kişisel bilgi içermeyen hata kodları eklendi.
+- Reddedilen bağlantılarda gereksiz tekrarlar azaltıldı; cevapsız etkinlik gönderiminde yeniden bağlanma eklendi.
+- Görüntüleme hatasında FFmpeg hemen kapatılır; bazı geçici bellek tahsisleri azaltıldı.
+- Gerçek Windows 11 Discord profilinde EVATEX adı, karadelik simgesi ve süre sayacı doğrulandı. Her oyuncunun kurulumundaki sorunun aynı nedenden kaynaklandığı iddia edilmez.
