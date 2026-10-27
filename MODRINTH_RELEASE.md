@@ -5,7 +5,7 @@
 - Distinguish Windows from Darwin when choosing IPC transport; macOS continues to use Unix sockets.
 - Retain the high-FPS frame handoff and per-Minecraft Fabric Loader fixes from 1.8.23.
 
-Validation: isolated native Win32 pipe regression covers fragmented READY packets, concurrent publication, acknowledgements, ping/pong, clearing and reconnect. The test uses a unique local pipe, never a user's Discord account. A native Windows CI result is required before publication. Physical Windows Discord UI and GPU playback still need player confirmation; Discord activity privacy settings remain under the player's control.
+Validation: isolated native Win32 pipe regression covers fragmented READY packets, concurrent publication, acknowledgements, ping/pong, clearing and reconnect. The test uses a unique local pipe, never a user's Discord account. Native Windows CI passed: run 40427109564 (commit 12c6668). Physical Windows Discord UI and GPU playback still need player confirmation; Discord activity privacy settings remain under the player's control.
 
 ### Türkçe
 

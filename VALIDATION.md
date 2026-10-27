@@ -132,3 +132,7 @@ All 24 Fabric, 22 Forge and 23 NeoForge 1.8.13 builds are published as stable re
 ## 1.8.23 playback and Loader review
 
 See [the review](docs/verification/playback-1.8.23/README.md) and [coverage record](docs/verification/playback-1.8.23/validation.json). All 24 Fabric adapters compile against their declared Loader floor. Real hidden-window Linux tests cover 1.20.1 with Loader 0.15.11 / Java 17 and 1.21.11 with Loader 0.17.3 / Java 21 and the supplied 60 FPS clip. Native Forge/NeoForge 1.21.11 compile and package checks are separate from runtime coverage. Physical Windows GPU performance remains unmeasured.
+
+## 1.8.24 Windows Discord transport
+
+The native Windows named-pipe regression passed in [GitHub run 40427109564](https://github.com/ZeninKaanX/evatex-background-video-1.8.2/actions/runs/40427109564) for source commit `12c6668`. It exercises the production Java transport against a unique Win32 byte-mode pipe using fragmented READY messages, activity acknowledgements, ping/pong, disable/clear and reconnect. Linux IPC ownership/handoff and the full playback regression suite also pass locally. This is transport validation, not a screenshot of the Discord UI or a physical Windows GPU benchmark.
