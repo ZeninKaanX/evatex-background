@@ -89,17 +89,16 @@ public final class EvatexDiscordPresence implements AutoCloseable {
         return roots;
     }
     private void connect() throws IOException {
-        if (socketOverride != null) {
+        if (socketOverride != null && isWindows(System.getProperty("os.name")) && socketOverride.toString().startsWith("\\\\.\\pipe\\")) {
+            useWindowsPipe(socketOverride.toString());
+        } else if (socketOverride != null) {
             SocketChannel channel = SocketChannel.open(StandardProtocolFamily.UNIX);
             try { channel.connect(UnixDomainSocketAddress.of(socketOverride)); useChannel(channel); }
             catch (IOException e) { channel.close(); throw e; }
-        } else if (System.getProperty("os.name").toLowerCase().contains("win")) {
+        } else if (isWindows(System.getProperty("os.name"))) {
             for (int i = 0; i < 10; i++) {
                 try {
-                    RandomAccessFile pipe = new RandomAccessFile("\\\\.\\pipe\\discord-ipc-" + i, "rw");
-                    connection = pipe;
-                    in = new InputStream() { public int read() throws IOException { return pipe.read(); } public int read(byte[] b, int o, int n) throws IOException { return pipe.read(b, o, n); } };
-                    out = new OutputStream() { public void write(int b) throws IOException { pipe.write(b); } public void write(byte[] b) throws IOException { pipe.write(b); } };
+                    useWindowsPipe("\\\\.\\pipe\\discord-ipc-" + i);
                     break;
                 } catch (FileNotFoundException ignored) { }
             }
@@ -148,6 +147,13 @@ public final class EvatexDiscordPresence implements AutoCloseable {
             } catch (Exception ignored) { }
             finally { if (connection == active){disconnect();coordinator.release();} }
         },"EVATEX-Discord-read");reader.setDaemon(true);reader.start();
+    }
+    static boolean isWindows(String name) {
+        return name != null && name.toLowerCase(Locale.ROOT).startsWith("windows");
+    }
+    private void useWindowsPipe(String path) throws IOException {
+        WindowsDiscordPipe pipe = new WindowsDiscordPipe(path);
+        in = pipe.in; out = pipe.out; connection = pipe;
     }
     private void useChannel(SocketChannel channel) {
         connection = channel;

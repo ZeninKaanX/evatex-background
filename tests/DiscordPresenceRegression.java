@@ -21,6 +21,7 @@ public final class DiscordPresenceRegression {
         byte[] bytes=value.getBytes(StandardCharsets.UTF_8);ByteBuffer b=ByteBuffer.allocate(8+bytes.length).order(ByteOrder.LITTLE_ENDIAN).putInt(op).putInt(bytes.length).put(bytes);b.flip();while(b.hasRemaining())c.write(b);
     }
     public static void main(String[] args)throws Exception{
+        check(EvatexDiscordPresence.isWindows("Windows 11")&&!EvatexDiscordPresence.isWindows("Darwin"),"Windows/macOS transport selection");
         var roots=EvatexDiscordPresence.socketRoots(java.util.Map.of("XDG_RUNTIME_DIR","/run/user/1000","TMPDIR","","TMP","/tmp"));
         check(roots.contains("/run/user/1000/.flatpak/com.discordapp.Discord/xdg-run"),"Private Flatpak socket discovery");
         check(roots.contains("/run/user/1000/app/com.discordapp.Discord"),"Exported Flatpak socket discovery");

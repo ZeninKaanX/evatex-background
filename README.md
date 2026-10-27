@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.23
+# EVATEX-Background — Astral 1.8.24
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
