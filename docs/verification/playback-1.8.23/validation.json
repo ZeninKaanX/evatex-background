@@ -1,0 +1,47 @@
+{
+  "version": "1.8.23",
+  "fabric_exact_api_compilations": 24,
+  "native_exact_api_compilations": [
+    "Forge 1.21.11",
+    "NeoForge 1.21.11"
+  ],
+  "actual_runtime": [
+    {
+      "minecraft": "1.20.1",
+      "loader": "0.15.11",
+      "java": 17,
+      "video": "playing, settings pause, same-player resume",
+      "hidden": true,
+      "host_audio": false
+    },
+    {
+      "minecraft": "1.21.11",
+      "loader": "0.17.3",
+      "java": 21,
+      "source": "supplied Reze 1080p60 clip",
+      "effective_video_fps": 60,
+      "decoded_size": "960x540",
+      "video": "playing, settings pause, same-player resume",
+      "hidden": true,
+      "host_audio": false
+    }
+  ],
+  "headless_regressions": [
+    "30/60/120 and 29.97 FPS native cadence at 120 ceiling",
+    "pause/resume",
+    "bounded concurrent frame ownership",
+    "PCM, source looping, shutdown",
+    "loader floor and embedded module guards"
+  ],
+  "limits": [
+    "No interactive physical Windows GPU performance measurement",
+    "No zero-FPS-cost claim",
+    "Not every Minecraft/loader combination was runtime tested",
+    "Old Loader plus Java 25 was rejected by old ASM; use matching Java or a newer compatible Loader"
+  ],
+  "english_horizontal_video": "https://www.youtube.com/watch?v=IKJa0uSm9NU",
+  "project_descriptions_updated": [
+    "Modrinth",
+    "CurseForge"
+  ]
+}

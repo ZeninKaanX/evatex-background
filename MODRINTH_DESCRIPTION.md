@@ -2,6 +2,8 @@
 
 ## Videos
 
+- [Echidna & Subaru — EVATEX-Background | English showcase (16:9)](https://www.youtube.com/watch?v=IKJa0uSm9NU)
+
 - [Storm showcase — EVATEX-Background](https://youtube.com/shorts/8T6LuZ1WGZk)
 - [Latest cinematic trailer — EVATEX-Background](https://youtube.com/shorts/g33no30jfzI)
 - [Official EVATEX showcase](https://youtube.com/shorts/EzglUlDrTkI)

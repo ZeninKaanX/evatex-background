@@ -27,16 +27,13 @@ public final class VideoBackground {
     private int pendingWidth, pendingHeight;
     private long viewportChangedAt;
     private volatile long generation;
-    private final Object frameLock = new Object();
-    private volatile Frame latest;
-    private int[] staging;
+    private volatile FrameMailbox mailbox = new FrameMailbox();
     private volatile String status = "idle";
-    private Frame uploaded;
+    private FrameMailbox.Frame uploaded;
     private class_1043 texture;
     private IntBuffer pixels;
     private int textureW, textureH;
 
-    private record Frame(int[] pixels, int width, int height) {}
     private VideoBackground() {}
     public boolean customMainMenu() {var value=config;return !com.videomenu.EvatexRecovery.suspended() && value!=null && value.customMainMenu;}
     public synchronized void init(VideoMenuConfig value) { config = value.copy(); }
@@ -59,9 +56,11 @@ public final class VideoBackground {
         return "Playback: "+status()+"\nDecoder: "+(d==null ? "inactive" : d.decoderBackend())
             +"\nDecoded resolution: "+(d==null ? "none" : d.decodedSize())
             +"\nPublished frames: "+(d==null ? 0 : d.publishedFrames())
+            +"\nSuperseded video frames: "+mailbox.skippedFrames()
+            +"\nEffective video FPS: "+(d==null ? "inactive" : d.effectiveFps())
             +"\nAudio: "+audioStatus()+"\n";
     }
-    public boolean isActive() { return !presentationSuppressed && latest != null; }
+    public boolean isActive() { return !presentationSuppressed && (mailbox.hasPending() || texture != null); }
     /** One policy for decoder lifetime, screen backdrop and opaque list suppression. */
     public boolean supportsMenu(net.minecraft.class_437 screen, boolean worldLoaded) {
         if (screen == null || com.videomenu.EvatexRecovery.suspended()) return false;
@@ -131,21 +130,16 @@ public final class VideoBackground {
         long session = ++generation;
         pendingWidth = pendingHeight = 0; viewportChangedAt = 0;
         if (decoder != null) { decoder.close(); decoder = null; }
-        synchronized (frameLock) { latest = null; staging = null; }
+        FrameMailbox nextMailbox = new FrameMailbox();
+        mailbox = nextMailbox;
         releaseTexture();
         status = "idle";
         if (com.videomenu.EvatexRecovery.suspended() || !menuVisible || config == null || !config.enabled || config.videoPath.isBlank()) return;
         status = "loading";
         var window = class_310.method_1551().method_22683();
         VideoDecoder next = new VideoDecoder(config, (data, w, h) -> {
-            synchronized (frameLock) {
-                if (session == generation) {
-                    if (staging == null || staging.length != data.length) staging = new int[data.length];
-                    System.arraycopy(data, 0, staging, 0, data.length);
-                    latest = new Frame(staging, w, h); status = "playing";
-                }
-            }
-        }, () -> { synchronized (frameLock) { if (session == generation) { latest = null; staging = null; status = "error"; } } }, true,
+            if (session == generation && nextMailbox.offer(data,w,h)) status = "playing";
+        }, () -> { if (session == generation) { mailbox = new FrameMailbox(); status = "error"; } }, true,
             window.method_4489(), window.method_4506());
         next.setPresentationEnabled(!presentationSuppressed);
         next.setPaused(!foreground||presentationSuppressed);
@@ -169,9 +163,11 @@ public final class VideoBackground {
     }
     public synchronized boolean prepareFrame() {
         if(presentationSuppressed)return false;
-        Frame frame = latest;
+        FrameMailbox current = mailbox;
+        FrameMailbox.Frame frame = current.acquire();
         VideoMenuConfig settings = config;
-        if (frame == null || settings == null) { if (texture != null) releaseTexture(); return false; }
+        if (settings == null || "error".equals(status)) { if(frame!=null)current.release(frame); if(texture!=null)releaseTexture(); return false; }
+        if (frame == null) return texture != null;
         try {
             if (texture == null || textureW != frame.width || textureH != frame.height) {
                 releaseTexture();
@@ -181,18 +177,12 @@ public final class VideoBackground {
                 textureW = frame.width; textureH = frame.height;
                 class_310.method_1551().method_1531().method_4616(TEXTURE_ID, texture);
             }
-            if (uploaded != frame) {
-                synchronized (frameLock) {
-                    frame = latest;
-                    if (frame == null) return false;
-                    pixels.clear(); pixels.put(frame.pixels); uploaded = frame;
-                }
-                // A stalled/minimized OpenGL window must not hold the decoder's
-                // publication lock and stop the shared video/audio input timeline.
-                texture.method_4524();
-            }
+            pixels.clear(); pixels.put(frame.pixels); uploaded = frame;
+            // Decoder publishes into another reusable slot while the GPU uploads this one.
+            texture.method_4524();
             return true;
         } catch (RuntimeException | LinkageError e) { fail(e); return false; }
+        finally { current.release(frame); }
     }
     public record AtlasFrame(int textureId, int width, int height, boolean fill, double darkening, boolean vignette) {}
     public AtlasFrame atlasFrame() {
@@ -201,7 +191,7 @@ public final class VideoBackground {
     }
     public boolean render(class_332 context, int width, int height) {
         if (com.videomenu.EvatexRecovery.suspended() || !prepareFrame()) return false;
-        Frame frame = uploaded;
+        FrameMailbox.Frame frame = uploaded;
         VideoMenuConfig settings = config;
         try {
             double fit = settings.fillScreen
@@ -225,7 +215,7 @@ public final class VideoBackground {
     private void fail(Throwable e) {
         com.videomenu.EvatexRecovery.report("video rendering",e);
         synchronized (this) {
-            generation++; latest = null; status = "error";
+            generation++; mailbox = new FrameMailbox(); status = "error";
         }
     }
 }

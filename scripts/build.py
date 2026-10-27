@@ -53,7 +53,8 @@ def build(version, system_ffmpeg, prepare_only=False):
     artifacts = [lib['downloads']['artifact'] for lib in game['libraries'] if 'artifact' in lib.get('downloads', {}) and not lib['name'].startswith('org.ow2.asm:')]
     with ThreadPoolExecutor(max_workers=8) as pool:
         libraries = list(pool.map(lambda a: fetch(a['url'], CACHE/a['path'], a['sha1']), artifacts))
-    profile = metadata(f'https://meta.fabricmc.net/v2/versions/loader/{version}/0.19.5/profile/json', version+'-fabric.json')
+    loader_floor = minimum_loader(version)
+    profile = metadata(f'https://meta.fabricmc.net/v2/versions/loader/{version}/{loader_floor}/profile/json', version+'-fabric-'+loader_floor+'.json')
     for lib in profile['libraries']:
         group, artifact, revision = lib['name'].split(':')
         path = group.replace('.', '/')+'/'+artifact+'/'+revision+'/'+artifact+'-'+revision+'.jar'
@@ -109,7 +110,7 @@ def build(version, system_ffmpeg, prepare_only=False):
     if len(nested) != 1+len(resource_modules): raise RuntimeError('Missing Fabric resource modules')
     # Loader 0.19.3 includes Mixin Extras 0.5.4, which fails with its ASM revision.
     # A standard nested library lets Fabric choose the corrected compatible version.
-    loader_jar=CACHE/'net/fabricmc/fabric-loader/0.19.5/fabric-loader-0.19.5.jar'
+    loader_jar=fetch(maven+'net/fabricmc/fabric-loader/0.19.5/fabric-loader-0.19.5.jar', CACHE/'net/fabricmc/fabric-loader/0.19.5/fabric-loader-0.19.5.jar')
     with zipfile.ZipFile(loader_jar) as loader_archive:
         extras='META-INF/jars/mixinextras-fabric-0.5.5.jar'
         nested[extras]=loader_archive.read(extras)

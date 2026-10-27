@@ -120,7 +120,7 @@ public class DecoderRegression {
                 check(w==160 && h==90,"native resolution preserved");
                 int n=count.incrementAndGet();times.add(System.nanoTime());
                 if (n==1) { first[0]=frame; snapshot[0]=frame.clone(); firstAt[0]=System.nanoTime(); }
-                if (n==fps*3+1) { lastAt[0]=System.nanoTime(); enough.countDown(); }
+                if (n==Math.min(fps,30)*3+1) { lastAt[0]=System.nanoTime(); enough.countDown(); }
             });
             check(decoder.start(),"decoder starts");
             check(enough.await(10, TimeUnit.SECONDS),"video loops past clip duration");

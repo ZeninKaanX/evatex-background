@@ -1,33 +1,33 @@
-# Minecraft compatibility — EVATEX 1.8.20
+# Minecraft compatibility — EVATEX 1.8.23
 
 This release targets all 24 stable Java Edition releases from 1.20 through 26.3, using one exact-version Fabric jar per release. Install only the jar matching your game. Earlier versions, snapshots and future releases are not supported by these Fabric files.
 
 | Minecraft | Required Java | Release file |
 | --- | --- | --- |
-| 1.20 | 17+ | evatex-background-video-1.8.20-mc1.20.jar |
-| 1.20.1 | 17+ | evatex-background-video-1.8.20-mc1.20.1.jar |
-| 1.20.2 | 17+ | evatex-background-video-1.8.20-mc1.20.2.jar |
-| 1.20.3 | 17+ | evatex-background-video-1.8.20-mc1.20.3.jar |
-| 1.20.4 | 17+ | evatex-background-video-1.8.20-mc1.20.4.jar |
-| 1.20.5 | 21+ | evatex-background-video-1.8.20-mc1.20.5.jar |
-| 1.20.6 | 21+ | evatex-background-video-1.8.20-mc1.20.6.jar |
-| 1.21 | 21+ | evatex-background-video-1.8.20-mc1.21.jar |
-| 1.21.1 | 21+ | evatex-background-video-1.8.20-mc1.21.1.jar |
-| 1.21.2 | 21+ | evatex-background-video-1.8.20-mc1.21.2.jar |
-| 1.21.3 | 21+ | evatex-background-video-1.8.20-mc1.21.3.jar |
-| 1.21.4 | 21+ | evatex-background-video-1.8.20-mc1.21.4.jar |
-| 1.21.5 | 21+ | evatex-background-video-1.8.20-mc1.21.5.jar |
-| 1.21.6 | 21+ | evatex-background-video-1.8.20-mc1.21.6.jar |
-| 1.21.7 | 21+ | evatex-background-video-1.8.20-mc1.21.7.jar |
-| 1.21.8 | 21+ | evatex-background-video-1.8.20-mc1.21.8.jar |
-| 1.21.9 | 21+ | evatex-background-video-1.8.20-mc1.21.9.jar |
-| 1.21.10 | 21+ | evatex-background-video-1.8.20-mc1.21.10.jar |
-| 1.21.11 | 21+ | evatex-background-video-1.8.20-mc1.21.11.jar |
-| 26.1 | 25+ | evatex-background-video-1.8.20-mc26.1.jar |
-| 26.1.1 | 25+ | evatex-background-video-1.8.20-mc26.1.1.jar |
-| 26.1.2 | 25+ | evatex-background-video-1.8.20-mc26.1.2.jar |
-| 26.2 | 25+ | evatex-background-video-1.8.20-mc26.2.jar |
-| 26.3 | 25+ | evatex-background-video-1.8.20-mc26.3.jar |
+| 1.20 | 17+ | evatex-background-video-1.8.23-mc1.20.jar |
+| 1.20.1 | 17+ | evatex-background-video-1.8.23-mc1.20.1.jar |
+| 1.20.2 | 17+ | evatex-background-video-1.8.23-mc1.20.2.jar |
+| 1.20.3 | 17+ | evatex-background-video-1.8.23-mc1.20.3.jar |
+| 1.20.4 | 17+ | evatex-background-video-1.8.23-mc1.20.4.jar |
+| 1.20.5 | 21+ | evatex-background-video-1.8.23-mc1.20.5.jar |
+| 1.20.6 | 21+ | evatex-background-video-1.8.23-mc1.20.6.jar |
+| 1.21 | 21+ | evatex-background-video-1.8.23-mc1.21.jar |
+| 1.21.1 | 21+ | evatex-background-video-1.8.23-mc1.21.1.jar |
+| 1.21.2 | 21+ | evatex-background-video-1.8.23-mc1.21.2.jar |
+| 1.21.3 | 21+ | evatex-background-video-1.8.23-mc1.21.3.jar |
+| 1.21.4 | 21+ | evatex-background-video-1.8.23-mc1.21.4.jar |
+| 1.21.5 | 21+ | evatex-background-video-1.8.23-mc1.21.5.jar |
+| 1.21.6 | 21+ | evatex-background-video-1.8.23-mc1.21.6.jar |
+| 1.21.7 | 21+ | evatex-background-video-1.8.23-mc1.21.7.jar |
+| 1.21.8 | 21+ | evatex-background-video-1.8.23-mc1.21.8.jar |
+| 1.21.9 | 21+ | evatex-background-video-1.8.23-mc1.21.9.jar |
+| 1.21.10 | 21+ | evatex-background-video-1.8.23-mc1.21.10.jar |
+| 1.21.11 | 21+ | evatex-background-video-1.8.23-mc1.21.11.jar |
+| 26.1 | 25+ | evatex-background-video-1.8.23-mc26.1.jar |
+| 26.1.1 | 25+ | evatex-background-video-1.8.23-mc26.1.1.jar |
+| 26.1.2 | 25+ | evatex-background-video-1.8.23-mc26.1.2.jar |
+| 26.2 | 25+ | evatex-background-video-1.8.23-mc26.2.jar |
+| 26.3 | 25+ | evatex-background-video-1.8.23-mc26.3.jar |
 
 ## API adapters
 
@@ -78,7 +78,12 @@ Install the file for your actual loader. Native builds do not load Fabric module
 
 | Minecraft | Minimum Fabric Loader |
 | --- | --- |
-| 1.20–1.21.8 | 0.16.14 |
+| 1.20–1.21.1 | 0.15.11 |
+| 1.21.2 | 0.16.7 |
+| 1.21.3 | 0.16.8 |
+| 1.21.4 | 0.16.9 |
+| 1.21.5 | 0.16.10 |
+| 1.21.6–1.21.8 | 0.16.13 |
 | 1.21.9–1.21.10 | 0.17.0 |
 | 1.21.11 | 0.17.3 |
 | 26.1–26.2 | 0.18.4 |

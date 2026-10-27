@@ -28,6 +28,7 @@ public final class VideoDecoder {
     private final boolean borrowedFrames;
     private final int viewportWidth, viewportHeight;
     private volatile int sourceWidth, sourceHeight, decodedWidth, decodedHeight;
+    private volatile double effectiveFps;
     private boolean stillImage;
     private boolean gif;
     private volatile LocalMediaPipe videoServer;
@@ -68,6 +69,7 @@ public final class VideoDecoder {
         this.borrowedFrames = borrowedFrames;
         this.onFailure = onFailure;
         this.config = config.copy();
+        this.effectiveFps = config.fps;
         this.audioEnabled = config.audioEnabled;
         this.audioVolume = config.audioVolume;
         this.listener = listener;
@@ -113,6 +115,7 @@ public final class VideoDecoder {
     public boolean isPresentationEnabled(){return presentationEnabled;}
     public boolean hasAudioTrack(){return hasAudio;}
     public long decodedFrames(){return decodedFrames;}
+    public double effectiveFps(){return effectiveFps;}
 
     public void close() {
         this.closed = true;
@@ -253,7 +256,12 @@ public final class VideoDecoder {
     }
 
     static String videoFilter(Backend backend, int fps, int width, int height, String format) {
-        String prefix = "fps=" + fps + ",";
+        return videoFilter(backend, (double)fps, width, height, format);
+    }
+
+    static String videoFilter(Backend backend, double fps, int width, int height, String format) {
+        String rate = fps == Math.rint(fps) ? Long.toString((long)fps) : Double.toString(fps);
+        String prefix = "fps=" + rate + ",";
         if (backend == Backend.D3D11_SCALE) {
             // Drop surplus frames and shrink on the GPU before transferring pixels.
             return prefix + "scale_d3d11=width=" + width + ":height=" + height + ":format=nv12,"
@@ -292,7 +300,7 @@ public final class VideoDecoder {
         cmd.add("-sn");
         cmd.add("-dn");
         cmd.add("-vf");
-        String filter = videoFilter(backend, config.fps, dstW, dstH, downloadFormat);
+        String filter = videoFilter(backend, effectiveFps, dstW, dstH, downloadFormat);
         if (stillImage) filter = filter.substring(filter.indexOf(',') + 1)
             .replace(":flags=bicubic,", ":flags=lanczos,");
         cmd.add(filter);
@@ -402,7 +410,7 @@ public final class VideoDecoder {
             finally{finished.set(true);}
         },"EVATEX-FrameReader");
         reader.setDaemon(true);frameReader=reader;reader.start();
-        long interval=1_000_000_000L/Math.max(1,config.fps),nextFrameAt=0;
+        long interval=Math.round(1_000_000_000.0/Math.max(1.0,effectiveFps)),nextFrameAt=0;
         try {
             while(!closed){
                 DecodedFrame frame;
@@ -415,7 +423,7 @@ public final class VideoDecoder {
                 if(closed)return;
                 if(decoderBackend.startsWith("starting ")){
                     decoderBackend=decoderBackend.substring(9);
-                    VideoMenuClient.LOGGER.info("EVATEX video decoder active: {} ({}x{} at {} FPS; {})",decoderBackend,w,h,config.fps,socketTransport?"local TCP":"pipe");
+                    VideoMenuClient.LOGGER.info("EVATEX video decoder active: {} ({}x{} at {} FPS; {})",decoderBackend,w,h,effectiveFps,socketTransport?"local TCP":"pipe");
                 }
                 try {
                     if(presentationEnabled&&frame.visual){listener.onFrame(borrowedFrames?frame.pixels:frame.pixels.clone(),w,h);++publishedFrames;}
@@ -518,6 +526,8 @@ public final class VideoDecoder {
             hasAudio = out.contains("Audio:");
             for (String line : out.split("\\R")) {
                 if (!line.contains("Video:")) continue;
+                // FPS is a ceiling, not a request to synthesize duplicate RGBA frames.
+                if (!stillImage && !gif) effectiveFps = FrameRatePolicy.limit(config.fps, FrameRatePolicy.parse(line));
                 downloadFormat = line.matches(".*(?:yuv420p10|p010|yuv420p12).*" ) ? "p010le" : "nv12";
                 Matcher m = DIM_PATTERN.matcher(line);
                 if (m.find()) {

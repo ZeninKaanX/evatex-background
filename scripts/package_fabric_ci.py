@@ -23,8 +23,10 @@ def package_fabric(version,artifact):
     output=ROOT/'build/dist'/f'evatex-background-video-{MOD_VERSION}-mc{version}.jar'
     shutil.copyfile(cache,output)
     with zipfile.ZipFile(output,'a',zipfile.ZIP_DEFLATED) as target,zipfile.ZipFile(artifact) as source:
+        docs=('LICENSE','README.md','CHANGELOG.md','VALIDATION.md','MODRINTH_RELEASE.md','COMPATIBILITY.md')
         for entry in source.infolist():
-            if not entry.filename.startswith('assets/'):target.writestr(entry,source.read(entry.filename))
+            if not entry.filename.startswith('assets/') and entry.filename not in docs:target.writestr(entry,source.read(entry.filename))
+        for name in docs:target.write(ROOT/name,name)
     with output.open('rb') as stream:checksum=hashlib.file_digest(stream,'sha256').hexdigest()
     output.with_suffix('.jar.sha256').write_text(checksum+'  '+output.name+'\n')
     print('Bundled Fabric release',version,flush=True)

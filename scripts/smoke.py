@@ -14,6 +14,8 @@ parser=argparse.ArgumentParser()
 parser.add_argument('--assets',required=True,type=Path)
 parser.add_argument('--atlas',type=Path)
 parser.add_argument('--video',type=Path,help='Use supplied video as-is, without generating/resizing a fixture')
+parser.add_argument('--video-fps',type=int,choices=(15,24,30,45,60,90,120),default=30)
+parser.add_argument('--video-scale',type=float,default=1.0)
 parser.add_argument('--gui-scale',type=int,default=3)
 parser.add_argument('--width',type=int,default=1280)
 parser.add_argument('--height',type=int,default=720)
@@ -174,7 +176,7 @@ if args.atlas:
         if atlas_config.exists():
             values=json.loads(atlas_config.read_text()); values['vanillaMode']=False
             atlas_config.write_text(json.dumps(values,indent=2))
-(config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':30,'audioEnabled':False,'audioVolume':0.1,'scale':1.0,'darkening':0 if args.clear_background else .15,'showVignette':not args.clear_background}))
+(config/'evatexbackgroundvideo.json').write_text(json.dumps({'videoPath':str(video),'fps':args.video_fps,'audioEnabled':False,'audioVolume':0.1,'scale':args.video_scale,'darkening':0 if args.clear_background else .15,'showVignette':not args.clear_background}))
 if args.extended_menus or args.reported_menus or args.home_menu:
     # A real summary-only save prevents vanilla auto-forwarding an empty list to world creation.
     # No world is entered/generated; all files live inside this isolated QA game directory.

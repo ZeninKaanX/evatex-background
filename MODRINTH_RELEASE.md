@@ -1,19 +1,16 @@
-## 1.8.22 — EVATEX on Discord
+## 1.8.23 — High-FPS playback and Fabric Loader compatibility
 
-- Show EVATEX Background automatically in Discord while Minecraft is in its menus, with the new detailed black-hole logo. No player application ID or token is required.
-- Open the EVATEX Modrinth page from the Discord activity. Disable activity sharing in EVATEX settings whenever you prefer.
-- Coordinate with Volt 0.7.1 or newer: EVATEX appears in menus, Volt appears while a world is loaded. Standalone EVATEX also supports activity while playing.
-- Run Discord communication in the background without blocking rendering.
+- Treat the video FPS preference as a ceiling. A 30/60 FPS source no longer generates 120 duplicate full RGBA frames per second when the ceiling is 120; native 120 FPS sources remain supported.
+- Use a bounded three-slot latest-frame handoff between the decoder and renderer. Pixel copies and GPU uploads no longer hold the decoder publication lock; superseded pending frames are recycled without a backlog.
+- Compile each Fabric adapter against its advertised minimum Loader. Older Minecraft releases no longer inherit the 1.21.8 Loader floor. Embedded resource modules and MixinExtras are still checked against each declared minimum.
+- Report effective video FPS and superseded frames in playback diagnostics.
+- Include the English 16:9 Echidna & Subaru showcase in project descriptions.
 
-Install one JAR for your exact Minecraft version and loader. Existing media and settings remain in the game directory. Discord desktop must be running and allow activity sharing. Other mods with their own Discord activities may need their activity sharing disabled.
-
-Validation: exact-version compilation and package checks; live Discord handoff and fullscreen gameplay/clip test on Minecraft 1.21.11 Fabric. Other loader/version packages have not all received an interactive game test. An intermittent Linux/Prism process termination reported with a full modpack remains under investigation; this release does not claim to fix it.
+Performance still depends on source resolution, codec, CPU, GPU and driver. This update does not claim zero rendering cost. Fabric 1.21.11 continues to require Loader 0.17.3+ because its bundled resource modules require it; requirements from other mods remain independent.
 
 ### Türkçe
 
-- Minecraft menülerindeyken Discord’da yeni detaylı karadelik logosuyla otomatik EVATEX etkinliği gösterilir; kullanıcıdan uygulama kimliği veya anahtar istenmez.
-- Discord etkinliğinden Modrinth sayfasına gidilebilir. Etkinlik paylaşımı EVATEX ayarlarından kapatılabilir.
-- Volt 0.7.1 ve üzeriyle menüde EVATEX, dünyadayken Volt gösterilir.
-- Discord işlemleri çizimi bekletmeden arka planda yürütülür.
-
-Tam mod paketiyle bildirilen aralıklı Linux/Prism kapanması araştırılıyor; bu sürüm bunun çözümünü içerdiğini iddia etmez.
+- FPS ayarı üst sınır olarak çalışır; 30/60 FPS videolar 120 kareye gereksiz yere çoğaltılmaz. Gerçek 120 FPS videolar desteklenir.
+- Video çözme ve çizim arasında sabit boyutlu üç tampon kullanılır; piksel kopyaları ve ekran kartına aktarma sırasında çözücü kilitlenmez.
+- Eski Minecraft sürümlerine gereksiz yeni Fabric Loader sınırı uygulanmaz. İç bağımlılıklar ve bildirilen alt sınır birlikte kontrol edilir.
+- Tanı raporunda gerçek video FPS değeri ve yerine daha yeni kare gelen görüntülerin sayısı yer alır.

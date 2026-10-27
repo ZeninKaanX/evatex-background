@@ -1,4 +1,4 @@
-# EVATEX-Background — Astral 1.8.22
+# EVATEX-Background — Astral 1.8.23
 
 Replace Minecraft's title screen, multiplayer server selection, world selection, resource packs and supported main-menu options backgrounds with a video, looping GIF or photo. Made by EverVerity.
 
@@ -34,7 +34,7 @@ In EVATEX settings → Menus, **In-game options background** is off by default. 
 
 Photos are decoded once; the decoder then exits while the texture remains visible. Animated GIFs loop at their source timing, sampled at the configured presentation frame rate. PNG/JPEG/BMP are treated as static photos; animated PNG/WebP are not advertised as supported.
 
-The production frame pipeline reuses a bounded pool and a persistent render staging buffer instead of allocating a full pixel array every frame. Windows transports decoded pixels over a buffered loopback TCP connection to avoid small anonymous-process-pipe buffers. Video and PCM uploads bind only to `127.0.0.1` on ephemeral ports. Each upload uses a fresh 256-bit secret in a bounded HTTP handshake; unauthorized or incomplete handshakes are rejected, and the listener closes after the authenticated connection. Decoder shutdown closes active streams. This prevents unauthenticated local clients from supplying frames; it is not protection against a process that can inspect the same user's process arguments or memory.
+The production frame pipeline reuses a bounded decoder pool and a three-slot latest-frame handoff instead of allocating a full pixel array every frame. Full pixel copies and GPU uploads do not hold the publication lock; superseded pending frames are recycled. The video FPS preference is a ceiling: a 30/60 FPS source is not duplicated to 120 FPS, while native 120 FPS sources remain supported. Windows transports decoded pixels over a buffered loopback TCP connection to avoid small anonymous-process-pipe buffers. Video and PCM uploads bind only to `127.0.0.1` on ephemeral ports. Each upload uses a fresh 256-bit secret in a bounded HTTP handshake; unauthorized or incomplete handshakes are rejected, and the listener closes after the authenticated connection. Decoder shutdown closes active streams. This prevents unauthenticated local clients from supplying frames; it is not protection against a process that can inspect the same user's process arguments or memory.
 
 EVATEX requests D3D11 hardware video decoding and GPU downscaling on Windows. Unsupported drivers/codecs fall back to hardware decoding without GPU scaling, then software decoding. Linux and macOS retain their existing decoder selection. Video size, frame-rate and audio settings are preserved.
 
@@ -64,13 +64,18 @@ Choose the JAR matching your exact Minecraft version. EVATEX's minimum Fabric Lo
 
 | Minecraft | Minimum Fabric Loader |
 | --- | --- |
-| 1.20–1.21.8 | 0.16.14 |
+| 1.20–1.21.1 | 0.15.11 |
+| 1.21.2 | 0.16.7 |
+| 1.21.3 | 0.16.8 |
+| 1.21.4 | 0.16.9 |
+| 1.21.5 | 0.16.10 |
+| 1.21.6–1.21.8 | 0.16.13 |
 | 1.21.9–1.21.10 | 0.17.0 |
 | 1.21.11 | 0.17.3 |
 | 26.1–26.2 | 0.18.4 |
 | 26.3 | 0.19.3 |
 
-Newer stable Loader versions are supported. Other installed mods may independently require a newer Loader. EVATEX cannot bypass those requirements. Remove older EVATEX JARs before installing the update.
+Use the matching Java runtime below when testing these older Loader minimums; a newer Java major may require a newer Loader/ASM version. Newer compatible stable Loader versions are supported. Other installed mods may independently require a newer Loader. EVATEX cannot bypass those requirements. Remove older EVATEX JARs before installing the update.
 
 Minecraft also requires the matching Java runtime:
 

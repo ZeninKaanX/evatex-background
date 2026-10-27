@@ -63,3 +63,15 @@ subprocess.run([sys.executable,str(ROOT/'scripts/test_config.py'),'--minecraft',
 
 subprocess.run([javac,"-proc:none","-cp",classpath,"-d",str(work),str(ROOT/"tests/DiscordPresenceRegression.java")],check=True)
 subprocess.run([java,"-cp",str(work)+os.pathsep+classpath,"com.videomenu.DiscordPresenceRegression"],check=True)
+
+# High display/video ceilings must retain native cadence without duplicate full RGBA frames.
+fixtures=[]
+for rate in ('30','60','120','30000/1001'):
+    clip=work/('fps-'+rate.replace('/','-')+'.mp4')
+    subprocess.run(['ffmpeg','-v','error','-y','-f','lavfi','-i','testsrc2=size=160x90:rate='+rate,'-t','2','-c:v','libx264','-threads','1','-pix_fmt','yuv420p',str(clip)],check=True)
+    fixtures.extend([str(clip),str(30000/1001 if '/' in rate else float(rate))])
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/HighFpsRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'HighFpsRegression',*fixtures],check=True)
+
+subprocess.run([javac,'-proc:none','-cp',classpath,'-d',str(work),str(ROOT/'tests/FrameMailboxRegression.java')],check=True)
+subprocess.run([java,'-cp',str(work)+os.pathsep+classpath,'com.videomenu.video.FrameMailboxRegression'],check=True)
