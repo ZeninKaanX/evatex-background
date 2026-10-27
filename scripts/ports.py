@@ -152,7 +152,7 @@ def sources(root,version):
                     content=content.replace('method="render"','method="extractRenderState"').replace('renderWithTooltipAndSubtitles','extractRenderStateWithTooltipAndSubtitles')
                 if file.name in ('AstralNativeButtonMixin.java','AstralNativeSliderMixin.java'):content=content.replace('renderWidget','extractWidgetRenderState')
                 if file.name in ('AstralVolumeSlider.java','EvatexRecoveryScreen.java'):content=content.replace('renderWidget','extractWidgetRenderState')
-                if file.name in ('VideoSelectScreen.java','BackgroundLibraryScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java','EvatexRecoveryScreen.java'):
+                if file.name in ('VideoSelectScreen.java','VideoEngineScreen.java','BackgroundLibraryScreen.java','TitleScreenMixin.java','EvatexTitleScreen.java','EvatexRecoveryScreen.java'):
                     content=content.replace('public void render(', 'public void extractRenderState(').replace('super.render(', 'super.extractRenderState(').replace('method = "render"','method = "extractRenderState"').replace(';render(', ';extractRenderState(')
                 if version in ('26.2','26.3'):
                     content=content.replace('method = "destroy"','method = "close"')
