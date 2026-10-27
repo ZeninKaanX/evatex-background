@@ -1,0 +1,10 @@
+{
+  "installed_file": "/home/eververity/.var/app/org.prismlauncher.PrismLauncher/data/PrismLauncher/instances/1.21.11/minecraft/mods/evatex-background-video-1.8.22-mc1.21.11.jar",
+  "previous_sha256": "46fb64f2bb21363d53fab52d6218db8cdf83b70ccf1917224305fd66f84de73b",
+  "installed_sha256": "972fe0b0e5358c193e123c8533eee25656e48e61bd132d9c71017892378101cf",
+  "backup": "/home/eververity/Desktop/Evatex/evatex-discord/build/user-backups/20261025-175804-discord-ipc-fix",
+  "minecraft_was_not_running": true,
+  "desktop_windows_changed": false,
+  "game_launched": false,
+  "release_published": false
+}

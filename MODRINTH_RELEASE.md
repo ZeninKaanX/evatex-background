@@ -1,16 +1,19 @@
-## 1.8.21 — Wallpaper settings wherever you play
+## 1.8.22 — EVATEX on Discord
 
-- Open **Wallpaper settings** directly from Minecraft's **Options** screen, including while a world is loaded. Access stays available when in-game wallpapers are disabled.
-- Place the shortcut around existing controls, retain keyboard navigation, and preserve the optional Astral options layout. Return to the same Options screen with Back.
-- Preserve the parent menu's pause behavior in wallpaper settings and My Library. The in-game wallpaper option stays off by default; ordinary gameplay does not decode a wallpaper.
-- Ignore malformed, non-string and duplicate favorite entries while keeping valid playback preferences.
-- Retain 1.8.20's session recovery, menu audio/video pause and per-Minecraft Fabric Loader compatibility.
+- Show EVATEX Background automatically in Discord while Minecraft is in its menus, with the new detailed black-hole logo. No player application ID or token is required.
+- Open the EVATEX Modrinth page from the Discord activity. Disable activity sharing in EVATEX settings whenever you prefer.
+- Coordinate with Volt 0.7.1 or newer: EVATEX appears in menus, Volt appears while a world is loaded. Standalone EVATEX also supports activity while playing.
+- Run Discord communication in the background without blocking rendering.
 
-Install one JAR for your exact Minecraft version and loader. External media and existing settings remain in the game directory.
+Install one JAR for your exact Minecraft version and loader. Existing media and settings remain in the game directory. Discord desktop must be running and allow activity sharing. Other mods with their own Discord activities may need their activity sharing disabled.
+
+Validation: exact-version compilation and package checks; live Discord handoff and fullscreen gameplay/clip test on Minecraft 1.21.11 Fabric. Other loader/version packages have not all received an interactive game test. An intermittent Linux/Prism process termination reported with a full modpack remains under investigation; this release does not claim to fix it.
 
 ### Türkçe
 
-- Dünya açıkken de Minecraft **Ayarlar** ekranından **Duvar kağıdı ayarları**na girin. Oyun içi wallpaper kapalıyken de bu kısayol kullanılabilir.
-- Kısayol mevcut düğmelerin boş alanına yerleşir; Astral düzeni ve klavye kullanımı korunur. Geri ile aynı ayarlar ekranına dönülür.
-- Wallpaper ayarları ve Kütüphanem, açıldıkları menünün oyunu duraklatma davranışını korur. Oyun içi wallpaper varsayılan olarak kapalıdır.
-- Geçersiz ve tekrarlanan favoriler temizlenir; geçerli oynatma tercihleri korunur.
+- Minecraft menülerindeyken Discord’da yeni detaylı karadelik logosuyla otomatik EVATEX etkinliği gösterilir; kullanıcıdan uygulama kimliği veya anahtar istenmez.
+- Discord etkinliğinden Modrinth sayfasına gidilebilir. Etkinlik paylaşımı EVATEX ayarlarından kapatılabilir.
+- Volt 0.7.1 ve üzeriyle menüde EVATEX, dünyadayken Volt gösterilir.
+- Discord işlemleri çizimi bekletmeden arka planda yürütülür.
+
+Tam mod paketiyle bildirilen aralıklı Linux/Prism kapanması araştırılıyor; bu sürüm bunun çözümünü içerdiğini iddia etmez.

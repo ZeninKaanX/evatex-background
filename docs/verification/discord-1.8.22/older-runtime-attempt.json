@@ -1,0 +1,11 @@
+{
+  "minecraft": "1.20.1",
+  "status": "incomplete-timeout",
+  "version_volt": "0.7.1-alpha.1",
+  "version_evatex": "1.8.22",
+  "loader": "0.16.14",
+  "fullscreen": true,
+  "reason": "The isolated client reached the world after cold startup under concurrent compatibility builds but did not finish the recording scenario within its 240-second deadline.",
+  "log": "/home/eververity/Documents/Codex/2026-10-22-seninle-minecraft-i-in-yeni-bir/run/native/1.20.1/native-session.log",
+  "counts_as_pass": false
+}

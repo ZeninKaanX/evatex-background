@@ -21,7 +21,16 @@ public final class DiscordPresenceRegression {
         byte[] bytes=value.getBytes(StandardCharsets.UTF_8);ByteBuffer b=ByteBuffer.allocate(8+bytes.length).order(ByteOrder.LITTLE_ENDIAN).putInt(op).putInt(bytes.length).put(bytes);b.flip();while(b.hasRemaining())c.write(b);
     }
     public static void main(String[] args)throws Exception{
-        Path folder=Files.createTempDirectory("evatex-rpc-");Path socket=folder.resolve("ipc");String id="123456789012345678";
+        var roots=EvatexDiscordPresence.socketRoots(java.util.Map.of("XDG_RUNTIME_DIR","/run/user/1000","TMPDIR","","TMP","/tmp"));
+        check(roots.contains("/run/user/1000/.flatpak/com.discordapp.Discord/xdg-run"),"Private Flatpak socket discovery");
+        check(roots.contains("/run/user/1000/app/com.discordapp.Discord"),"Exported Flatpak socket discovery");
+        check(roots.contains("/run/user/1000/.flatpak/dev.vencord.Vesktop/xdg-run"),"Vesktop socket discovery");
+        check(!roots.contains(""),"Empty environment path must not search working directory");
+        check(EvatexDiscordPresence.socketRoots(java.util.Map.of()).equals(java.util.Set.of("/tmp")),"No runtime fallback");
+        boolean discover=java.util.Arrays.asList(args).contains("--flatpak-discovery");
+        Path folder=discover?Path.of(System.getenv("XDG_RUNTIME_DIR"),".flatpak/com.discordapp.Discord/xdg-run"):Files.createTempDirectory("evatex-rpc-");
+        Files.createDirectories(folder);
+        Path socket=folder.resolve(discover?"discord-ipc-0":"ipc");String id="123456789012345678";
         var first=new CompletableFuture<Void>();var yielded=new CompletableFuture<Void>();var resumed=new CompletableFuture<Void>();var off=new CompletableFuture<Void>();
         try(ServerSocketChannel server=ServerSocketChannel.open(StandardProtocolFamily.UNIX)){
             server.bind(UnixDomainSocketAddress.of(socket));
@@ -44,7 +53,7 @@ public final class DiscordPresenceRegression {
                     }
                 }catch(Throwable e){for(var f:java.util.List.of(first,yielded,resumed,off))f.completeExceptionally(e);}
             },"EVATEX-test-peer");peer.setDaemon(true);peer.start();
-            try(EvatexDiscordPresence presence=new EvatexDiscordPresence(id,socket)){
+            try(EvatexDiscordPresence presence=new EvatexDiscordPresence(id,discover?null:socket)){
                 first.get(8,TimeUnit.SECONDS);
                 var volt=new DiscordActivityCoordinator("volt");volt.eligible(true);
                 yielded.get(8,TimeUnit.SECONDS);

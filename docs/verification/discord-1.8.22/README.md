@@ -28,3 +28,39 @@ Windows and macOS runtime behavior is not verified by Linux tests. Discord activ
 The installed Atlas Client 3.0.3 has its own independent Discord publisher and its activity setting is enabled. Its publisher does not participate in this two-mod coordinator. For the requested exclusive Volt/EVATEX activity on the user’s profile, disable only Atlas’s `mod.general.name` → `setting.discord.enabled` setting, with the original config backed up. Do not change its other settings or RTC/friend-presence options.
 
 Two earlier 1.21.11 attempts were killed with SIGKILL and generated no Java crash report; they are not counted as passes. The final run completed after stopping concurrent builds and adding a PID-scoped secondary-window test guard; these observations do not establish the cause of the earlier kills. The test harness intentionally closes the successful client at the end.
+
+## 2026-10-25: Flatpak export repair
+
+The live desktop had a working Discord socket under
+`$XDG_RUNTIME_DIR/.flatpak/com.discordapp.Discord/xdg-run/discord-ipc-0`,
+but no exported socket under `app/com.discordapp.Discord`. The running Prism
+sandbox's standard `discord-ipc-0` symlink consequently pointed to a missing
+export. Both EVATEX and Volt were enabled in their existing configurations;
+Atlas activity remained disabled. No Minecraft JVM was running at inspection.
+
+- Both EVATEX source trees now search the bounded private Flatpak socket locations
+  as well as standard exports. No permissions are bypassed or changed.
+- The Java 17-targeted IPC regression passed with the explicit test socket and
+  with automatic discovery of a private Flatpak-style socket. Both exercise
+  publisher handshake, acknowledgement, ping/pong, handoff, restoration and cleanup.
+- A small user service restores Discord's standard local IPC export with socat
+  when it is missing. It never replaces another export; the helper source is in
+  `tooling/linux-discord-bridge/bridge.py`. The same export is used by Discord's
+  [official Flatpak launcher](https://github.com/flathub/com.discordapp.Discord/blob/master/discord.sh).
+- The existing Prism sandbox reached the repaired export and the real Discord
+  client returned READY for publisher application `1563256751623508028`.
+  This is a real connection check, not another account's visual profile check.
+- Full Fabric 1.21.11 build and Discord package checks passed. The rebuilt JAR
+  was installed only after checking no Minecraft JVM was active; the previous
+  installed JAR was backed up. Installation and handshake receipts are alongside
+  this note. Neither Minecraft nor Discord was launched/restarted; no window,
+  audio, activity preference or Flatpak permission was changed.
+- This fix is installed locally, not published. The existing release validation
+  and approval gate remains in force. In-world Volt priority is intentional.
+
+The local helper is `%h/.local/lib/evatex/discord-ipc-bridge.py`; its unit is
+`%h/.config/systemd/user/evatex-discord-ipc-bridge.service`. To remove only this
+helper, run `systemctl --user disable --now evatex-discord-ipc-bridge.service`
+and remove those two files, then `systemctl --user daemon-reload`. Do not remove
+Discord's or Prism's own IPC paths. The helper needs only socat and Python's
+standard library; it handles no account tokens and performs no network requests.

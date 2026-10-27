@@ -1,0 +1,35 @@
+{
+  "backup": "/home/eververity/Documents/Codex/2026-10-22-seninle-minecraft-i-in-yeni-bir/build/user-backups/20261023-220648-discord",
+  "installed": [
+    {
+      "file": "volt-0.7.1-alpha.1.jar",
+      "sha256": "199b0958d124564a71dee442aa531ce92c2d99ce3fb9a9effe82b597a193851b"
+    },
+    {
+      "file": "evatex-background-video-1.8.22-mc1.21.11.jar",
+      "sha256": "46fb64f2bb21363d53fab52d6218db8cdf83b70ccf1917224305fd66f84de73b"
+    }
+  ],
+  "replaced": [
+    {
+      "file": "evatex-background-video-1.8.21-mc1.21.11(1).jar",
+      "sha256": "b469db10fe22bcdf2a53375bef88002c09b8e7bbd381aeb5d69535e0ebbd9dc9"
+    },
+    {
+      "file": "volt-0.7.0-alpha.1.jar",
+      "sha256": "b5a1a33209f86ecab2bf2baf96955f18a4feb8b538be83c6c47d90d003978bc7"
+    }
+  ],
+  "config_changes": [
+    {
+      "file": "config/atlasclient.json",
+      "setting": [
+        "mod.general.name",
+        "setting.discord.enabled"
+      ],
+      "before": true,
+      "after": false,
+      "reason": "Keep Atlas activity from overriding requested exclusive Volt/EVATEX activity; matched isolated runtime test"
+    }
+  ]
+}

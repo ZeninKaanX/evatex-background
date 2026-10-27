@@ -69,6 +69,25 @@ public final class EvatexDiscordPresence implements AutoCloseable {
             }
         } catch (Exception e) { disconnect();coordinator.release();nextConnectAt=System.nanoTime()+5_000_000_000L; status = "evatex.discord.unavailable"; }
     }
+    /** Include private Flatpak runtime sockets when its exported relay is absent.
+     * Permission boundaries stay intact: inaccessible paths simply fail to connect. */
+    static Set<String> socketRoots(Map<String,String> environment) {
+        Set<String> roots = new LinkedHashSet<>();
+        for (String key : List.of("XDG_RUNTIME_DIR", "TMPDIR", "TMP", "TEMP")) {
+            String value=environment.get(key);
+            if(value!=null&&!value.isBlank())roots.add(value);
+        }
+        roots.add("/tmp");
+        String runtime=environment.get("XDG_RUNTIME_DIR");
+        if(runtime!=null&&!runtime.isBlank()) {
+            for(String app:List.of("com.discordapp.Discord","com.discordapp.DiscordCanary",
+                    "com.discordapp.DiscordPTB","dev.vencord.Vesktop")) {
+                roots.add(runtime+"/app/"+app);
+                roots.add(runtime+"/.flatpak/"+app+"/xdg-run");
+            }
+        }
+        return roots;
+    }
     private void connect() throws IOException {
         if (socketOverride != null) {
             SocketChannel channel = SocketChannel.open(StandardProtocolFamily.UNIX);
@@ -85,11 +104,7 @@ public final class EvatexDiscordPresence implements AutoCloseable {
                 } catch (FileNotFoundException ignored) { }
             }
         } else {
-            Set<String> roots = new LinkedHashSet<>();
-            for (String key : List.of("XDG_RUNTIME_DIR", "TMPDIR", "TMP", "TEMP")) if (System.getenv(key) != null) roots.add(System.getenv(key));
-            roots.add("/tmp");
-            String runtime = System.getenv("XDG_RUNTIME_DIR");
-            if (runtime != null) { roots.add(runtime + "/app/com.discordapp.Discord"); roots.add(runtime + "/app/com.discordapp.DiscordCanary"); }
+            Set<String> roots = socketRoots(System.getenv());
             outer: for (String root : roots) for (int i = 0; i < 10; i++) {
                 SocketChannel channel = SocketChannel.open(StandardProtocolFamily.UNIX);
                 try {

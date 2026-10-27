@@ -1,0 +1,11 @@
+{
+  "root_cause": "Discord private runtime socket alive; standard Flatpak exported relay absent",
+  "existing_prism_sandbox_socket_reachable": true,
+  "publisher_application_id": "1563256751623508028",
+  "handshake_event": "READY",
+  "game_launched": false,
+  "desktop_windows_changed": false,
+  "discord_restarted": false,
+  "flatpak_permissions_changed": false,
+  "user_service": "evatex-discord-ipc-bridge.service"
+}

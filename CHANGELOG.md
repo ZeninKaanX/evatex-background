@@ -6,6 +6,7 @@
 - Link the EVATEX activity image/details and View on Modrinth button to the project page.
 - Use the approved detailed black-hole icon for the mod and Discord application.
 - Keep IPC and reconnect work in daemon background workers; clear activity before handing it to the other mod or shutting down.
+- Discover private Flatpak Discord/Canary/PTB and Vesktop IPC sockets when the client export is missing; ignore blank runtime paths.
 
 Compatibility builds and validation are in progress. Release publication waits for the user's Minecraft 1.21.11 test and approval.
 
