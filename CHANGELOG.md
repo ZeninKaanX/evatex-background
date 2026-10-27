@@ -13,7 +13,7 @@ Validation: isolated native Win32 pipe regression covers fragmented READY packet
 - Etkinliği kapatma ve yeniden bağlanma davranışı gerçek Windows named pipe testiyle kontrol edilir.
 - 1.8.23 içindeki FPS ve Fabric Loader düzeltmeleri korunur.
 
-# 1.8.22 — Discord activity and black-hole identity (pending user validation)
+# 1.8.22 — Discord activity and black-hole identity
 
 - Show EVATEX Background in desktop Discord automatically using the publisher application. Players never enter an application ID, user ID or token.
 - Add a Discord activity toggle in the Menus settings and retain the choice across updates.
@@ -23,7 +23,7 @@ Validation: isolated native Win32 pipe regression covers fragmented READY packet
 - Keep IPC and reconnect work in daemon background workers; clear activity before handing it to the other mod or shutting down.
 - Discover private Flatpak Discord/Canary/PTB and Vesktop IPC sockets when the client export is missing; ignore blank runtime paths.
 
-Compatibility builds and validation are in progress. Release publication waits for the user's Minecraft 1.21.11 test and approval.
+Initial Linux Discord activity changes; subsequent transport validation and Windows fixes are recorded under 1.8.24.
 
 ## 1.8.23 — High-FPS playback and Fabric Loader compatibility
 
